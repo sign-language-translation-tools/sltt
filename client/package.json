@@ -10,6 +10,7 @@
     "cot": "^0.0.7",
     "cot-lib": "^5.1.0",
     "couchdb-promises": "^3.0.0",
+    "cryptiles": "^4.1.2",
     "draft-js": "^0.10.5",
     "fbemitter": "^2.1.1",
     "font-awesome": "^4.7.0",
