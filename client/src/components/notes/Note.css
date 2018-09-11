@@ -1,0 +1,90 @@
+
+.note-bar { border: 1px solid #BBB; }
+
+.note-padleft { padding-left: 15px }
+
+.note-container { padding-left: 0px }
+
+.note-deletesegment { color: red; font-size: 12pt; }
+
+.note-container { display: flex; }
+
+.note-fixedpane1 { width: 670px; }
+
+.note-fixedpane2 { width: 230px; }
+
+.note-flexiblepane { flex-grow: 1; }
+
+.note-toolbar { margin-bottom: 10px }
+
+.note-modal-dialog { width: 970px; }
+
+.note-display-none { display: none; }
+
+.note-display { 
+  height: 420px;
+  overflow: auto; 
+}
+
+.note-play-cell {
+  padding-top: 15px;
+  vertical-align: top;
+  width: 160px;
+}
+
+.note-content-cell {
+  padding-top: 15px;
+  width: 450px;
+}
+
+.note-play-link {
+  padding-right: 15px;
+}
+
+.note-video {
+  vertical-align: top;
+  padding-bottom: 15px;
+}
+
+.note-delete-button {
+  vertical-align: bottom;
+  margin-bottom: 15px;
+  margin-left: 15px;
+  font-size: 30px !important;
+  color: rgba(255, 0, 0, 0.577) !important;
+}
+
+.note-record-control {
+  text-align: center;
+}
+
+.note-message {
+  color: lightgrey;
+  padding-top: 5px;
+}
+
+.note-record-button {
+  display: inline-block;
+  padding-top: 5px;
+  text-align: center;
+  width: 100px;
+}
+
+.note-record-button-video{
+  margin-left: 3px;
+}
+
+.note-record-button-write {
+  margin-left: 5px;
+}
+
+.note-text-editor {
+  height: 230px;
+}
+
+.note-text-editor-editor {
+  height: 200px;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 5px;
+}

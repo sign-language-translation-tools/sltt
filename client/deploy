@@ -1,0 +1,3 @@
+set -x
+yarn build
+scp -rp build sl:sltt_build

@@ -1,0 +1,85 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Can load passages from DB 1`] = `
+Object {
+  "portions": Array [
+    Object {
+      "_id": "#item/Matthew/portion",
+      "name": "Matthew",
+      "passages": Array [
+        Object {
+          "_id": "#item/Matthew/Mat 1.1-5/passage",
+          "name": "Mat 1.1-5",
+          "notes": Array [
+            Object {
+              "noteCreated": "2018-02-01 00.00.00",
+              "position": 1,
+              "resolved": true,
+              "segments": Array [
+                Object {
+                  "_id": "Matthew/Mat 1.1-5/2018-01-01 00.00.00 2018-02-01 00.00.00 2018-03-01 00.00.00.webm/notesegment",
+                  "duration": 33,
+                  "noteCreated": "2018-02-01 00.00.00",
+                  "position": 1,
+                  "segmentCreated": "2018-03-01 00.00.00",
+                  "signedUrl": "",
+                  "text": "",
+                  "url": "https://blah3.com/blah.webm",
+                  "username": "milesnlwork@gmail.com",
+                  "videoCreated": "2018-01-01 00.00.00",
+                },
+              ],
+              "videoCreated": "2018-01-01 00.00.00",
+            },
+          ],
+          "rank": 100,
+          "statuses": Array [
+            Object {
+              "status": 2,
+              "statusCreated": "2018-03-15 00.00.00",
+              "videoCreated": "2018-01-01 00.00.00",
+            },
+            Object {
+              "status": 3,
+              "statusCreated": "2018-03-15 00.00.00",
+              "videoCreated": "2018-01-02 00.00.00",
+            },
+            Object {
+              "status": 4,
+              "statusCreated": "2018-03-15 00.00.00",
+              "videoCreated": "2018-01-02 00.00.00",
+            },
+          ],
+          "videos": Array [
+            Object {
+              "_id": "Matthew/Mat 1.1-5/2018-01-01 00.00.00.webm/video",
+              "duration": 33,
+              "signedUrl": "",
+              "url": "Matthew/Mat 1.6-8/2018-01-01 00.00.00.webm",
+              "username": "milesnlwork@gmail.com",
+              "videoCreated": "2018-01-01 00.00.00",
+            },
+            Object {
+              "_id": "Matthew/Mat 1.1-5/2018-01-02 00.00.00.webm/video",
+              "duration": 40,
+              "signedUrl": "",
+              "url": "Matthew/Mat 1.6-8/2018-01-02 00.00.00.webm",
+              "username": "milesnlwork@gmail.com",
+              "videoCreated": "2018-01-02 00.00.00",
+            },
+          ],
+        },
+        Object {
+          "_id": "#item/Matthew/Mat 1.6-8/passage",
+          "name": "Mat 1.6-8",
+          "notes": Array [],
+          "rank": 200,
+          "statuses": Array [],
+          "videos": Array [],
+        },
+      ],
+      "rank": 100,
+    },
+  ],
+}
+`;

@@ -1,0 +1,116 @@
+.portion-selector {
+  margin-top: 4px;
+  margin-bottom: 10px;
+  font-size: 112%;
+  background-color: white;
+}
+
+.passage-list-item {
+  margin-bottom: 12px;
+}
+
+.passage-error-message {
+  color: red;
+}
+
+.passage-info-text {
+  margin-top: 5px;
+  color: grey;
+}
+
+.passage-box {
+  display: inline-block;
+  margin-top: 5px;
+}
+
+.passage-active-droptarget {
+  /* background-color: lightblue; */
+  /* font-size: 150%; */
+  /* padding: 10px; */
+  border-color: rgb(173, 182, 230);
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 5px;
+}
+
+.passage-handle {
+  font-size: 90%;
+  padding-right: 7px;
+  opacity: 0;
+  color: lightgrey;
+}
+
+.passage-handle:hover {
+  color: #337ab7;
+}
+
+.passage:hover .passage-handle {
+  opacity: 1; 
+  transition-delay: 1s;
+  transition-duration: .5s;
+}
+
+.passage-menu { 
+  display: inline-block;
+  opacity: 0; 
+  margin-left: 2px;
+}
+
+.passage:hover .passage-menu { 
+  opacity: 1; 
+  transition-delay: 1s;
+  transition-duration: .5s;
+}
+
+.btn.passage-button:focus {
+  outline: 1px solid transparent; /* prevent boostrap from giving this an outline when focused */
+}
+
+.btn.passage-button {
+  font-size: 100%;
+  color: #337ab7 !important;
+}
+
+.btn.passage-video-present {
+  font-size: 112%;
+  font-weight: bold;
+}  
+
+.btn.passage-selected {
+  background-color: rgb(220, 231, 235);
+}
+
+.passage-menu-button {
+  margin-left: 2px;
+  color: lightgrey;
+  font-size: 120%;
+}
+
+.passage-menu-button:hover {
+  color: #337ab7;
+}
+
+.passage-add-button {
+  margin-left: 26px;
+  color: lightgrey;
+  font-size: 130%;
+}
+
+.passage-add-button:hover {
+  color: #337ab7;
+  font-size: 200%;
+}
+
+.passages:hover .passage-add-button {
+  opacity: 1; 
+  transition-delay: .5s;
+  transition-duration: .5s;  
+}
+
+.passage-show-commands {
+  color: lightgrey;
+}
+
+.passage-show-commands:hover {
+  color: #337ab7;
+}

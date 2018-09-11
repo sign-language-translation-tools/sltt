@@ -1,0 +1,148 @@
+.video-main {
+  border: 1px solid lightgrey;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin-top: 5px;
+  margin-left: 5px;
+}
+
+.video-message {
+  margin-top: 20px;  
+}
+
+/*
+.video-area {
+  border: 1px solid lightgrey;
+}
+*/
+
+.video-player {
+  display: flex;
+  width: 100%;
+  height: 360px;
+}
+
+.video-player-video {
+  flex-grow: 1;
+}
+
+.video-player-video-video {
+  object-fit: contain;
+  height: 100%;
+  width: 100%;
+}
+
+.video-player-slider {
+  margin-left: 5px;
+  height: 150px;
+  align-self: center;
+}
+
+.video-rate-input-slider {
+  height: 150px;
+  width: 17px;
+}
+
+.u-slider .value {
+  background-color: #dddddd !important;
+}
+
+.u-slider-y {
+  width: 13px !important;
+}
+
+.u-slider-y .handle:after {
+  width: 17px !important;
+  height: 17px !important;
+}
+
+[slidertooltip]{
+  position:relative;
+}
+
+[slidertooltip]::after {
+    opacity: 0;
+    content: attr(slidertooltip);
+    position: absolute;
+    left: 50%;
+    top: -6px;
+    transform: translateX(-50%)   translateY(-100%);
+    background: #2e8ece;
+    text-align: center;
+    color: #fff;
+    padding:4px 2px;
+    font-size: 12px;
+    min-width: 80px;
+    border-radius: 5px;
+    pointer-events: none;
+}
+
+[slidertooltip]:hover::after,[slidertooltip]:hover::before {
+   opacity: 1;
+}
+
+[slidertooltip]::before {
+    opacity:0;
+    content: "";
+    position: absolute;
+    top:-6px;
+    left:50%;
+    transform: translateX(-50%);
+    border-width: 4px 6px 0 6px;
+    border-style: solid;
+    border-color: rgba(0,0,0,0.7) transparent transparent     transparent;
+    z-index: 100;
+}
+
+
+.video-toolbar {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.video-positionbar {
+  border:1px solid lightgrey;
+}
+
+.passage-status {
+    font-size: 8pt;
+    font-family: "FontAwesome";
+}
+
+.passage-status-selector {
+  display: inline-block;
+  background-image: none;
+  border-radius: 0px;
+  margin-top: 17px;
+  margin-right: 1px;
+  float: right;
+}
+
+.passage-video-selector {
+  display: inline-block;
+  background-image: none;
+  border-radius: 0px;
+  margin-top: 17px;
+  margin-right: 1px;
+  float: right;
+}
+
+.passage-status-selector-2 { 
+    font-size: 8pt;
+    height: 30px;
+    font-family: "FontAwesome";
+    padding: 5px;
+    background-image: none;
+}
+
+.passage-status-selector-3 { 
+    font-size: 16pt;
+}
+
+.passage-video-selector-2 { 
+    height: 30px;
+    font-size: 10pt;
+    margin-right: 5px;
+    padding: 5px;
+    background-image: none;
+}

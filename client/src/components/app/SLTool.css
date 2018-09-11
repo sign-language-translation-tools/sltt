@@ -1,0 +1,37 @@
+.App {
+  text-align: center;
+}
+
+.app-selector-div {
+  margin-top: 4px;
+}
+
+.app-accountsUI {
+  margin-top: 9px;
+  margin-left: 17px;
+}
+
+.app-selector-icon {
+  margin-right: 15px;
+}
+
+.app-portion { 
+  margin-top: 2px; 
+  margin-left: 17px;
+}
+
+.app-project { margin-top: 15px; }
+
+.app-navbar-bottom-margin { margin-bottom: 10px; }
+
+.app-database {
+  display: flex;
+}
+
+.app-database-list {
+  width: 500px;
+}
+
+.app-database-details {
+  width: 700px;
+}

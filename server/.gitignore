@@ -1,0 +1,14 @@
+_replicator/
+_users/
+LSMtest/
+ASLVtest/
+node_modules/
+pouch__*/
+videos/
+yarn*
+*.code-workspace
+log.txt
+_test*
+initializeTestProjects/
+projects/
+.DS_Store

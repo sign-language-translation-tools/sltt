@@ -1,0 +1,71 @@
+
+.portion-box {
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+.portion-name {
+  border-radius: 5px;
+  border-color: lightblue;
+  border-width: 1px;
+  border-style: solid;
+  display: inline-block;
+  height: 28px;
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 2px;
+}
+
+.portion-menu { 
+  display: inline-block;
+  opacity: 0; 
+  margin-left: 5px;
+}
+
+.portion-box:hover .portion-menu { 
+  opacity: 1; 
+  transition-delay: .5s;
+  transition-duration: .5s;
+}
+
+.portion-button {
+  margin-left: 5px;
+  color: #337ab7;
+  font-size: 120%;
+}
+
+.portion-add-button {
+  color: lightgrey;
+  font-size: 170%;
+  margin-left: 16px;
+  margin-top: -2px;
+}
+
+.portion-add-button:hover {
+  color: #337ab7;
+  font-size: 250%;
+}
+
+.portion-handle {
+  color: lightgrey;
+  opacity: 0;
+  padding-right: 6px;
+}
+
+.portion-item:hover .portion-handle {
+  opacity: 1; 
+  transition-delay: .5s;
+  transition-duration: .5s;
+}
+
+.portion-handle:hover {
+  color: #337ab7;
+}
+
+.portion-show-commands {
+  color: lightgrey;
+}
+
+.portion-show-commands:hover {
+  color: #337ab7;
+}

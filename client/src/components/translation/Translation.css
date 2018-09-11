@@ -1,0 +1,14 @@
+.translation-top-container {
+  display: flex;
+  width: 100%;
+}
+
+.translation-fixedpane {
+  width: 180px;
+  overflow-y: auto;
+}
+
+.translation-flexiblepane {
+  flex-grow: 1;
+}
+

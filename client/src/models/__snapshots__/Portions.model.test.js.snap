@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Can load passages from DB 1`] = `
+Object {
+  "portions": Array [
+    Object {
+      "_id": "#item/Mark/portion",
+      "name": "Mark",
+      "passages": Array [
+        Object {
+          "_id": "#item/Mark/Mark 1.4-6/passage",
+          "name": "Mark 1.4-6",
+          "notes": Array [],
+          "rank": 150,
+          "statuses": Array [],
+          "videos": Array [],
+        },
+        Object {
+          "_id": "#item/Mark/Mark 1.7-9/passage",
+          "name": "Mark 1.7-9",
+          "notes": Array [],
+          "rank": 200,
+          "statuses": Array [],
+          "videos": Array [],
+        },
+      ],
+      "rank": 150,
+    },
+    Object {
+      "_id": "#item/Luke/portion",
+      "name": "Luke",
+      "passages": Array [],
+      "rank": 200,
+    },
+  ],
+}
+`;

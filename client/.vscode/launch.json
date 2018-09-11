@@ -1,0 +1,121 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Chrome",
+            "env": {
+                "SLTT_HOSTNAME": "sl.paratext.org",
+                "SLTT_PORTNUM": "4000",
+                "SLTT_PROTOCOL": "https"
+            },
+            "url": "http://localhost:3000/",
+            "webRoot": "${workspaceFolder}/src"
+        },
+
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "FOCUS",
+            "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
+            "cwd": "${workspaceRoot}",
+            "args": [
+                "--runInBand",
+                "NoteDialog.test.jsx"
+            ],
+            "runtimeArgs": [
+                "--nolazy"
+            ],
+            "env": {
+                "NODE_ENV": "development"
+            },
+            "envFile": "${workspaceFolder}/../slEnvFile",
+            "sourceMaps": true
+        },
+
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Jest Models",
+            "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
+            "cwd": "${workspaceRoot}",
+            "args": [
+                "--runInBand",
+                "--verbose",
+                "${workspaceRoot}/src/models"
+            ],
+            "runtimeArgs": [
+                "--nolazy"
+            ],
+            "env": {
+                "NODE_ENV": "development"
+            },
+            "envFile": "${workspaceRoot}/../slEnvFile",
+            "sourceMaps": true
+        },
+
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Jest Run Current",
+            "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
+            "cwd": "${workspaceRoot}",
+            "args": [
+                "--runInBand",
+                "--verbose",
+                "${fileBasename}"
+            ],
+            "runtimeArgs": [
+                "--nolazy"
+            ],
+            "env": {
+                "NODE_ENV": "development"
+            },
+            "envFile": "${workspaceFolder}/../slEnvFile",
+            "sourceMaps": true
+        },
+
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Jest Update Current",
+            "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
+            "cwd": "${workspaceRoot}",
+            "args": [
+                "--runInBand",
+                "-u",
+                "${fileBasename}"
+            ],
+            "runtimeArgs": [
+                "--nolazy"
+            ],
+            "env": { "NODE_ENV": "development" },
+            "envFile": "${workspaceFolder}/../slEnvFile",
+            "sourceMaps": true
+        },
+        
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Jest All",
+            "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
+            "cwd": "${workspaceRoot}",
+            "args": [
+                "--runInBand",
+            ],
+            "runtimeArgs": [
+                "--nolazy"
+            ],
+            "env": {
+                "NODE_ENV": "development"
+            },
+            "envFile": "${workspaceFolder}/../slEnvFile",
+            "sourceMaps": true
+        }
+    ]
+}

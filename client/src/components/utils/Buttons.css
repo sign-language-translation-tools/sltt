@@ -1,0 +1,70 @@
+.sl-fa-button { 
+    font-size: 3em;
+    font-family: "FontAwesome";
+    padding: 5px;
+}
+
+.sl-button-disabled {
+    color: lightgrey !important;
+}
+
+.sl-image-button-disabled {
+    filter: opacity(.2);
+}
+
+.sl-stop-button {
+    cursor: pointer;
+    vertical-align: baseline;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+}
+
+.sl-play-button {
+    cursor: pointer;
+    vertical-align: baseline;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+}
+
+.sl-pause-button {
+    cursor: pointer;
+    vertical-align: baseline;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+}
+
+.sl-record-button {
+    cursor: pointer;
+    vertical-align: baseline;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+}
+
+.sl-create-note-button {
+    cursor: pointer;
+    vertical-align: baseline;
+
+    position:  relative;
+    top: -5px;
+    padding-left: 20px;
+    color: green;
+}
+
+.sl-adjust-current-time {
+    margin-left: 50px;
+}
+
+.sl-adjust-current-time-button {
+    width:  25px;
+    padding: 5px;
+    position:  relative;
+    top: 17px;
+}
+
+.sl-passage-add-button {
+    font-size: 130% !important;
+}

@@ -1,0 +1,30 @@
+{
+  "name": "sltt_server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "postinstall": "patch-package"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.205.0",
+    "aws-signature-v4": "^1.2.1",
+    "cors": "^2.8.4",
+    "express": "^4.16.2",
+    "express-pouchdb": "^4.0.0",
+    "jsonwebtoken": "^8.2.0",
+    "pouchdb": "^6.4.3",
+    "pouchdb-fauxton": "^0.0.6",
+    "pouchdb-server": "^4.0.0",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-optional-chaining": "^7.0.0-beta.40",
+    "fs-extra": "^5.0.0",
+    "postinstall-postinstall": "^1.0.0"
+  }
+}
