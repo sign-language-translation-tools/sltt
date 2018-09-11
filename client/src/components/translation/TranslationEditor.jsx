@@ -30,13 +30,25 @@ class TranslationEditor extends Component {
         remote.allowCreateNote = project.iAmConsultant
 
         this.remote = remote
+
+        remote.loadPassage(project.passage)
     }
 
+    componentWillUpdate() {
+        let { project } = this.props
+        let { remote } = this
+
+        // If there is no longer a passage or a passageVideo selected make sure
+        // that the video control is not displaying a video
+        if (!project.passage || !project.passageVideo) {
+            remote.clearPassage()
+        }
+    }
 
     render() {
         let { project } = this.props
         // eslint-disable-next-line
-        let { note, passage } = project
+        let { note, passage, passageVideo } = project
         let { remote } = this
 
         //console.log('render TranslationEditor')

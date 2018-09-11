@@ -42,7 +42,7 @@ const PassageAdder = observer(class PassageAdder extends Component {
                     message="Type Enter to add new passage or Esc to cancel."
                     initialValue=""
                     validate={this.validate.bind(this)}
-                    _onCancel={this.onCancel.bind(this)}
+                    _onEscape={this.onCancel.bind(this)}
                     _onEnter={this.onEnter.bind(this)} />
             </div>
         )

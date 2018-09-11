@@ -5,21 +5,22 @@ import 'react-tabs/style/react-tabs.css'
 
 import TranslationEditor from '../translation/TranslationEditor.jsx'
 import NotAMember from './NotAMember.jsx'
+import { user } from '../auth/User.js'
 
 
-class ProjectTabs extends React.Component {
+class ProjectsTabs extends React.Component {
     static propTypes = {
         projects: PropTypes.object.isRequired,
+        projectsInitialized: PropTypes.bool.isRequired,
         selectedTabIndex: PropTypes.number.isRequired,
         onTabSelection: PropTypes.func.isRequired,
-        token: PropTypes.string,
-        projectsInitialized: PropTypes.bool.isRequired,
     }
 
     render() {
-        let { projects, selectedTabIndex, token, projectsInitialized } = this.props
+        let { projects, selectedTabIndex, projectsInitialized } = this.props
+        let { id_token } = user
 
-        if (!token || !projectsInitialized) return null
+        if (!projectsInitialized || !id_token) return null
 
         if (projects.length === 0) return ( <NotAMember /> )
 
@@ -47,4 +48,4 @@ class ProjectTabs extends React.Component {
 
 }
 
-export default ProjectTabs
+export default ProjectsTabs

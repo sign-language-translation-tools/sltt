@@ -1,9 +1,9 @@
-.App {
-  text-align: center;
+.app-container {
+  margin: 10px;
 }
 
 .app-selector-div {
-  margin-top: 4px;
+  margin-top: 10px;  /* centers app mode selection icons */
 }
 
 .app-accountsUI {
@@ -14,13 +14,6 @@
 .app-selector-icon {
   margin-right: 15px;
 }
-
-.app-portion { 
-  margin-top: 2px; 
-  margin-left: 17px;
-}
-
-.app-project { margin-top: 15px; }
 
 .app-navbar-bottom-margin { margin-bottom: 10px; }
 

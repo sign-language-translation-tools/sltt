@@ -5,6 +5,10 @@ import React, { Component } from 'react'
 import {extendObservable} from 'mobx'
 import {observer} from 'mobx-react'
 import PropTypes from 'prop-types'
+import { AdjustCurrentTimeButtons } from '../utils/Buttons';
+
+
+// make adjustment display optional
 
 
 class VideoPositionBar extends Component {
@@ -29,16 +33,31 @@ class VideoPositionBar extends Component {
         //console.log('vpb render', currentTime, remote.duration)
 
         return (
-            <canvas 
-                className="video-positionbar"
-                width={w} 
-                height={h}
-                ref={ c => { this.canvas = c }} 
-                onMouseUp={this.mouseup.bind(this)}
-                onMouseDown={this._mousedown.bind(this)}
-                onMouseMove={this.mousemove.bind(this)}>
-            </canvas>
+            <div>
+                <div className='sl-adjust-current-time'>
+                    <AdjustCurrentTimeButtons
+                        enabled={true}
+                        adjustCurrentTime={this.adjustCurrentTime.bind(this)} />
+                </div>
+                <div>
+                    <canvas 
+                        className="video-positionbar"
+                        width={w} 
+                        height={h}
+                        ref={ c => { this.canvas = c }} 
+                        onMouseUp={this.mouseup.bind(this)}
+                        onMouseDown={this._mousedown.bind(this)}
+                        onMouseMove={this.mousemove.bind(this)}>
+                    </canvas>
+                </div>
+            </div>
         )
+    }
+
+    adjustCurrentTime(delta) {
+        let { remote } = this.props
+        let { currentTime } = remote
+        remote.setCurrentTime(currentTime + delta)
     }
 
     setCurrentTime(x) {

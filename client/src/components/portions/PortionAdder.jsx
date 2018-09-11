@@ -53,7 +53,7 @@ class PortionAdder extends Component {
                     message="Type Enter to add new portion or Esc to cancel."
                     initialValue=""
                     validate={this.validate.bind(this)}
-                    _onCancel={this.onCancel.bind(this)}
+                    _onEscape={this.onCancel.bind(this)}
                     _onEnter={this.onEnter.bind(this)} />
             </div>
         )

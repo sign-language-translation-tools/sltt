@@ -43,15 +43,15 @@ class NoteTextEditor extends Component {
                         onChange={this.onChange}
                         handleKeyCommand={this.handleKeyCommand}
                         placeholder="Enter note..." />
-                    { onSave && <div className="note-text-editor-buttons">
-                        <button type="button"
-                            className="btn btn-primary pull-right"
-                            onClick={this.onCancel}>Cancel</button>
-                        <button type="button"
-                            className="btn btn-default btn-primary pull-right"
-                            onClick={this.onSave}>OK</button>
-                    </div> }
                 </div>
+                {onSave && <div className="note-text-editor-buttons">
+                    <button type="button"
+                        className="btn btn-primary pull-right note-text-editor-cancel"
+                        onClick={this.onCancel}>Cancel</button>
+                    <button type="button"
+                        className="btn btn-default btn-primary pull-right note-text-editor-ok"
+                        onClick={this.onSave}>OK</button>
+                </div>}
             </div>
         )
     }

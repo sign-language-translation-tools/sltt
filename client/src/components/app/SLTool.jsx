@@ -13,11 +13,10 @@ import ProjectsTabs from './ProjectsTabs.jsx'
 //import HelpVideo from './HelpVideo'
 //import Helps from './Helps'
 import NavigationBar from './NavigationBar.jsx'
-import Callback from '../auth/Callback.jsx'
-import { user } from '../auth/Auth.js'
-import { createAllMyProjects } from '../../models/Project.js'
+import { user } from '../auth/User.js'
 import './SLTool.css'
-import { displayError } from '../utils/Errors.jsx'
+//import { displayError } from '../utils/Errors.jsx'
+import { userProjects } from './UserProjects.js'
 
 export const history = createHistory()
 
@@ -28,82 +27,32 @@ class SLTool extends Component {
 
         let selected = localStorage.getItem('pageSelected') || 'translation'
 
-        user.restoreSession()
-
         extendObservable(this, {
-            projects: [],
-            projectsInitialized: false,
             selected,
             selectedTabIndex: 0,
         })
-
-        this.initializeProjectCalled = false
     }
     
-    componentDidMount() { this.initializeProjects() }
-
-    componentWillUpdate() { this.initializeProjects() }
-
-    initializeProjects() {
-        if (!user.token || !user.username) return
-
-        if (this.initializeProjectCalled) return
-        this.initializeProjectCalled = true
-
-        createAllMyProjects(user.username, (err, projects) => {
-            this.projectsInitialized = true
-
-            if (err) {
-                displayError(err)
-                return
-            }
-
-            this.projects = projects
-        })
-    }
-
     render() {
-        let { projects, selectedTabIndex, selected, projectsInitialized } = this
-        let { token, username } = user
-
-        let allowDatabase = username === 'milesnlwork@gmail.com'
-
-        //console.log(`SLTool render ${(token && 'loggedIn ') || ''}projects=${projects.length}`)
+        let { projects, initialized } = userProjects
+        let { selectedTabIndex, selected } = this
+        let { allowDatabase } = user
 
         let project = (projects.length  && projects[selectedTabIndex]) || null
         let selectPage = this.selectPage.bind(this)
 
         return (
-            <div className="container">
+            <div className="app-container">
                 <Router history={history}>
                     <div>
                         <NavigationBar selected={selected} selectPage={selectPage} history={history} allowDatabase={allowDatabase} />
 
-                        {/* Auth0 redirects us to this route after the user has logged in */}
-                        <Route path="/callback" render={
-                            (props) => {
-                                user.handleAuthentication(props, err => {
-                                    if (err) {
-                                        displayError(err)
-                                        return
-                                    }
-
-                                    this.projectsInitialized = false
-                                    this.initializeProjects()
-                                    
-                                    history.replace('/')
-                                })
-                                return <Callback />
-                            }
-                        } />
-
                         <Route exact={true} path="/"
                             render={props => (<ProjectsTabs 
                                 projects={projects}
-                                token={token}
+                                projectsInitialized={initialized}
                                 selectedTabIndex={selectedTabIndex}
                                 onTabSelection={this.onTabSelection.bind(this)}
-                                projectsInitialized={projectsInitialized}
                                 />)}
                         />
 

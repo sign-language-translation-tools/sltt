@@ -79,12 +79,23 @@
 }
 
 .note-text-editor {
-  height: 230px;
+  min-height: 50px;
+  margin-bottom: 10px;
 }
 
 .note-text-editor-editor {
-  height: 200px;
   border-style: solid;
   border-width: 1px;
   border-radius: 5px;
+  padding: 8px;
+  min-height: 60px;
+}
+
+.note-text-editor-buttons {
+  padding-top: 12px;
+}
+
+.note-text-editor-ok {
+  margin-right: 10px;
+  width: 70px;
 }

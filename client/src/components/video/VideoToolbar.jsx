@@ -5,9 +5,10 @@ import React, { Component } from 'react'
 import {extendObservable} from 'mobx'
 import {observer} from 'mobx-react'
 import PropTypes from 'prop-types'
+import { displayError } from '../utils/Errors.jsx'
 
-import { PlayButton, PauseButton, RecordButton, StopButton, CreateNoteButton,
-            AdjustCurrentTimeButtons } from '../utils/Buttons.jsx'
+import {
+    PlayButton, PauseButton, RecordButton, StopButton, CreateNoteButton, CreateLabelButton} from '../utils/Buttons.jsx'
 import PassageStatusSelector from '../passages/PassageStatusSelector.jsx'
 import PassageVideoSelector from '../passages/PassageVideoSelector.jsx'
 
@@ -32,7 +33,7 @@ class VideoToolbar extends Component {
     }
 
     render() {
-        let { remote, w, createNote, recordVideo, project } = this.props
+        let { remote, w, createNote, createLabel, recordVideo, project } = this.props
         
         // h = h || this.defaultH
 
@@ -68,7 +69,7 @@ class VideoToolbar extends Component {
 
                     { !stopShown &&
                         <RecordButton
-                            enabled={recordVideo}
+                            enabled={recordVideo && !playing}
                             onClick={recordVideo}
                             title="Record video." /> 
                     }
@@ -85,17 +86,21 @@ class VideoToolbar extends Component {
                             enabled={createNoteEnabled}
                             onClick={() => createNote(remote.currentTime)} /> 
                     }
-                </div>
-                <div style={ {flex: 1} }>
-                    {createNote &&
-                        <AdjustCurrentTimeButtons
+
+                    {createLabel &&
+                        <CreateLabelButton
                             enabled={createNoteEnabled}
-                        adjustCurrentTime={this.adjustCurrentTime.bind(this)} />
+                        onClick={() => createLabel && createLabel(remote.currentTime)} />
                     }
+
+                    
                 </div>
+                
                 <div style={{ flex: 1 }}>
                     {passageVideo &&
-                        <PassageStatusSelector project={project} />
+                        <PassageStatusSelector 
+                            project={project} 
+                            onDelete={this.onDelete.bind(this)} />
                     }
                     {passageVideo &&
                         <PassageVideoSelector project={project} remote={remote} />
@@ -103,6 +108,23 @@ class VideoToolbar extends Component {
                 </div>
         </div>
         )
+    }
+
+    onDelete() {
+        let { project, remote } = this.props
+        let { passage } = project
+
+        remote.signedUrl = null
+
+        // Find the first not deleted video, if any
+        let passageVideo = passage.videosNotDeleted.slice(-1)[0]  // might be null if no video remaining
+
+        project.setPassageVideo(passage, passageVideo, err => {
+            if (err) { displayError(err); return }
+
+            remote.signedUrl = passageVideo && passageVideo.signedUrl
+        })
+
     }
 
     adjustCurrentTime(delta) {

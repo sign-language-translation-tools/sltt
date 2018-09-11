@@ -9,7 +9,7 @@ import PropTypes from 'prop-types'
 import NoteMain from './NoteMain.jsx'
 import './Note.css'
 import '../video/Video.css'
-import { user } from '../auth/Auth.js'
+import { user } from '../auth/User.js'
 import { timestamp } from '../../models/Passages.js'
 import NoteTextEditor from './NoteTextEditor.jsx'
 

@@ -1,7 +1,7 @@
 import { Project } from './Project.js'
 import { createDb, initializeTestProjects, destroyTestDbs } from './Db.js'
 
-require('../components/auth/Auth.js').user.setupTestUser()
+require('../components/auth/User.js').user.setupTestUser()
 
 const name = '_test1'
 const milesnl = 'milesnlwork@gmail.com'

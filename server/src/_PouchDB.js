@@ -1,5 +1,8 @@
 let PouchDB = require('pouchdb')
 
-exports._PouchDB = PouchDB.defaults({ prefix: './projects/' })
+let projectsDir = process.env.PROJECTSDIR || '../../projects/'
 
-exports._PouchDBPath = './projects/'
+projectsDir = projectsDir + (projectsDir.endsWith('/') ? '' : '/')
+
+exports._PouchDB = PouchDB.defaults({ prefix: projectsDir })
+exports._PouchDBPath = projectsDir

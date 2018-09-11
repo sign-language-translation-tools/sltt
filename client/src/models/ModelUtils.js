@@ -16,6 +16,36 @@ export function _insertBy(doc, list, orderedBy) {
     }
 }
 
+// Return a promise to remove all items whose id starts with _id.
+export function removeFromDB(db, _id) {
+    return new Promise((resolve, reject) => {
+        let options = {
+            include_docs: true,
+            startkey: _id,
+            endkey: _id + '\uffff'
+        }
+
+        db.allDocs(options)
+            .then(response => {
+                console.log(`removeFromDB ${_id}, count=${response.rows.length}`)
+                
+                let docs = _.map(response.rows, row => {
+                    return {
+                        _deleted: true,
+                        _id: row.doc._id,
+                        _rev: row.doc._rev,
+                    }
+                })
+
+                return db.bulkDocs(docs)
+            })
+            .then(resolve)
+            .catch(err => {
+                reject(`ModelUtils#removeFromDB(${_id}): ${err}`)
+            })
+    })
+}
+
 // Remove an item from the list and update the project database to reflect this.
 export function _remove(db, list, _id, cb) {
     let idx = _.findIndex(list, {_id})
@@ -28,16 +58,11 @@ export function _remove(db, list, _id, cb) {
     // stop react from accessing it in that state and crashing
     detach(list[idx])
 
-    db.get(_id)
-        .catch(err => {
-            cb && cb(`could not GET [${_id}] to remove it [${err}]`)
-        })
-        .then(doc => {
-            doc._deleted = true
-            return db.put(doc)
-        })
+    // Match this item all its subitems (if any).
+    // E.g. for the portition #item/Progigal Son/portion
+    // we also want to match the passage #item/Prodigal Son/Part 1/passage
+
+    removeFromDB(db, _id)
         .then(() => cb && cb())
-        .catch(err => { 
-            cb && cb(`could not PUT [${_id}] to remove it [${err}]`) 
-        })
+        .catch(err => cb && cb(err))
 }

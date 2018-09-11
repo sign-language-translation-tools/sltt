@@ -1,7 +1,7 @@
 // Allow user to select which portion in the current project they wish to work with
 import React, { Component } from 'react'
 import PropTypes from 'prop-types' 
-import { statuses } from '../../models/Passages.js'
+import { statuses } from '../../models/PassagesStatus.js'
 
 class PassageStatus extends Component {
     static propTypes = {

@@ -55,14 +55,13 @@ class DatabaseEditor extends Component {
 
         if (filter) {
             options.startkey = filter
-            options.endkey = filter + '/ufff0'
-            options.endkey = filter + 'zzzzzzz'
+            options.endkey = filter + '\ufff0'
+            //options.endkey = filter + 'zzzzzzz'
         }
 
         db.allDocs(options)
             .then(response => {
                 this.rows = response.rows
-                console.log(`rows=${response.rows.length}`)
             })
             .catch(err => 
                 console.error(err)
