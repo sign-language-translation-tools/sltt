@@ -179,6 +179,7 @@ class VideoRemote extends EventEmitter {
         }
         this.duration = (passageVideo && passageVideo.duration) || 0.1
         this.playing = false
+        this.signedUrl = null
 
         if (passageVideo) {
             passageVideo.getSignedUrl(err => {
@@ -190,6 +191,11 @@ class VideoRemote extends EventEmitter {
                 this.signedUrl = passageVideo.signedUrl
             })
         }
+    }
+
+    clearPassage() {
+        if (this.signedUrl) this.signedUrl = null
+        if (this.playing) this.playing = false
     }
 
     // startTime = null, means play from current position

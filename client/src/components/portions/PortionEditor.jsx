@@ -5,6 +5,7 @@ import {observer} from 'mobx-react'
 import PropTypes from 'prop-types'
 
 import TextInput from '../utils/TextInput.jsx'
+import { displayError } from '../utils/Errors.jsx'
 
 // Edit name (rename) existing portion
 // It must be a valid portion name and not create a duplicate portion name
@@ -15,7 +16,9 @@ const PortionEditor = observer(class PortionEditor extends Component {
   // }
 
   render() {
-    let { item, done } = this.props
+    let { 
+      item /*from project.portions.portions, types.model("Portion") */,
+      done } = this.props
     
     return (
       <div className="portion-box">
@@ -31,13 +34,17 @@ const PortionEditor = observer(class PortionEditor extends Component {
 
   onEnter(newName) { 
     let { item, done } = this.props
-    item.rename(newName)
-    done()
+    item.rename(newName, err => {
+      if (err) {
+        displayError(err)
+      }
+      done()
+    })
   }
 
   validate(newName) {
     let { item } = this.props
-    return item.canRename(newName)
+    return item.checkName(newName)
   }
 
 })

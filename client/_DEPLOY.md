@@ -15,7 +15,7 @@
     ~/bin/_sltt_
 
         set -x
-        cd ~/source/sltt
+        cd ~/_sltt/client
         yarn build
         scp -r build sl:.
         ssh sl "sudo service nginx restart"

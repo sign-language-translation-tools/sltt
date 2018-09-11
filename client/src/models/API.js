@@ -1,6 +1,6 @@
 import fetch from 'node-fetch'
 
-import { user } from '../components/auth/Auth.js'
+import { user } from '../components/auth/User.js'
 
 let _hostUrl
 if (process.env.NODE_ENV === 'development') {
@@ -17,8 +17,8 @@ export let hostUrl = _hostUrl
 
 
 export function authorization() {
-    if (!user.token) throw new Error('Authorization not set')
-    return 'Bearer ' + user.token
+    if (!user.id_token) throw new Error('Authorization not set')
+    return 'Bearer ' + user.id_token
 }
 
 export function checkStatus(response) {
@@ -47,7 +47,7 @@ export function getJson(response) {
 //         method: 'PUT',
 //         headers: {
 //             "content-type": blob.type,
-//             Authorization: 'bearer ' + user.token
+//             Authorization: 'bearer ' + user.id_token
 //         },
 //         body: blob,
 //     }
@@ -56,14 +56,14 @@ export function getJson(response) {
 
 // Called every time the video element has a new block to upload.
 export function pushBlob(projectName, path, seqNum, blob) {
-    if (!user.token) throw new Error('pushBlob - No user.token')
+    if (!user.id_token) throw new Error('pushBlob - No user.id_token')
 
     return new Promise((resolve, reject) => {
         let path2 = `${hostUrl}/${projectName}/_push_/${path}=${seqNum}`
 
         let xhr = new XMLHttpRequest()
         xhr.open('PUT', path2, true)
-        xhr.setRequestHeader('Authorization', 'bearer ' + user.token)
+        xhr.setRequestHeader('Authorization', 'bearer ' + user.id_token)
 
         xhr.onreadystatechange = () => {
             if (xhr.readyState !== 4) return
@@ -89,7 +89,7 @@ export function pushBlob(projectName, path, seqNum, blob) {
 }
 
 export function pushFile(file, projectName, path, onprogress) {
-    if (!user.token) throw new Error('pushFile - No user.token')
+    if (!user.id_token) throw new Error('pushFile - No user.id_token')
     
     return new Promise((resolve, reject) => {
         let url = `${hostUrl}/${projectName}/_push_/${path}=1`
@@ -98,7 +98,7 @@ export function pushFile(file, projectName, path, onprogress) {
         var xhr = new XMLHttpRequest()
     
         xhr.open('PUT', url, true)
-        xhr.setRequestHeader('Authorization', 'bearer ' + user.token)
+        xhr.setRequestHeader('Authorization', 'bearer ' + user.id_token)
     
         xhr.onreadystatechange = () => {
             if (xhr.readyState !== 4) return
@@ -128,14 +128,14 @@ export function pushFile(file, projectName, path, onprogress) {
 // Return the URL of the resulting video file S3 object.
 
 export function concatBlobs(projectName, path, seqNum) {
-    if (!user.token) throw new Error('No user.token')
+    if (!user.id_token) throw new Error('No user.id_token')
 
     let path2 = `${hostUrl}/${projectName}/_concat_/${path}=${seqNum}`
     console.log(`_concat_ start ${path2}`)
 
     let options = {
         method: 'GET',
-        headers: {Authorization: 'bearer ' + user.token},
+        headers: {Authorization: 'bearer ' + user.id_token},
     }
 
     return fetch(path2, options)
@@ -146,13 +146,13 @@ export function concatBlobs(projectName, path, seqNum) {
 // This url will expire in 6 days.
 
 export function getUrl(projectName, url) {
-    if (!user.token) throw new Error('No user.token')
+    if (!user.id_token) throw new Error('No user.id_token')
 
     let path2 = `${hostUrl}/${projectName}/_url_?url=${encodeURIComponent(url)}`
 
     let options = {
         method: 'GET',
-        headers: { Authorization: 'bearer ' + user.token },
+        headers: { Authorization: 'bearer ' + user.id_token },
     }
 
     return fetch(path2, options)

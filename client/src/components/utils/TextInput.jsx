@@ -58,7 +58,7 @@ const TextInput = observer(class TextInput extends Component {
     }
 
     onKeyDown(e) { 
-        let { _onEnter, _onCancel } = this.props
+        let { _onEnter, _onEscape } = this.props
         let { value, errorMessage } = this
 
         // <enter> = stop editing
@@ -73,7 +73,7 @@ const TextInput = observer(class TextInput extends Component {
 
         // <esc> = abandon edit
         if (e.keyCode === 27) { 
-            _onCancel && _onCancel()
+            _onEscape && _onEscape()
             this.value = ''
             return 
         }

@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Button } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import classNames from 'classnames'
+import { observer } from 'mobx-react'
 
-import { user } from '../auth/Auth.js'
+import GoogleLogin from '../auth/GoogleLogin.jsx'
+import { user } from '../auth/User.js'
 
 class NavigationBar extends Component {
     static propTypes = {
@@ -16,7 +17,7 @@ class NavigationBar extends Component {
     
     render() {
         let { selectPage, selected, history, allowDatabase } = this.props
-        let { token } = user
+        let { id_token } = user
 
         return (
             <nav className="navbar navbar-default app-navbar-bottom-margin">
@@ -24,16 +25,11 @@ class NavigationBar extends Component {
                     <span className="navbar-brand">Sign Language Translation Tool</span>
                 </div>
 
-                {!token && 
-                    <Button 
-                        bsStyle="primary" 
-                        className="app-accountsUI btn-margin"
-                        onClick={user.login.bind(user)}>
-                            Log In
-                    </Button> 
+                {!id_token && 
+                    <GoogleLogin />
                 }
 
-                { token && 
+                {id_token && 
                     <div className="navbar-header pull-right app-selector-div">
                         <Link to="/" className="app-selector-icon">
                             <i
@@ -103,4 +99,4 @@ class NavigationBar extends Component {
     }
 }
 
-export default NavigationBar
+export default observer(NavigationBar)

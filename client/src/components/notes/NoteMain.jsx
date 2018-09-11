@@ -16,7 +16,7 @@ import VideoPlayer from '../video/VideoPlayer.jsx'
 import NoteSegment from './NoteSegment.jsx'
 // import { displayError } from '../utils/Errors.jsx'
 
-import { user } from '../auth/Auth.js'
+import { user } from '../auth/User.js'
 import { timestamp } from '../../models/Passages.js'
 
 class NoteMain extends Component {

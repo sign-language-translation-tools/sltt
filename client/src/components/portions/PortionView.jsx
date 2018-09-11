@@ -13,7 +13,7 @@ import './Portion.css'
 
 class PortionView extends Component {
     static propTypes = {
-        item: PropTypes.object.isRequired,
+        item: PropTypes.object.isRequired,   // from project.portions.portions, types.model("Portion")
         iAmTranslator: PropTypes.bool.isRequired,
     }
     

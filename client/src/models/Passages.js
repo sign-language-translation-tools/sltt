@@ -3,7 +3,8 @@ import _ from 'underscore'
 import { _insertBy, _remove } from './ModelUtils.js'
 
 import { checkStatus, pushFile, concatBlobs, getUrl } from './API.js'
-import { user } from '../components/auth/Auth.js'
+import { user } from '../components/auth/User.js'
+import { deletedStatus } from './PassagesStatus.js'
 
 let previousDate = new Date()
 
@@ -38,23 +39,7 @@ function uploadTimestamp(file) {
     // return formatTimestamp(date)
 }
 
-// Stars (in FontAwesome) to show video review status
-// 1 star means "unreviewed"
-export const statuses = [
-    '\uf005',   // 1 star
-    '\uf005\uf005',
-    '\uf005\uf005\uf005',
-    '\uf005\uf005\uf005\uf005',
-    '\uf005\uf005\uf005\uf005\uf005',
-    '\uf005\uf005\uf005\uf005\uf005\uf005',
-    '',
-    '',
-    '',
-    '',
-    '\uf1f8'   // deleted status
-]
 
-export const deletedStatus = statuses.length - 1
 
 const setSignedUrl = function(setter, project, url, cb) {
     getUrl(project, url)
@@ -396,8 +381,8 @@ export const Passage = types.model("Passage", {
         }
         self.statuses.push(doc)
 
-        console.log('setStatus')
-        _.forEach(self.statuses, s => console.log(s))
+        //console.log('setStatus')
+        //_.forEach(self.statuses, s => console.log(s))
         
         self.setId(doc, 'status')
         self.put(doc, cb)
@@ -416,7 +401,7 @@ export const Passage = types.model("Passage", {
                 cb && cb(err)
                 return
             }
-            cb && cb()
+            cb && cb(null, self.videos.slice(-1)[0])
         })
     },
 

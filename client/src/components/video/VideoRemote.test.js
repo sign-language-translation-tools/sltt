@@ -2,7 +2,7 @@ import fetch from 'node-fetch'
 
 import VideoRemote from './VideoRemote.js' 
 import { checkStatus, getText, getUrl } from '../../models/API.js'
-import { user } from '../auth/Auth.js'
+import { user } from '../auth/User.js'
 
 // clean up test files in S3
 
@@ -32,7 +32,7 @@ it('can push blobs to s3', (done) => {
             })
     })
 
-    user.token = process.env.SLTT_USER_JWT
+    user.id_token = process.env.SLTT_USER_JWT
 
     remote.project = '_test1'
     remote.path = 'test 1.txt'

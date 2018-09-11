@@ -1,7 +1,7 @@
 // This component is used to exercise TranslationEditor and its subcomponents
 
 import React, { Component } from 'react'
-import { user } from '../auth/Auth.js'
+import { user } from '../auth/User.js'
 
 import TranslationEditor from './TranslationEditor.jsx'
 //import { project } from '../../models/_MemoryProject.js'
@@ -13,7 +13,7 @@ class TranslationEditorTest extends Component {
     }
 
     render() {
-        if (!user.token) return null
+        if (!user.id_token) return null
 
         return (
             <TranslationEditor project={project} />

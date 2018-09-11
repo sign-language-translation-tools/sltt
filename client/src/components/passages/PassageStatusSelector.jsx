@@ -6,7 +6,12 @@ import {observer} from 'mobx-react'
 import PropTypes from 'prop-types' 
 import _ from 'underscore'
 import { DropdownButton, MenuItem } from 'react-bootstrap'
-import { statuses, deletedStatus } from '../../models/Passages.js'
+import { confirmAlert } from 'react-confirm-alert'
+import 'react-confirm-alert/src/react-confirm-alert.css'
+
+import { statuses, deletedStatus } from '../../models/PassagesStatus.js'
+
+const trashIcon = statuses.slice(-1)[0]
 
 const _statuses = [
     statuses[0],
@@ -14,12 +19,13 @@ const _statuses = [
     statuses[2],
     statuses[3],
     statuses[4],
-    statuses[10],    // trash
+    trashIcon,    // trash
 ]
 
 class PassageStatusSelector extends Component {
     static propTypes = {
         project: PropTypes.object.isRequired,
+        onDelete: PropTypes.func,
     }
 
     constructor(props) {
@@ -36,7 +42,8 @@ class PassageStatusSelector extends Component {
 
         let status = passageVideo.status
 
-        let cn = s => { return 'passage-status-selector-2 ' + (s === statuses[10] ? 'passage-status-selector-3' : '') }
+        // Add passage-status-selector-3 class to the trash icon so that we can adjust its display size
+        let cn = s => { return 'passage-status-selector-2 ' + (s === trashIcon ? 'passage-status-selector-3' : '') }
 
         return ( 
             <div className="passage-status-selector">
@@ -62,20 +69,34 @@ class PassageStatusSelector extends Component {
         )
     }
 
+    confirmDeletion(doDeletion) {
+        confirmAlert({
+            title: 'Delete Video!?',
+            message: 'There is no easy way to get this video back if you delete it!',
+            confirmLabel: 'Delete video!',
+            cancelLabel: 'Keep video.',
+            onConfirm: doDeletion,
+            onCancel: () => { },
+        })
+    }
+
     onChange(s) {
-        let { project } = this.props
+        let { project, onDelete } = this.props
         let { passage, passageVideo } = project
         if (!passageVideo) return
 
         let status = _.indexOf(statuses, s)
 
-        console.log('setStatus', status)
-        passageVideo.setStatus(status)   
-        
-        // If we are deleting this video, reset passage to force selecting
-        // an undeleted video of this passage
-        if (status === deletedStatus)
-            project.setPassage(passage)
+        //console.log('setStatus', status)
+
+        if (status === deletedStatus) {
+            this.confirmDeletion(() => {
+                passageVideo.setStatus(status) 
+                onDelete && onDelete()  
+            })
+        } else {
+            passageVideo.setStatus(status)   
+        }
     }
 
 }

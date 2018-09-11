@@ -29,7 +29,8 @@ class PassageVideoSelector extends Component {
         let { project } = this.props
         let { passage, passageVideo } = project
 
-        if (!passageVideo) return null
+        if (!passage || !passageVideo) return null
+        
         let videos = passage.videosNotDeleted
 
         // Force a redraw when any changes to status

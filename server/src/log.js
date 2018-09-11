@@ -1,7 +1,12 @@
 const log = {}
 log.info = console.log
-log.debug = console.log
 log.error = console.error
+
+log.debug = function() {
+    if (!process.env.SLTTDEBUG) return
+    
+    console.log.apply(null, arguments)
+}
 
 exports.log = log
 
