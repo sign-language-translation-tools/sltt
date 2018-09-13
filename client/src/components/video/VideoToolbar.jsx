@@ -6,8 +6,8 @@ import {extendObservable} from 'mobx'
 import {observer} from 'mobx-react'
 import PropTypes from 'prop-types'
 
-import { PlayButton, PauseButton, RecordButton, StopButton, CreateNoteButton,
-            AdjustCurrentTimeButtons } from '../utils/Buttons.jsx'
+import {
+    PlayButton, PauseButton, RecordButton, StopButton, CreateNoteButton, CreateLabelButton} from '../utils/Buttons.jsx'
 import PassageStatusSelector from '../passages/PassageStatusSelector.jsx'
 import PassageVideoSelector from '../passages/PassageVideoSelector.jsx'
 
@@ -32,7 +32,7 @@ class VideoToolbar extends Component {
     }
 
     render() {
-        let { remote, w, createNote, recordVideo, project } = this.props
+        let { remote, w, createNote, createLabel, recordVideo, project } = this.props
         
         // h = h || this.defaultH
 
@@ -85,14 +85,16 @@ class VideoToolbar extends Component {
                             enabled={createNoteEnabled}
                             onClick={() => createNote(remote.currentTime)} /> 
                     }
-                </div>
-                <div style={ {flex: 1} }>
-                    {createNote &&
-                        <AdjustCurrentTimeButtons
+
+                    {createLabel &&
+                        <CreateLabelButton
                             enabled={createNoteEnabled}
-                        adjustCurrentTime={this.adjustCurrentTime.bind(this)} />
+                        onClick={() => createLabel && createLabel(remote.currentTime)} />
                     }
+
+                    
                 </div>
+                
                 <div style={{ flex: 1 }}>
                     {passageVideo &&
                         <PassageStatusSelector project={project} />

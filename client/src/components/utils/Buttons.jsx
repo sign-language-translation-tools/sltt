@@ -1,5 +1,7 @@
 import React from 'react'
 import './Buttons.css'
+import { MenuItem, Dropdown } from 'react-bootstrap'
+
 
 function enable(cns, enabled) { return enabled ? cns : cns + ' sl-button-disabled' }
 function enableImg(cns, enabled) { return enabled ? cns : cns + ' sl-image-button-disabled' }
@@ -105,9 +107,31 @@ export const CreateNoteButton = function ({ enabled, onClick }) {
     )
 }
 
+export const CreateLabelButton = function ({ enabled, onClick }) {
+    let tooltip = "Create label in video at current location."
+
+    return (
+        <span>
+            <span
+                className={enable('sl-fa-button sl-create-label-button fa-tag', enabled)}
+                onClick={() => enabled && onClick && onClick()}
+                data-toggle="tooltip"
+                title={tooltip} >
+            </span>
+            <Dropdown id="dropdown-select-label">
+                <Dropdown.Toggle bsStyle="default" />
+                <Dropdown.Menu>
+                    <MenuItem eventKey="1">Luke 15.11-24</MenuItem>
+                    <MenuItem eventKey="2">Luke 15.25-31</MenuItem>
+                </Dropdown.Menu>
+            </Dropdown>
+        </span>
+    )
+}
+
 export const AdjustCurrentTimeButtons = function ({ enabled, adjustCurrentTime }) {
     return (
-        <span className='sl-adjust-current-time'>
+        <span>
             <img className={enableImg('sl-adjust-current-time-button', enabled)}
                 src="toolbar/1SecLeftButton.gif"
                 onClick={() => adjustCurrentTime(-1.0)}
