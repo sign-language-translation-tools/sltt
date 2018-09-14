@@ -12,10 +12,11 @@
     filter: opacity(.2);
 }
 
+
 .sl-stop-button {
     cursor: pointer;
     vertical-align: baseline;
-    width: 40px;
+    width: 35px;
     height: 40px;
     cursor: pointer;
 }
@@ -23,7 +24,7 @@
 .sl-play-button {
     cursor: pointer;
     vertical-align: baseline;
-    width: 40px;
+    width: 35px;
     height: 40px;
     cursor: pointer;
 }
@@ -31,15 +32,17 @@
 .sl-pause-button {
     cursor: pointer;
     vertical-align: baseline;
-    width: 40px;
+    width: 35px;
     height: 40px;
     cursor: pointer;
 }
 
 .sl-record-button {
+    position: relative;
+    left: -3px;
     cursor: pointer;
     vertical-align: baseline;
-    width: 40px;
+    width: 35px;
     height: 40px;
     cursor: pointer;
 }
@@ -47,22 +50,41 @@
 .sl-create-note-button {
     cursor: pointer;
     vertical-align: baseline;
+    font-size: 220%;
 
     position:  relative;
-    top: -5px;
-    padding-left: 20px;
+    left: -2px;
+    top: -11px;
+    padding-left: 15px;
     color: green;
 }
 
+.sl-create-label-button {
+    cursor: pointer;
+    vertical-align: baseline;
+    font-size: 220%;
+
+    position:  relative;
+    top: -6px;
+    padding-left: 13px;
+    color: blue;
+}
+
+#dropdown-select-label {
+    top: -18px;
+    background-image: none;
+    border: none;
+    box-shadow: none;
+}
+
 .sl-adjust-current-time {
-    margin-left: 50px;
+    margin: 0 auto;
+    width: 100px;
 }
 
 .sl-adjust-current-time-button {
     width:  25px;
     padding: 5px;
-    position:  relative;
-    top: 17px;
 }
 
 .sl-passage-add-button {
