@@ -82,7 +82,7 @@ class PassageStatusSelector extends Component {
 
     onChange(s) {
         let { project, onDelete } = this.props
-        let { passage, passageVideo } = project
+        let { passageVideo } = project
         if (!passageVideo) return
 
         let status = _.indexOf(statuses, s)

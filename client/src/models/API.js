@@ -1,6 +1,10 @@
 import fetch from 'node-fetch'
 
 import { user } from '../components/auth/User.js'
+import { getGoogleIdToken } from '../components/auth/GoogleLogin.jsx'
+
+const debug = require('debug')('sltt:API') 
+
 
 let _hostUrl
 if (process.env.NODE_ENV === 'development') {
@@ -22,7 +26,7 @@ export function authorization() {
 }
 
 export function checkStatus(response) {
-    //console.log(`checkStatus ${response.status}`)
+    debug(`checkStatus ${response.status}`)
 
     if (response.status === 200) {
         return Promise.resolve(response)
@@ -54,11 +58,16 @@ export function getJson(response) {
 //     return fetch(path2, options)
 // }
 
+function refreshIdToken(promise) {
+    return getGoogleIdToken(user)
+        .then(promise)
+}
+
 // Called every time the video element has a new block to upload.
 export function pushBlob(projectName, path, seqNum, blob) {
-    if (!user.id_token) throw new Error('pushBlob - No user.id_token')
+    let _pushBlob = new Promise((resolve, reject) => {
+        if (!user.id_token) { reject('Not logged in.'); return }
 
-    return new Promise((resolve, reject) => {
         let path2 = `${hostUrl}/${projectName}/_push_/${path}=${seqNum}`
 
         let xhr = new XMLHttpRequest()
@@ -69,31 +78,34 @@ export function pushBlob(projectName, path, seqNum, blob) {
             if (xhr.readyState !== 4) return
 
             if (xhr.status !== 200) {
+                debug(`*** pushBlob reject status=${xhr.status}`)
                 reject({ status: xhr.status })
                 return
             }
 
-            console.log(`_push_ reject status=${xhr.status}`)
+            debug(`pushBlob resolve`)
             resolve({ status: xhr.status } /* mimic fetch 'response' */)
         }
 
         xhr.onerror = (err) => {
-            console.log('!!! pushBlob onerror')            
+            debug(`*** pushBlob onerror ${err}`)            
             reject(err)
         }
 
         // Initiate the upload of this video segment
-        console.log('!!! pushBlob xhr.send')
+        debug('pushBlob xhr.send')
         xhr.send(blob)
     })
-}
+
+    return refreshIdToken(_pushBlob)
+ }
 
 export function pushFile(file, projectName, path, onprogress) {
-    if (!user.id_token) throw new Error('pushFile - No user.id_token')
-    
-    return new Promise((resolve, reject) => {
+    let _pushFile = new Promise((resolve, reject) => {
+        if (!user.id_token) { reject('Not logged in.'); return }
+
         let url = `${hostUrl}/${projectName}/_push_/${path}=1`
-        console.log(`_push_(pushFile) start ${url}`)
+        debug(`pushFile start ${url}`)
 
         var xhr = new XMLHttpRequest()
     
@@ -104,16 +116,17 @@ export function pushFile(file, projectName, path, onprogress) {
             if (xhr.readyState !== 4) return
 
             if (xhr.status !== 200) {
-                console.log(`_push_(pushFile) reject status=${xhr.status}`)
+                debug(`pushFile reject status=${xhr.status}`)
                 reject({ status: xhr.status })
                 return
             }
 
-            console.log(`_push_(pushFile) resolve`)
+            debug(`pushFile resolve`)
             resolve({ status: xhr.status } /* mimic fetch 'response' */)
         }
 
         xhr.onerror = (err) => {
+            debug(`*** pushFile onerror ${err}`)            
             reject(err)
         }
 
@@ -121,6 +134,8 @@ export function pushFile(file, projectName, path, onprogress) {
     
         xhr.send(file)
     })
+
+    return refreshIdToken(_pushFile)
 }
 
 // After the the individual blobls have been pushed to server,
@@ -128,17 +143,20 @@ export function pushFile(file, projectName, path, onprogress) {
 // Return the URL of the resulting video file S3 object.
 
 export function concatBlobs(projectName, path, seqNum) {
-    if (!user.id_token) throw new Error('No user.id_token')
+    let _concatBlobs = new Promise((resolve, reject) => {
+        if (!user.id_token) { reject('Not logged in.'); return }
 
-    let path2 = `${hostUrl}/${projectName}/_concat_/${path}=${seqNum}`
-    console.log(`_concat_ start ${path2}`)
+        let path2 = `${hostUrl}/${projectName}/_concat_/${path}=${seqNum}`
+        debug(`concatBlobs ${path2}`)
+        
+        let options = {
+            method: 'GET',
+            headers: {Authorization: 'bearer ' + user.id_token},
+        }
+        return fetch(path2, options)
+    })
 
-    let options = {
-        method: 'GET',
-        headers: {Authorization: 'bearer ' + user.id_token},
-    }
-
-    return fetch(path2, options)
+    return refreshIdToken(_concatBlobs)
 }
 
 // Pass a url for an S3 video file object to server.
@@ -146,14 +164,32 @@ export function concatBlobs(projectName, path, seqNum) {
 // This url will expire in 6 days.
 
 export function getUrl(projectName, url) {
-    if (!user.id_token) throw new Error('No user.id_token')
+    let _getUrl = new Promise((resolve, reject) => {
+        if (!user.id_token) { reject('Not logged in.'); return}
+        debug(`getUrl start ${url}`)
 
-    let path2 = `${hostUrl}/${projectName}/_url_?url=${encodeURIComponent(url)}`
+        let path2 = `${hostUrl}/${projectName}/_url_?url=${encodeURIComponent(url)}`
 
-    let options = {
-        method: 'GET',
-        headers: { Authorization: 'bearer ' + user.id_token },
-    }
+        let options = {
+            method: 'GET',
+            headers: { Authorization: 'bearer ' + user.id_token },
+        }
 
-    return fetch(path2, options)
+        getGoogleIdToken(user)
+            .then(() => fetch(path2, options))
+            .then(checkStatus)
+            .then(response => {
+                return response.text()
+            })
+            .then(url => {
+                debug(`getUrl resolve ${url}`)
+                resolve(url)
+            })
+            .catch(err => {
+                debug(`*** getUrl err: ${err}`)
+                reject(err)
+            })
+    })
+
+    return _getUrl
 }

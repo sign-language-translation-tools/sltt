@@ -1,18 +1,22 @@
 # To run (not in debug mode)
 
+    yarn install      [if this has not already been done]
     yarn start
 
 # To run (debug mode)
 
     yarn start  (start client)
     
-    ctl/shift D
-    alt B - start debugging
-    alt M - stop debugging
+    select debug mode
+    Debug > Start Debugging
+
+# Enable debug output
+
+    localStorage.debug = 'sltt:*'   [see www.npmjs.com/package/debug]
 
 # View server log (real time)
 
-    _sl
+    ssl to server
     PM2 logs
 
     

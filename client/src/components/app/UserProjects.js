@@ -7,6 +7,8 @@ import _ from 'underscore'
 import { Project } from '../../models/Project.js'
 import { getAuthorizedProjects } from '../../models/Db.js'
 
+const log = require('debug')('sltt:UserProject') 
+
 class Projects {
     constructor () {
         extendObservable(this, {
@@ -17,7 +19,7 @@ class Projects {
 
     _createProject(name, username) {
         return new Promise((resolve, reject) => {
-            console.log(`[${name}] _createProject`)
+            log(`[${name}] _createProject`)
 
             let project = Project.create({
                 name,
@@ -26,13 +28,12 @@ class Projects {
 
             project.initialize(err => {
                 if (err) {
-                    let message = `[${name}] _createProject ${err.stack}`
-                    console.error(message)
+                    log(`ERROR [${name}] _createProject ${err.stack}`)
                     resolve(null)
                     return
                 }
 
-                console.log(`[${project.name}] initialize done`)
+                log(`[${project.name}] initialize done`)
 
                 resolve(project)
             })
@@ -40,18 +41,18 @@ class Projects {
     }
 
     _createAllMyProjects = function (username, cb) {
-        console.log('createAllMyProjects')
+        log('createAllMyProjects')
 
         getAuthorizedProjects((err, projectNames) => {
             if (err) {
-                console.error(`getAuthorizedProjects ${err}`)
+                log(`ERROR getAuthorizedProjects ${err}`)
                 cb(err)
                 return
             }
 
             projectNames = projectNames.filter(pn => !pn.startsWith('_test'))
 
-            console.log(`[${username}] authorizedProjects: ${projectNames}`)
+            log(`[${username}] authorizedProjects: ${projectNames}`)
             projectNames = projectNames || []
             let promises = projectNames.map(projectName => this._createProject(projectName, username))
 
@@ -65,7 +66,7 @@ class Projects {
     }
 
     initialize(username, cb) {
-        console.log('initialize [Projects]', username)
+        log(`initialize ${username}`)
 
         this.projects = []
         this.initialized = false
@@ -83,9 +84,12 @@ class Projects {
      }
 
     clear() {
+        log('clear')
         this.projects.forEach(p => p.cancel())  
         
-        this.projects = []
+        if (this.projects.length) 
+            this.projects = []
+            
         this.initialized = false
     }
 }

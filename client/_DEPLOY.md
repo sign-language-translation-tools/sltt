@@ -1,3 +1,6 @@
+!!! Update this to match new mono-repo
+
+
 # Install nginx
 
     sudo apt-get update
@@ -33,22 +36,22 @@
 
     killall -touch 9 node
     npm install -g pm2
-    pm2 start index.js --name SLServer
-    pm2 startup  # print cmd you must run to enable pm2 on reboot
-    pm2 save
+    pm2 startup  # prints cmd you must run to enable pm2 on reboot, run this command
 
 ## Install sltt_server
 
-    cd /home/nmiles
+    cd ~
     mkdir sltt_server
     cd sltt_server
     git init
+    !!! wrong repo
     git remote add origin https://github.com/Nathan22Miles/sltt_server.git
     git pull origin master
     --- copy server.json
     mkdir /home/nmiles/videos
     mkdir projects
     pm2 start server.json
+    pm2 save                // ensure start happens again on reboot
 
 ## Gather updated server files
 

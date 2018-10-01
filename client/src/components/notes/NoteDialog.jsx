@@ -47,7 +47,7 @@ class NoteDialog extends Component {
                                 Project Note: {this.title}
                                 <button 
                                     type="button" 
-                                    className="btn btn-sm pull-right" 
+                                    className="close-note-dialog btn btn-sm pull-right" 
                                     onClick={this.closeNoteDialog.bind(this)} >
                                         <span aria-hidden="true">&times;</span>
                                 </button>
@@ -76,11 +76,11 @@ class NoteDialog extends Component {
                         <div className="modal-footer">
                             {(!showTextEditor && iAmConsultant) && 
                                 <button type="button" 
-                                    className={"btn pull-left btn-primary"} 
+                                    className={"resolve-note btn pull-left btn-primary"} 
                                     onClick={this.resolveNote.bind(this)}>Resolve</button> }
                             { !showTextEditor && 
                                 <button type="button" 
-                                    className={"btn btn-default btn-primary"} 
+                                    className={"close-note-dialog btn btn-default btn-primary"} 
                                     onClick={this.closeNoteDialog.bind(this)}>Close</button> }
                         </div>
                     </div>

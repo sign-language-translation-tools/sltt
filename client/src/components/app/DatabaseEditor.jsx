@@ -84,7 +84,7 @@ class DatabaseEditor extends Component {
 
                 <button
                     type="button"
-                    className="btn btn-primary btn-warning"
+                    className="delete-db-keys btn btn-primary btn-warning"
                     onClick={this.deleteKeys.bind(this)} >
                     Delete!!!
                 </button>
@@ -107,7 +107,7 @@ class DatabaseEditor extends Component {
 
     deleteKeys() {
         // Don't allow deleting everything!!!
-        if (!this.filter) return
+        if (!this.filter || this.filter.length === 0) return
 
         let docs = _.map(this.rows, row => {
             return {

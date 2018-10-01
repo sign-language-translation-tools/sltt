@@ -7,6 +7,8 @@ import { detach } from "mobx-state-tree"
 import { Passage } from './Passages.js'
 import { _insertBy, removeFromDB } from './ModelUtils.js'
 
+const debug = require('debug')('sltt:Portions') 
+
 
 function _move(db, items, _id, newIndex, cb) { 
     let oldIndex = _.findIndex(items, { _id })
@@ -69,7 +71,7 @@ function _add(_db, doc, list, cb) {
     _db.put(doc)
         .then(() => cb && cb())
         .catch(err => { 
-            console.log(err)
+            debug(err)
             cb && cb(err) 
         })
 }
@@ -111,8 +113,6 @@ export const Portion = types.model("Portion", {
         }
 
         return new Promise((resolve, reject) => {
-            //console.log("AAA", self.getProject().name)
-
             self.getDb()
                 .allDocs(options)
                 .then(response => {
@@ -120,12 +120,11 @@ export const Portion = types.model("Portion", {
                     for (let row of response.rows) {
                         self.apply(row.doc)
                     }
-                    //console.log("BBB", self.getProject().name)
                     resolve()
                 })
                 .catch(err => {
                     let message = `[${self.getProject().name}/${self.name}] Portion.load ${err.stack}`
-                    console.error(message)
+                    debug('*** ' + message)
                     reject(message)
                 })
         })
@@ -149,8 +148,7 @@ export const Portion = types.model("Portion", {
         let name = parts[1]
         let passage = _.findWhere(self.passages, { name })
         if (!passage) {
-            console.error(`no matching passage for ${doc._id}`)
-            //throw new Error('') //!!
+            debug(`*** no matching passage for ${doc._id}`)
             return
         }
 
@@ -192,7 +190,7 @@ export const Portion = types.model("Portion", {
 
         let videosId = itemsId.slice('#item/'.length)
 
-        console.log('Portions#removePassages', itemsId, videosId)
+        debug(`removePassages ${itemsId}, ${videosId}`)
 
         let _db = self.getDb()
 
@@ -235,7 +233,7 @@ export const Portion = types.model("Portion", {
         // eslint-disable-next-line
         let err = self.checkName(name)
         if (err) {
-            console.error(`Portions#rename ${err}`)
+            debug(`*** rename ${err}`)
             cb && cb(err)
             return
         }
@@ -274,7 +272,7 @@ export const Portions = types.model("Portions", {
 
     return {
         load: () => {
-            console.log(`[${self.project.name}] Portions#load`)
+            debug(`[${self.project.name}] Portions#load`)
 
             let options = {
                 startkey: '#item/',
@@ -288,7 +286,7 @@ export const Portions = types.model("Portions", {
             return new Promise((resolve, reject) => {
                 _db.allDocs(options)
                     .then(response => {
-                        console.log(`   [${self.project.name}] Portions#load [rows=${response.rows.length}]`)
+                        debug(`   [${self.project.name}] Portions#load [rows=${response.rows.length}]`)
                         // response = {rows: [{doc: {...} }]}
 
                         // Process portions first so we have an owner for each passage
@@ -307,7 +305,7 @@ export const Portions = types.model("Portions", {
         },
 
         apply: (doc) => {
-            //console.log('portions apply', doc._id)
+            //debug('portions apply', doc._id)
 
             let parts = doc._id.split('/')
             let tag = parts[parts.length-1]
@@ -390,7 +388,7 @@ export const Portions = types.model("Portions", {
 
             let videosId = itemsId.slice('#item/'.length)
 
-            console.log('Portions#removePortions', itemsId, videosId)
+            debug('Portions#removePortions', itemsId, videosId)
 
             removeFromDB(_db, videosId)
                 .then(removeFromDB(_db, itemsId))

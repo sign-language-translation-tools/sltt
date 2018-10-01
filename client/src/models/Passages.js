@@ -6,6 +6,8 @@ import { checkStatus, pushFile, concatBlobs, getUrl } from './API.js'
 import { user } from '../components/auth/User.js'
 import { deletedStatus } from './PassagesStatus.js'
 
+const debug = require('debug')('sltt:Passages') 
+
 let previousDate = new Date()
 
 function formatTimestamp(date) {
@@ -27,25 +29,13 @@ export const timestamp = function() {
 
 function uploadTimestamp(file) {
     return formatTimestamp(new Date(file.lastModified))
-
-    // ??? we could allow user to specify the time stamp they want to use by
-    // putting standard format date in file name. Do we need this?
-
-    // let matches = file.name.match(/\d\d\d\d[-/]\d\d[-/]\d\d/)
-    // if (!matches || !matches.length) return formatTimesmap(file.lastModified)
-    // let date = new Date(matches[0].replace('-', '/'))
-    // let now = new Date()
-    // date.setUTCHours(now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds(), 0)
-    // return formatTimestamp(date)
 }
-
 
 
 const setSignedUrl = function(setter, project, url, cb) {
     getUrl(project, url)
-        .then(checkStatus)
-        .then(response => response.text())
         .then(signedUrl => {
+            debug(`setSignedUrl ${signedUrl.slice(0,40)}`)
             setter(signedUrl)
             cb && cb()
         })
@@ -147,26 +137,6 @@ export const PassageNote = types.model("PassageNote", {
         passage.setId(doc, 'notesegment', 'webm')
         self.insertSegment(doc)
         passage.put(doc, cb)
-
-        // I don't think any of this is needed.
-        // We used to store signed urls in DB however these expire so
-        // I don't think we do that anymore.
-
-        // let signedUrl
-        // let setter = surl => { signedUrl = surl }
-
-        // setSignedUrl(setter, projectName, doc.url, err => {
-        //     if (err) {
-        //         if (cb) cb(err)
-        //         return
-        //     }
-
-        //     let doc2 = _.clone(doc)
-        //     doc2.signedUrl = signedUrl
-        //     self.insertSegment(doc2)
- 
-        //     passage.put(doc, cb)
-        // })
     },
 
     getDb: () => {
@@ -177,7 +147,7 @@ export const PassageNote = types.model("PassageNote", {
 
     insertSegment(doc) {
         let segment =_insertBy(doc, self.segments, 'segmentCreated')
-        segment._getSignedUrl().catch(err => { console.log('!!_getSignedUrl failed') })
+        segment._getSignedUrl().catch(err => { debug('!!_getSignedUrl failed') })
     },
 
     removeSegment: (_id, cb) => {
@@ -236,7 +206,7 @@ export const PassageVideo = types.model("PassageVideo", {
     },
 
     setSignedUrl: signedUrl => {
-        //console.log('PassageVideo setSignedUrl', signedUrl && signedUrl.substring(0, 40))
+        //debug('PassageVideo setSignedUrl', signedUrl && signedUrl.substring(0, 40))
         self.signedUrl = signedUrl
     },
 }))
@@ -324,14 +294,14 @@ export const Passage = types.model("Passage", {
 
     putPromise: (doc) => {
         return new Promise((resolve, reject) => {
-            console.log('putPromise', doc)
+            debug('putPromise', doc)
             self.put(doc, err => {
                 if (err) {
                     reject(err)
                     return
                 }
 
-                console.log('putPromise resolve')
+                debug('putPromise resolve')
                 resolve()
             })
 
@@ -359,7 +329,7 @@ export const Passage = types.model("Passage", {
     },
 
     put: (doc, cb) => {
-        console.log('PUT', doc._id)
+        debug('PUT', doc._id)
 
         let portion = self.getPortion()
         let db = portion.getDb()
@@ -381,8 +351,8 @@ export const Passage = types.model("Passage", {
         }
         self.statuses.push(doc)
 
-        //console.log('setStatus')
-        //_.forEach(self.statuses, s => console.log(s))
+        //debug('setStatus')
+        //_.forEach(self.statuses, s => debug(s))
         
         self.setId(doc, 'status')
         self.put(doc, cb)
@@ -390,7 +360,7 @@ export const Passage = types.model("Passage", {
 
     addVideo: (doc, cb) => {
         // doc: { username, videoCreated, duration, url }
-        console.log('addVideo', doc.duration, doc.url)
+        debug('addVideo', doc.duration, doc.url)
         //!! ensure that videoCreated is later than existing videos
 
         self.setId(doc, 'video', 'webm')
@@ -417,7 +387,7 @@ export const Passage = types.model("Passage", {
     },
 
     apply: (doc) => {
-        //console.log('passages apply', doc._id)
+        //debug('passages apply', doc._id)
         
         let { noteCreated, _deleted } = doc
 
@@ -497,9 +467,9 @@ export const Passage = types.model("Passage", {
     get videosNotDeleted() {
         let videos = self.videos || []
         
-        //console.log('videos pre', videos.map(pv => `${pv.videoCreated}|${pv.status}`), deletedStatus)
+        //debug('videos pre', videos.map(pv => `${pv.videoCreated}|${pv.status}`), deletedStatus)
         videos = _.filter(videos, pv => pv.status !== deletedStatus)
-        //console.log('videos post', videos.map(pv => `${pv.videoCreated}|${pv.status}`))
+        //debug('videos post', videos.map(pv => `${pv.videoCreated}|${pv.status}`))
         return videos
     }
 }))

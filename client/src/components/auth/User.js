@@ -1,11 +1,14 @@
-import { extendObservable } from 'mobx'
+import { extendObservable, autorun } from 'mobx'
+import debug from 'debug'
+
 import { userProjects } from '../app/UserProjects.js'
-import { refresh } from './GoogleLogin.jsx'
 import { displayError } from '../utils/Errors.jsx'
+
+const log = debug('sltt:User') 
 
 // Provide the current name and OpenID id_token for the user.
 // At the moment this functionality is tightly entangled with the Google login.
-// Eventually we would like to support Google and Facebook login with the
+// Eventually we would like to support Google and Octopus (and Facebook?) login with the
 // platform specific functionality clearly separated.
 
 /* global gapi */
@@ -14,7 +17,7 @@ import { displayError } from '../utils/Errors.jsx'
 
     azp: "6286565436-21s5kkroam6583qtdjfoh82prcf0klbn.apps.googleusercontent.com",
     aud: "6286565436-21s5kkroam6583qtdjfoh82prcf0klbn.apps.googleusercontent.com", 
-                // Requesting app, must verify when validating
+                // Requesting app, server must verify when validating
     sub: "113097956304962157084",   
                 // Unique user Id
     email: "milesnlwork@gmail.com",
@@ -22,7 +25,7 @@ import { displayError } from '../utils/Errors.jsx'
     at_hash: "l06jRjlxTPvHne6wMk3Mrg",
     exp: 1537042110,
     iss: "accounts.google.com",
-                // Authentication service, must verify
+                // Authentication service, server must verify
     jti: "1be6245a4cab6e5ae76d0e7172eb0489d106b9fc",
     iat: 1537038510
 */
@@ -32,71 +35,77 @@ class User {
         // We make these mobx observable so that when they change the components
         // that use them will automatically re-render.
         extendObservable(this, {
-            username: '',
+            // This the jwt that identifies the current user.
+            // When this is set, the application is in the logged in state.
             id_token: '',
+
+            // User name for current user. Currently we use their email address
+            username: '',
+
+            // True when user is allowed to see the database debugging tool.
             allowDatabase: false,
         })
 
-        // The id_token expires in 1 hour, so refresh it every 50 minutes
-        setInterval(refresh(this.setIdToken.bind(this)), 50*60000)
+        autorun(() => {
+            this.reactToTokenIdChange()  // run this whenever id_token changes
+        })
     }
 
-    clear() {
-        this.setIdToken(null)
-        userProjects.clear()
-    }
+    reactToTokenIdChange() {
+        let { id_token } = this
 
-    setIdToken(id_token) {
-        console.log(`setIdToken id_token=${id_token && id_token.substring(0,15)}`)
-        
-        this.id_token = id_token
         if (!id_token) {
-            this.username = ''
+            log(`eactToTokenIdChange id_token=null`)
+            userProjects.clear()
             return
         }
 
+        log(`reactToTokenIdChange id_token=${id_token && id_token.substring(0,15)}`)
+        
         let payload = id_token.split('.')[1]
         let parsedPayload = JSON.parse(atob(payload))
-        
         let username = parsedPayload.email
-        this.username = username
 
+        //!!! make this be a configured role
         this.allowDatabase = username === 'milesnlwork@gmail.com'
 
-        userProjects.initialize(username, err => {
-            if (err) {
-                displayError(err)
-                return
-            }
+        // When username is first available or there is a new username, initialize the projects
+        // for this username.
+        if (username !== this.username) {
+            this.username = username
 
-            console.log(`User#userProjects.initialize done`)
-        })
-
-        console.log(`setIdToken username=${username}`)
+            userProjects.initialize(username, err => {
+                if (err) {
+                    displayError(err)
+                    return
+                }
+                
+                log(`userProjects.reactToTokenIdChange done`)
+            })
+        }
     }
 
     googleLogin() {
+        log('googleLogin')
         let options = { prompt: 'select_account' }
         const auth2 = gapi.auth2.getAuthInstance()
 
         auth2.signIn(options).then(googleUser => {
+            log('googleLogin done')
             let id_token = googleUser.getAuthResponse().id_token
-            this.setIdToken(id_token)
+            this.id_token = id_token
         })
     }
 
     logout() {
+        log('logout')
         const auth2 = gapi.auth2.getAuthInstance()
         auth2.signOut()
 
-        this.clear()
-    }
+        this.id_token = ''
+        this.username = ''
 
-// localStorage.setItem('access_token', authResult.accessToken)
-// localStorage.removeItem('access_token')
-
-    idToken() {
-        return this.id_token
+        userProjects.clear()
     }
 
     setupTestUser() {

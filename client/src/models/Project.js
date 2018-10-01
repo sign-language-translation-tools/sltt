@@ -7,6 +7,7 @@ import { Members } from './Members.js'
 import { createDb } from './Db.js'
 import { timestamp } from './Passages.js'
 
+const debug = require('debug')('sltt:Portions') 
 
 export const Project = types.model("Project", {
     name: types.string,
@@ -40,12 +41,17 @@ export const Project = types.model("Project", {
                 .then(() => { 
                     return self.members.load() 
                 })
-                .then(() => self.setRole())
                 .then(() => { 
-                    self.restoreDefaults(cb)
+                    self.setRole()
+                })
+                .then(() => { 
+                    self.restoreDefaults(err => {
+                        debug('initialize done', err)
+                        cb && cb(err)
+                    })
                 })
                 .catch(err => { 
-                    console.error(`[${self.name}] Project#initialize error: ${err}`)
+                    debug(`*** [${self.name}] initialize error: ${err}`)
                     cb && cb(err) 
                 })
         },
@@ -75,7 +81,7 @@ export const Project = types.model("Project", {
         getDb: () => { return _db },
 
         setPassage: (passage, cb) => {
-            console.log(`[${self.name}] Project#setPassage: ${passage && passage.name}`)
+            debug(`[${self.name}] setPassage: ${passage && passage.name}`)
 
             self.passage = passage
             if (!passage) {
@@ -87,7 +93,7 @@ export const Project = types.model("Project", {
             let videos = passage.videosNotDeleted
             let passageVideo = passage && _.last(videos)
 
-            //console.log(`[${self.name}] setPassage |${passage && passage._id} | ${video && video._id}|`)
+            //debug(`[${self.name}] setPassage |${passage && passage._id} | ${video && video._id}|`)
 
             self.saveDefaults()
 
@@ -110,7 +116,7 @@ export const Project = types.model("Project", {
         // cb does not happen until info for portion has been loaded from server.
 
         setPortion: (portion, cb) => {
-            console.log(`[${self.name}] Project#setPortion: ${portion && portion.name}`)
+            debug(`[${self.name}] setPortion: ${portion && portion.name}`)
 
             self.portion = portion 
             self.passage = null
@@ -136,31 +142,31 @@ export const Project = types.model("Project", {
                 passageName: self.passage && self.passage.name,
             }
 
-            //console.log(`saveDefaults`, defaults)
+            //debug(`saveDefaults`, defaults)
             localStorage.setItem(self.defaultsStorageName(), JSON.stringify(defaults))
         },
 
         restoreDefaults(cb) {
-            console.log(`[${self.name}] Project#restoreDefaults`)
+            debug(`[${self.name}] restoreDefaults`)
 
             let defaults
             try {
                 let text = localStorage.getItem(self.defaultsStorageName())
                 defaults = (text && JSON.parse(text))
             } catch (error) {
-                console.error(error)
+                debug(`*** restoreDefaults ${error}`)
             }
 
             defaults = defaults || { portionName: null, passageName: null }
 
-            //console.log(`restoreDefaults`, defaults)
+            //debug(`restoreDefaults`, defaults)
 
             let portions = self.portions.portions
             let portion = _.findWhere(portions, { name: defaults.portionName }) || 
                                 portions.slice(0, 1).pop() || null
             self.setPortion(portion, err => {
                 if (err) {
-                    console.error(err)
+                    debug(`*** restoreDefaults#setPortion ${err}`)
                     self.setPassage(null)
                     return
                 }
@@ -192,7 +198,7 @@ export const Project = types.model("Project", {
             note.getSignedUrls(err => {
                 if (err) {
                     //!!! handle error
-                    console.log(err)
+                    debug(err)
                     return
                 }
                 self._setNote(note)
@@ -202,7 +208,7 @@ export const Project = types.model("Project", {
         _setNote: (note) => { self.note = note },
 
         createNote: (position) => {
-            console.log('createNote', position)
+            debug('createNote', position)
 
             let passage = self.passage
             let video = _.last(passage.videos)
@@ -235,20 +241,20 @@ export const Project = types.model("Project", {
 
             self.changeListener = _db.changes(options)
                 .on('change', change => {
-                    console.log(`[${self.name}] on.change ${change.doc._id}`)
+                    debug(`[${self.name}] on.change ${change.doc._id}`)
                     if (self.members) self.members.apply(change.doc)
                     if (self.portions) self.portions.apply(change.doc)
                 })
                 .on('error', err => {
                     //if (err.message === 'ETIMEDOUT') return
-                    console.error(`[${self.name}] Project#listenForChanges err = ${JSON.stringify(err)}`)
+                    debug(`*** [${self.name}] listenForChanges err = ${JSON.stringify(err)}`)
                 })
         },
 
         // Cancel listening for changes.
         // If we don't do this on logout we get TIMEOUT errors.
         cancel: () => {
-            console.log(`[${self.name}] Project#cancel`)
+            debug(`[${self.name}] cancel`)
 
             self.changeListener.cancel()
         }

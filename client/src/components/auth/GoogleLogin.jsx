@@ -6,20 +6,18 @@
 // https://stackoverflow.com/questions/32150845/how-to-refresh-expired-google-sign-in-logins
 
 /*
-make logout work
-auto refresh id_token after login
-switch to local server
-pass login info to server
-update to server to validate against new info
 make unit tests work (with new authentication)
+Remove auth0 dependencies/code
 */
-// Remove auth0 dependencies/code
 
 /* global gapi */
 
 import React from 'react'
 import { Button } from 'react-bootstrap'
 import { user } from './User.js'
+import debug from 'debug'
+
+const log = debug('sltt:GoogleLogin') 
 
 const googleClientId = "6286565436-21s5kkroam6583qtdjfoh82prcf0klbn.apps.googleusercontent.com"
 
@@ -51,7 +49,11 @@ export default class GoogleLogin extends React.Component {
     }
     
     const loadAuth2 = () => {
+      log(`google API script loaded`)
+
       gapi.load('auth2', () => {
+        log(`auth2 loaded`)
+
         this.setState({ disabled: false })
 
         if (!gapi.auth2.getAuthInstance()) {
@@ -62,7 +64,7 @@ export default class GoogleLogin extends React.Component {
           })
         }
 
-        refresh(user.setIdToken.bind(user))
+        checkIdTokenNowAndOnWakeup(user)
       })
     }
 
@@ -78,35 +80,96 @@ export default class GoogleLogin extends React.Component {
       <Button {...props} 
           bsStyle="primary"
           className="google-login app-accountsUI btn-margin"
-          onClick={() => user.googleLogin() }>
+          onClick={() => { log('googleLogin'); user.googleLogin() } }>
             Login
       </Button>
     )
   }
 }
 
-export const refresh = function(setIdToken) {
-  // Can't refresh until apis.google.com has finished loading
-  let _gapi = (typeof gapi !== 'undefined' && gapi) || null
-  let auth2 = (_gapi && _gapi.auth2 && _gapi.auth2.getAuthInstance()) || null
-  if (!auth2) {
-    setIdToken(null)
-    return
+function expired(jwt) {
+  try {
+    let payload = jwt.split('.')[1]
+    let decoded = JSON.parse(atob(payload))
+    if (decoded.exp < (new Date()).getTime() - decoded.iat)
+      return false
+  } catch (error) {
   }
 
-  let googleUser = auth2.currentUser.get()
-  if (googleUser) {
-    googleUser.reloadAuthResponse()
-      .then(authResponse => {
-        setIdToken(authResponse.id_token)
-      })
-      .catch(err => {
-        // Not able to reload, cause the user to login again
-        setIdToken(null)
-      })
-    return
-  }
-
-  setIdToken(null)
+  log('jwt expired')
+  return true    
 }
 
+// Get jwt Id Token.
+// If current token expired, try to renew it.
+// If cannot renew, resolve to null.
+
+export const getGoogleIdToken = function(user) {
+  return new Promise((resolve, reject) => {
+    let _gapi = (typeof gapi !== 'undefined' && gapi) || null
+    let auth2 = (_gapi && _gapi.auth2 && _gapi.auth2.getAuthInstance()) || null
+    if (!auth2) {
+      log('getGoogleIdToken - no AuthInstance!!!')
+      user.id_token = null
+      reject('no AuthInstance')
+      return
+    }
+
+    let googleUser = auth2.currentUser.get()
+    if (!googleUser) { 
+      log('getGoogleIdToken - no googleUser!!!')
+      user.id_token = null
+      resolve(null)
+      return 
+    }
+
+    let id_token = googleUser.getAuthResponse().id_token
+    if (id_token && !expired(id_token)) {
+      log('getGoogleIdToken - ok')
+      if (user.id_token !== id_token)
+        user.id_token = id_token
+      resolve(id_token)
+      return
+    }
+
+    googleUser.reloadAuthResponse()
+      .then(authResponse => {
+        log('getGoogleIdToken - reloaded')
+        user.id_token = authResponse.id_token
+        resolve(authResponse.id_token)
+      })
+      .catch(err => {
+        // Not able to reload, no id_token available
+        log('getGoogleIdToken - reload failed!!!', err)
+        user.id_token = null
+        resolve(null)
+      })
+  })
+}
+
+// Make sure we are in logged out state (user.id_token = null) now and when the
+// computer wakes up.
+// If the id_token cannot be refreshed to be valid, clear it to put the app
+// in the logged out state ... user will then login to create a valid token.
+
+export const checkIdTokenNowAndOnWakeup = function(user) {
+  var TIMEOUT = 2000;
+  var lastTime = 0 // force check to happen now
+
+  setInterval(function () {
+    var currentTime = (new Date()).getTime()
+    if (currentTime > (lastTime + TIMEOUT + 4000)) {
+      // There has been a gap in the execution times for this function.
+      // Mostly likely because this page is waking up after the computer has been sleeping.
+
+      // We fetch the IdToken here for the side effect of clearing it
+      // if this token can no longer be refreshed to a valid state.
+      log('checkIdTokenNowAndOnWakeup triggered')
+      getGoogleIdToken(user)
+        .then(() => { })
+        .catch(() => { })
+    }
+
+    lastTime = currentTime
+  }, TIMEOUT)
+}

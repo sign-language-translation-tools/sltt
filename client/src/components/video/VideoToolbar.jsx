@@ -111,6 +111,8 @@ class VideoToolbar extends Component {
     }
 
     onDelete() {
+        displayError('blah blah')
+
         let { project, remote } = this.props
         let { passage } = project
 
@@ -124,7 +126,6 @@ class VideoToolbar extends Component {
 
             remote.signedUrl = passageVideo && passageVideo.signedUrl
         })
-
     }
 
     adjustCurrentTime(delta) {

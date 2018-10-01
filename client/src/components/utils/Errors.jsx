@@ -1,4 +1,6 @@
 import { toast } from 'react-toastify'
+import * as Sentry from '@sentry/browser'
+
 
 function stringify(err) {
   if (typeof err === 'string') return err
@@ -8,7 +10,8 @@ function stringify(err) {
 export function displayError(message) { 
   message = stringify(message)
   console.log('<ERROR>', message)
-  return toast.error(message, {autoClose: 10000}) 
+  Sentry.captureException(message)
+  return toast.error(message, {autoClose: 20000}) 
 }
 
 export function displayInfo(message) { 

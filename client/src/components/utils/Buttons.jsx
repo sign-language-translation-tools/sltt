@@ -39,7 +39,7 @@ export const PortionsViewButton = function({tooltip, onClick}) {
 
 export const RecordButton = function ({ enabled, onClick }) {
     //let className = classNames("et-right", "fa", "fa-2x", "fa-circle", "fa-fw", "text-danger", "video-up1", 
-    let tooltip = "(Re)record passage. Click square Stop icon or type <space> to end."
+    let tooltip = "(Re)record passage. Click square Stop icon to end."
 
     return (
         <img className={enableImg('sl-record-button', enabled)}
@@ -53,7 +53,7 @@ export const RecordButton = function ({ enabled, onClick }) {
 }
 
 export const StopButton = function({enabled, onClick}) {
-    let tooltip = "Stop recording. Shortcut: type <Ctrl>space."
+    let tooltip = "Stop recording."
 
     return (
         <span className={enable('sl-fa-button sl-stop-button fa-stop', enabled)}
@@ -65,7 +65,7 @@ export const StopButton = function({enabled, onClick}) {
 }
 
 export const PlayButton = function ({ enabled, onClick }) {
-    let tooltip = "Play (Ctrl+Space)."
+    let tooltip = "Play."
 
     return (
         <img className={enableImg('sl-play-button', enabled)}
@@ -79,7 +79,7 @@ export const PlayButton = function ({ enabled, onClick }) {
 }
 
 export const PauseButton = function ({ enabled, onClick }) {
-    let tooltip = "Pause (Ctrl+Space)."
+    let tooltip = "Pause."
 
     return (
         <img className={enableImg('sl-pause-button', enabled)}

@@ -28,7 +28,7 @@ class MemberAdder extends Component {
         if (!this.adding)
             return (
                 <tr>
-                    <td> <button onClick={() => {
+                    <td> <button className='add-user' onClick={() => {
                         this.adding = true
                     }}>Add User</button> </td>
                 </tr>

@@ -4,12 +4,16 @@ import upsert from 'pouchdb-upsert'
 
 import { hostUrl, checkStatus, authorization, getJson } from './API.js'
 
+const debug = require('debug')('sltt:Db') 
+
 PouchDb.plugin(upsert)
 
 //PouchDb.debug.enable('*')
 
 
 export const createDb = function(name) {
+    debug(`createDb ${name}`)
+
     let options = {
         ajax: {
             headers: { Authorization: authorization() }
@@ -32,7 +36,7 @@ export const destroyTestDbs = function (done) {
         .then(() => done())
         .catch(err => {
             let msg = `destroyTestDbs: ${err}`
-            console.error(msg)
+            debug(msg)
             done(msg)
         })
 }
@@ -49,7 +53,7 @@ export const initializeTestProjects = function (done) {
         .then(() => done())
         .catch(err => {
             let msg = `initializeTestProjects: ${err}`
-            console.error(msg)
+            debug(msg)
             done(msg)
         })
 }
@@ -61,18 +65,18 @@ export const getAuthorizedProjects = function (cb) {
     }
 
     let path = `${hostUrl}/_projects`
-    console.log(`getAuthorizedProjects-fetch ${path}`)
+    debug(`getAuthorizedProjects ${path}`)
 
     fetch(path, options)
         .then(checkStatus)
         .then(getJson)
         .then(projects => {
-            console.log(`getAuthorizedProjects-result ${projects}`)
+            debug(`getAuthorizedProjects result= ${projects}`)
             cb(null, projects)
         })
         .catch(err => {
-            let msg = `getAuthorizedProjects: ${err}`
-            console.error(msg)
+            let msg = `*** getAuthorizedProjects ${err}`
+            debug(msg)
             cb(msg)
         })
     

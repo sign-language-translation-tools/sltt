@@ -1,6 +1,9 @@
 import { types, getParent, /* getSnapshot, onSnapshot, onPatch, */ applySnapshot } from "mobx-state-tree"
 import _ from 'underscore'
 
+const debug = require('debug')('sltt:Members') 
+
+
 export const Member = types.model("Member", {
     //id: types.string,
     email: types.string,
@@ -8,11 +11,13 @@ export const Member = types.model("Member", {
 })
 .actions(self => ({
     setRole: (role, cb) => { 
+        debug(`setRole ${self.email}/${role}`)
         let members = getParent(self, 2)
         members.setRole(self.email, role, cb)
     },
 
     delete: (cb) => {
+        debug(`delete ${self.email}`)
         let members = getParent(self, 2)
         members.delete(self.email, cb)
     }
@@ -40,16 +45,19 @@ export const Members = types.model("Members", {
         },
 
         load: () => {
+            debug('load')
             self.initDb()
 
             return new Promise ((resolve, reject) => {
                 _db.get(self._id)
                    .then(doc => {
-                       // _rev = doc._rev
-                       applySnapshot(self, doc)
-                       resolve(doc)
+                        debug('applySnapshot')
+                        // _rev = doc._rev
+                        applySnapshot(self, doc)
+                        resolve(doc)
                    })
                    .catch(err => {
+                       debug(`*** load error ${err}`)
                        reject(err)
                    })
             }) 
@@ -59,12 +67,14 @@ export const Members = types.model("Members", {
 
         // Add a new member.
         add: (email, cb) => {
+            debug(`add ${email}`)
             self.initDb()
 
             email = email.trim()
             let err = self.canAdd(email)
             if (err) {
                 if (cb) {
+                    debug(`*** add error = ${err}`)
                     cb(err)
                     return
                 }
@@ -84,6 +94,7 @@ export const Members = types.model("Members", {
             _db.upsert('members', add)
                .then(() => { cb && cb() })
                .catch(err => {
+                   debug(`*** add upsert error = ${err}`)
                    cb && cb(err)
                 })
         },
@@ -105,6 +116,7 @@ export const Members = types.model("Members", {
         },
 
         delete: (email, cb) => {
+            debug(`delete ${email}`)
             self.initDb()
             email = email.trim()
             
@@ -120,6 +132,7 @@ export const Members = types.model("Members", {
             _db.upsert('members', deleteMember)
             .then(() => { cb && cb() })
             .catch(err => {
+                debug(`*** delete upsert error = ${err}`)
                 cb && cb(err)
             })
         },
@@ -140,6 +153,7 @@ export const Members = types.model("Members", {
             _db.upsert('members', _setRole)
             .then(() => { cb && cb() })
             .catch(err => {
+                debug(`*** setRole upsert error = ${err}`)
                 cb && cb(err)
             })
         }
