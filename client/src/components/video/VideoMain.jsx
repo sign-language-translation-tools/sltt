@@ -4,7 +4,7 @@ import { extendObservable } from 'mobx'
 import { observer, /* inject */ } from 'mobx-react'
 import PropTypes from 'prop-types'
 //import MouseHoveringDetection from 'react-detect-mouse-over' // could not make this work
-import _ from 'underscore'
+//import _ from 'underscore'
 
 import VideoToolbar from './VideoToolbar.jsx'
 import VideoPlayer from './VideoPlayer.jsx'
@@ -12,8 +12,9 @@ import VideoRecorder from './VideoRecorder.jsx'
 import VideoPositionBar from './VideoPositionBar.jsx'
 import VideoMessage from './VideoMessage.jsx'
 import NoteBar from '../notes/NoteBar.jsx'
-import { user } from '../auth/Auth.js'
+import { user } from '../auth/User.js'
 import { timestamp } from '../../models/Passages.js'
+import { displayError } from '../utils/Errors.jsx'
 
 import "./Video.css"
 
@@ -138,19 +139,13 @@ class VideoMain extends Component {
 
         let doc = { videoCreated, username: user.username, duration, url }
 
-        passage.addVideo(doc, err => {
-            if (err) {
-                console.log('addSegment err:', err)
-                return
-            }
+        passage.addVideo(doc, (err, passageVideo) => {
+            if (err) { displayError(err); return }
 
-            let video = _.last(passage.videos)
-            video.getSignedUrl(err => {
-                if (err) {
-                    console.log('getSignedUrl err:', err)
-                    return
-                }
-                remote.signedUrl = video.signedUrl
+            project.setPassageVideo(passage, passageVideo, err => {
+                if (err) { displayError(err); return }
+                // Trigger Load of new video into player
+                remote.signedUrl = passageVideo.signedUrl
             })
         })
     }

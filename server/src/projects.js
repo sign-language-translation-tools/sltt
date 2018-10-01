@@ -15,12 +15,12 @@ function _isMember(dbName, email) {
         db.get('members')
           .then(doc => {
               if (_.findWhere(doc.items, {email})) {
-                  //log.debug(`${email} IS member of ${dbName} `)
+                  log.debug(`${email} IS member of ${dbName} `)
                   resolve(dbName)
                   return
               }
 
-              //log.debug(`${email} IS NOT member of ${dbName} `)
+              log.debug(`${email} IS NOT member of ${dbName} `)
               resolve(null)
           })
           .catch(err => { 
@@ -32,7 +32,7 @@ function _isMember(dbName, email) {
     })
 }
 
-function reportFailure(err) {
+function reportFailure(res, err) {
     log.error(`/_projects failed, err=${err}`)
     res.writeHead(500)
     res.end()
@@ -40,7 +40,7 @@ function reportFailure(err) {
 
 exports.projects = function (req, res, next) {
     fs.readdir(_PouchDBPath, function (err, subdirs) {
-        if (err) { reportFailure(err); return }
+        if (err) { reportFailure(res, err); return }
 
         let promises = subdirs.map(subdir => _isMember(subdir, req.email))
         Promise.all(promises)
@@ -49,6 +49,6 @@ exports.projects = function (req, res, next) {
                 log.debug(`/_projects ${req.email} = ${results}`)
                 res.send(results)
             })
-            .catch(reportFailure)
+            .catch(err => reportFailure(res, err))
     })
 }

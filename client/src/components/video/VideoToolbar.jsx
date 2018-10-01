@@ -5,6 +5,7 @@ import React, { Component } from 'react'
 import {extendObservable} from 'mobx'
 import {observer} from 'mobx-react'
 import PropTypes from 'prop-types'
+import { displayError } from '../utils/Errors.jsx'
 
 import {
     PlayButton, PauseButton, RecordButton, StopButton, CreateNoteButton, CreateLabelButton} from '../utils/Buttons.jsx'
@@ -68,7 +69,7 @@ class VideoToolbar extends Component {
 
                     { !stopShown &&
                         <RecordButton
-                            enabled={recordVideo}
+                            enabled={recordVideo && !playing}
                             onClick={recordVideo}
                             title="Record video." /> 
                     }
@@ -97,7 +98,9 @@ class VideoToolbar extends Component {
                 
                 <div style={{ flex: 1 }}>
                     {passageVideo &&
-                        <PassageStatusSelector project={project} />
+                        <PassageStatusSelector 
+                            project={project} 
+                            onDelete={this.onDelete.bind(this)} />
                     }
                     {passageVideo &&
                         <PassageVideoSelector project={project} remote={remote} />
@@ -105,6 +108,23 @@ class VideoToolbar extends Component {
                 </div>
         </div>
         )
+    }
+
+    onDelete() {
+        let { project, remote } = this.props
+        let { passage } = project
+
+        remote.signedUrl = null
+
+        // Find the first not deleted video, if any
+        let passageVideo = passage.videosNotDeleted.slice(-1)[0]  // might be null if no video remaining
+
+        project.setPassageVideo(passage, passageVideo, err => {
+            if (err) { displayError(err); return }
+
+            remote.signedUrl = passageVideo && passageVideo.signedUrl
+        })
+
     }
 
     adjustCurrentTime(delta) {

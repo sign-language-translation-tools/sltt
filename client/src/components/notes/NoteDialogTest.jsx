@@ -7,7 +7,7 @@ import PouchDBAdapterMemory from 'pouchdb-adapter-memory'
 import NoteDialog from './NoteDialog.jsx'
 import { Portions } from '../../models/Portions.js'
 import { Project } from '../../models/Project.js'
-import { user } from '../auth/Auth.js'
+import { user } from '../auth/User.js'
 
 
 // Create in-memory test DB
@@ -67,7 +67,7 @@ initialize()
 
 class NoteDialogTest extends Component {
     render() {
-        if (!user.token) return null
+        if (!user.id_token) return null
 
         return (
             <NoteDialog project={project} />

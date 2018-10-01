@@ -4,10 +4,8 @@ import _ from 'underscore'
 import { Portion, Portions } from './Portions.js'
 import { Passage, PassageNote, PassageVideo } from './Passages.js'
 import { Members } from './Members.js'
-import { createDb, getAuthorizedProjects } from './Db.js'
+import { createDb } from './Db.js'
 import { timestamp } from './Passages.js'
-
-// import _ from 'underscore'
 
 
 export const Project = types.model("Project", {
@@ -44,20 +42,10 @@ export const Project = types.model("Project", {
                 })
                 .then(() => self.setRole())
                 .then(() => { 
-                    let length
-                    // Don't think this could throw but don't want debugging to crash whole banana
-                    try {
-                        length = self.portions.portions.length
-                    } catch (err) {
-                    }
-
-                    self.restoreDefaults()
-
-                    console.log(`[${self.name}] portions.load done (${length})`)
-                    cb && cb() 
+                    self.restoreDefaults(cb)
                 })
                 .catch(err => { 
-                    console.error(`${self.name} portions loaded error: ${err}`)
+                    console.error(`[${self.name}] Project#initialize error: ${err}`)
                     cb && cb(err) 
                 })
         },
@@ -87,28 +75,33 @@ export const Project = types.model("Project", {
         getDb: () => { return _db },
 
         setPassage: (passage, cb) => {
+            console.log(`[${self.name}] Project#setPassage: ${passage && passage.name}`)
+
             self.passage = passage
             if (!passage) {
                 self.passageVideo = null
+                cb && cb()
                 return
             }
             
             let videos = passage.videosNotDeleted
-            let video = passage && _.last(videos)
+            let passageVideo = passage && _.last(videos)
 
             //console.log(`[${self.name}] setPassage |${passage && passage._id} | ${video && video._id}|`)
 
             self.saveDefaults()
 
-            self.passageVideo = video
-            if (video) video.getSignedUrl(cb)
+            self.passageVideo = passageVideo
+            if (passageVideo) passageVideo.getSignedUrl(cb)
             else if (cb) cb(null)
         },
 
-        setPassageVideo: (passage, video, cb) => {
+        // Select a specific video for this passage.
+        // Make sure that its signedUrl field is set so that it can be played.
+        setPassageVideo: (passage, passageVideo, cb) => {
             self.passage = passage
-            self.passageVideo = video
-            if (video) video.getSignedUrl(cb)
+            self.passageVideo = passageVideo
+            if (passageVideo) passageVideo.getSignedUrl(cb)
             else if (cb) cb(null)
         },
 
@@ -117,10 +110,12 @@ export const Project = types.model("Project", {
         // cb does not happen until info for portion has been loaded from server.
 
         setPortion: (portion, cb) => {
-            //console.log('Project.setPortion')
+            console.log(`[${self.name}] Project#setPortion: ${portion && portion.name}`)
 
             self.portion = portion 
             self.passage = null
+            self.passageVideo = null
+            
             self.saveDefaults()
 
             if (!portion) {
@@ -145,8 +140,8 @@ export const Project = types.model("Project", {
             localStorage.setItem(self.defaultsStorageName(), JSON.stringify(defaults))
         },
 
-        restoreDefaults() {
-            //console.log(`restoreDefaults`, self.name, self.portions, self.passage)
+        restoreDefaults(cb) {
+            console.log(`[${self.name}] Project#restoreDefaults`)
 
             let defaults
             try {
@@ -173,7 +168,7 @@ export const Project = types.model("Project", {
                 let passages = (portion && portion.passages) || []
                 let passage = _.findWhere(passages, { name: defaults.passageName }) ||
                     passages.slice(0, 1).pop() || null
-                self.setPassage(passage)
+                self.setPassage(passage, cb)
             })
 
         },
@@ -238,57 +233,27 @@ export const Project = types.model("Project", {
                 // continuous: true,
             }
 
-            _db.changes(options)
+            self.changeListener = _db.changes(options)
                 .on('change', change => {
-                    console.log('change', change.doc)
+                    console.log(`[${self.name}] on.change ${change.doc._id}`)
                     if (self.members) self.members.apply(change.doc)
                     if (self.portions) self.portions.apply(change.doc)
                 })
                 .on('error', err => {
                     //if (err.message === 'ETIMEDOUT') return
-                    let message = `Project.listenForChanges [${self.name}]`
-                    console.error(message, err)
+                    console.error(`[${self.name}] Project#listenForChanges err = ${JSON.stringify(err)}`)
                 })
         },
+
+        // Cancel listening for changes.
+        // If we don't do this on logout we get TIMEOUT errors.
+        cancel: () => {
+            console.log(`[${self.name}] Project#cancel`)
+
+            self.changeListener.cancel()
+        }
 
     }
 })
 
-function _createProject(name, username) {
-    return new Promise((resolve, reject) => {
-        console.log(`[${name}] _createProject`)
-
-        let project = Project.create({ 
-            name,
-            username, })
-
-        project.initialize(err => {
-            if (err) {
-                let message = `[${name}] _createProject ${err.stack}`
-                console.error(message)
-                resolve(null)
-                return
-            }
-
-            resolve(project)
-        })
-    })
-}
-
-export const createAllMyProjects = function (username, cb) {
-    console.log('createAllMyProjects')
-
-    getAuthorizedProjects((err, projectNames) => {
-        console.log(`[${username}] authorizedProjects: ${projectNames}`)
-        projectNames = projectNames || []
-        let promises = projectNames.map(projectName => _createProject(projectName, username))
-        
-        Promise.all(promises)
-            .then(projects => {
-                projects = _.filter(projects, project => project !== null)
-                cb(null, projects)
-            })
-            .catch(err => cb(err))
-    })
-}
 

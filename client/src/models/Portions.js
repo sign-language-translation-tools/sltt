@@ -2,9 +2,10 @@
 
 import { types, getParent } from "mobx-state-tree"
 import _ from 'underscore'
+import { detach } from "mobx-state-tree"
 
 import { Passage } from './Passages.js'
-import { _insertBy, _remove } from './ModelUtils.js'
+import { _insertBy, removeFromDB } from './ModelUtils.js'
 
 
 function _move(db, items, _id, newIndex, cb) { 
@@ -90,9 +91,14 @@ function _duplicateCheck(items, name) {
 
 // ================== PORTION =====================
 
+// In order to allow renaming a portion without going back and changing all the references
+// to db items that mention the old name we will (someday) support a 'displayName' that
+// we show to the user.
+
 export const Portion = types.model("Portion", {
     _id: types.identifier(),
     name: types.string,
+    // displayName: types.optional(types.string),
     rank: types.number,
     passages: types.array(Passage, [])
 })
@@ -100,7 +106,7 @@ export const Portion = types.model("Portion", {
     load: () => {
         let options = {
             startkey: self.name + '/',
-            endkey: self.name + '/ufff0',
+            endkey: self.name + '/\uffff',
             include_docs: true,
         }
 
@@ -156,9 +162,44 @@ export const Portion = types.model("Portion", {
         _move(_db, self.passages, _id, newIndex, cb) 
     },    
 
+    removePassageReference(_id) {
+        let project = self.getProject()
+
+        if (project.passage && project.passage._id === _id) {
+            project.setPassage(null)
+        }
+    },
+
     removePassage: (_id, cb) => { 
+        self.removePassageReference(_id)
+
+        let idx = _.findIndex(self.passages, { _id })
+        if (idx < 0) {
+            cb(`_remove: cannot find ${_id}`)
+            return
+        }
+
+        // we need to use detach rather than splice here because
+        // splice immediately makes the object inaccessible and it is hard to
+        // stop react from accessing it in that state and crashing
+        detach(self.passages[idx])
+
+        // Match this item all its subitems (if any).
+        // E.g. for the portition #item/Progigal Son/portion
+        // we also want to match the passage #item/Prodigal Son/Part 1/passage
+
+        let itemsId = _id.slice(0, -('/passage'.length)) + '/'
+
+        let videosId = itemsId.slice('#item/'.length)
+
+        console.log('Portions#removePassages', itemsId, videosId)
+
         let _db = self.getDb()
-        _remove(_db, self.passages, _id, cb) 
+
+        removeFromDB(_db, videosId)
+            .then(removeFromDB(_db, itemsId))
+            .then(() => cb && cb())
+            .catch(err => cb && cb(err))
     },    
 
     addPassage: (name, cb) => {
@@ -183,17 +224,44 @@ export const Portion = types.model("Portion", {
         return _invalidNameCheck(name) || _duplicateCheck(self.passages, name)
     },
 
+    rename: (name, cb) => {
+        cb('Renaming portions is not supported yet, sorry.')
+        return
+
+        // I think the following code is more or less right.
+        // We would need to change all the ui components to use displayName instead of
+        // name when then displayName has been set.
+
+        // eslint-disable-next-line
+        let err = self.checkName(name)
+        if (err) {
+            console.error(`Portions#rename ${err}`)
+            cb && cb(err)
+            return
+        }
+
+        let db = self.getDb()
+        db.get(self._id)
+            .then(doc => {
+                doc.displayName = name
+                return db.put(doc)
+            })
+            .then(() => cb && cb())
+            .catch(err => { cb && cb(err) })
+    },
+
     getProject: () => {
         let project = getParent(self, 3)
         return project
     },
 
 }))
-
-// Portion.checkEq = function (por1, por2) {
-//     let attrs = ['_id', 'name', 'rank']
-//     return _.all(attrs, attr => por1[attr] === por2[attr])
-// }
+.views(self => ({
+    // true iff any passage in this portion has video already recorded
+    get videod() {
+        return self.passages.some(passage => passage.videod)
+    },
+}))
 
 
 // ================== PORTIONS =======================
@@ -206,6 +274,8 @@ export const Portions = types.model("Portions", {
 
     return {
         load: () => {
+            console.log(`[${self.project.name}] Portions#load`)
+
             let options = {
                 startkey: '#item/',
                 endkey: '#item/ufff0',
@@ -218,6 +288,7 @@ export const Portions = types.model("Portions", {
             return new Promise((resolve, reject) => {
                 _db.allDocs(options)
                     .then(response => {
+                        console.log(`   [${self.project.name}] Portions#load [rows=${response.rows.length}]`)
                         // response = {rows: [{doc: {...} }]}
 
                         // Process portions first so we have an owner for each passage
@@ -252,7 +323,10 @@ export const Portions = types.model("Portions", {
                 // We inserted the portions first so we should 'always' find a matching 
                 // portion for this passage
                 let idx = _.findIndex(self.portions, { name: portionName })
-                if (idx < 0) throw new Error(`Portion not found [${doc._id}]`)
+                if (idx < 0) {
+                    console.warn(`[${self.project.name}] Portions#apply item Portion not found [${doc._id}]`)
+                    return
+                }
 
                 self.portions[idx].apply(doc)
                 return
@@ -261,7 +335,7 @@ export const Portions = types.model("Portions", {
             let name = parts[0]
             let portion = _.findWhere(self.portions, { name })
             if (!portion) {
-                //!!! error
+                console.warn(`[${self.project.name}] Portions#apply non item Portion not found [${doc._id}]`)
                 return
             }
 
@@ -272,12 +346,56 @@ export const Portions = types.model("Portions", {
 
         getDb: () => { return _db },
 
+        getProject: () => {
+            let project = getParent(self, 1)
+            return project
+        },
+
         movePortion: (_id, newIndex, cb) => {
             _move(_db, self.portions, _id, newIndex, cb)
         },
 
+        removePortionReference(_id) {
+            let project = self.getProject()
+            let portions = project.portions.portions
+
+            if (project.portion && project.portion._id === _id) {
+                if (portions.length > 0) {
+                    project.setPortion(portions[0])
+                } else {
+                    project.setPortion(null)
+                }
+            }
+        },
+
         removePortion: (_id, cb) => {
-            _remove(_db, self.portions, _id, cb)
+            self.removePortionReference(_id)
+
+            let idx = _.findIndex(self.portions, { _id })
+            if (idx < 0) {
+                cb(`_remove: cannot find ${_id}`)
+                return
+            }
+
+            // we need to use detach rather than splice here because
+            // splice immediately makes the object inaccessible and it is hard to
+            // stop react from accessing it in that state and crashing
+            detach(self.portions[idx])
+
+            // Match this item all its subitems (if any).
+            // E.g. for the portition #item/Progigal Son/portion
+            // we also want to match the passage #item/Prodigal Son/Part 1/passage
+
+            let itemsId = _id.slice(0, -('/portion'.length)) + '/'
+
+            let videosId = itemsId.slice('#item/'.length)
+
+            console.log('Portions#removePortions', itemsId, videosId)
+
+            removeFromDB(_db, videosId)
+                .then(removeFromDB(_db, itemsId))
+                .then(() => cb && cb())
+                .catch(err => cb && cb(err))
         },
 
         addPortion: (name, cb) => {
@@ -298,6 +416,9 @@ export const Portions = types.model("Portions", {
 
     }
 })
-// .views(self => ({
-// }))
+.views(self => ({
+    get project() {
+        return getParent(self, 1)
+    },    
+}))
 

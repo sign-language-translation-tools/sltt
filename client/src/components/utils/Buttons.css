@@ -27,6 +27,8 @@
     width: 35px;
     height: 40px;
     cursor: pointer;
+    margin-left: 2px;
+    margin-right: 1px;
 }
 
 .sl-pause-button {
@@ -35,6 +37,7 @@
     width: 35px;
     height: 40px;
     cursor: pointer;
+    margin-left: 9px;
 }
 
 .sl-record-button {

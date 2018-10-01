@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import { observer } from 'mobx-react'
 import PropTypes from 'prop-types'
 
-import { PlayButton, RecordButton, PassageAddButton, MembersViewButton, PortionsViewButton } from '../utils/Buttons.jsx'
+import { PassageAddButton, MembersViewButton, PortionsViewButton } from '../utils/Buttons.jsx'
 
 class VideoMessage extends Component {
     static propTypes = {
@@ -20,16 +20,22 @@ class VideoMessage extends Component {
 
         if (passage && videod > 0) 
             return (
-                <div className="video-message">
-                    <ul><li>Click <PlayButton enabled={true} />&nbsp;above or type Ctrl-space to play passage.</li></ul>
-                </div>
+                null
+
+                // Following message is too 'busy'. I am supressing it for now.
+                // <div className="video-message">
+                //     <ul><li>Click <PlayButton enabled={true} />&nbsp;above or type Ctrl-space to play passage.</li></ul>
+                // </div>
             )
         
         if (passage && iAmTranslator)
             return (
-                <div className="video-message">
-                    <ul><li>Click <RecordButton enabled={true} /> above to record passage.</li></ul>
-                </div>
+                null
+
+                // Following message is too 'busy'. I am supressing it for now.
+                // <div className="video-message">
+                //     <ul><li>Click <RecordButton enabled={true} /> above to record passage.</li></ul>
+                // </div>
             )
         
         if (passage && !videod && !iAmTranslator)

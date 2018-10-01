@@ -2,7 +2,7 @@ import _ from 'underscore'
 
 let { createDb, initializeTestProjects, destroyTestDbs, getAuthorizedProjects } = require('./Db.js')
 
-require('../components/auth/Auth.js').user.setupTestUser()
+require('../components/auth/User.js').user.setupTestUser()
 
 // Initial test config members info
 //

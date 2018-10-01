@@ -37,7 +37,7 @@ const pushBlob = function(req, res) {
         return
     }
 
-    if (!ct.startsWith('video/webm') && !ct.startsWith('video/mp4') && !ct.startsWith('text/plain')) {
+    if (!ct.startsWith('video/') && !ct.startsWith('text/plain')) {
         log.error(`_push_ bad content type: ${ct}`)
         res.writeHead(400)
         res.end()

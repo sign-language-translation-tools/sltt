@@ -61,10 +61,13 @@ export const getAuthorizedProjects = function (cb) {
     }
 
     let path = `${hostUrl}/_projects`
+    console.log(`getAuthorizedProjects-fetch ${path}`)
+
     fetch(path, options)
         .then(checkStatus)
         .then(getJson)
         .then(projects => {
+            console.log(`getAuthorizedProjects-result ${projects}`)
             cb(null, projects)
         })
         .catch(err => {
