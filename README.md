@@ -4,6 +4,8 @@ The SLTT system consists of a client running in a browser and a backend server r
 
 Possible futures: Support other browsers. Support a standalone version of the client using Electron or a similar package.
 
+![Diagram](http://sign-language-translation-tools.github.io/sltt/overview.png)
+
 # Client
 
 The client consists of a React UI displaying information found in two state models.
