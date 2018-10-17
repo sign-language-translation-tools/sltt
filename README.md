@@ -31,6 +31,112 @@ This is stored as a tree of [mobx-state-tree](https://github.com/mobxjs/mobx-sta
 
 Initially this information is read from the project PouchDB database on the server. Any changes made to this data by this client or any other client accessing this project on the server are automatically sent to the client causing the project state model to be updated and triggering a re-rendering of the information in the React components.
 
+### Data Model
+
+```
+Project
+    name
+    members
+        Member
+            email
+            role (admin/translator/consultant/observer)
+    portions
+        Portion
+            name
+            rank (determines display sequence)
+            passages
+                Passage
+                    name
+                    rank
+                    videos
+                        PassageVideo
+                            username
+                            videoCreated (creation timestamp for passage video)
+                            duration (of recorded video)
+                            url (S3 url)
+                    statuses
+                        PassageStatus
+                            statusCreated (creation timestamp for this status entry)
+                            videoCreated (creation timestamp for passage video this note applies to)
+                            status (review status)
+                    notes
+                        PassageNote
+                            videoCreated (creation timestamp for passage video this note applies to)
+                            noteCreated (note creation timestamp)
+                            position (time offset of note in passage video)
+                            resolved (boolean - no further action needed on note)
+                            segments
+                                PassageNoteSegment (represents one comment in a note thread)
+                                    segmentCreated (creation timestamp for segment)
+                                    username
+                                    [video thread comments only]
+                                    duration
+                                    url (S3 url for this thread segment video)
+                                    [text thread comments only]
+                                    text (text of comment in draft-js content format)
+
+```
+
+## React Components Hierarchy
+
+![Components Hierarchy](http://sign-language-translation-tools.github.io/sltt/components.png)
+
+```
+SLTool
+    Router
+    NavigationBar - select major mode (translation editor, portions editor, members editor)
+        GoogleLogin
+    ProjectsTabs
+        Tabs
+            TabList
+                Tab
+        TabPanel
+            TranslationEditor - translation editing mode see details at (A) below
+    PortionsEditor - Add, remove, reorder portions
+        SortableList
+            SortableItem
+                DragHandle
+                PortionView
+                    PortionEditor
+        PortionAdder
+    MembersEditor - add/remove members, change member roles
+        Member
+            MemberRole
+        MemberAdder
+    DatabaseEditor - debugging view, root users only
+        RowView
+
+TranslationEditor (A)
+    PassageList - select project portion, add/remove/reorder passages in portion
+        PortionSelector
+        SortableList
+            SortableItem    
+                DragHandle
+                Passage
+                    PassageEditor
+                    Progress - show progress of upload after drag and drop
+        PassageAdder
+    VideoMain
+        VideoToolbar
+            (Play|Pause|Record|Stop|CreateNote)Button
+            PassageVideoSelector - select which draft of video to play
+            PassageStatusSelector - set review status for selected draft
+        VideoRecorder
+        VideoPlayer
+        VideoMessage - tell user why there is nothing available to play
+        VideoPositionBar - adjust time position in video
+            AdjustCurrentTimeButtons
+        NoteBar - show notes for current video
+    NoteDialog - edit video note
+        NoteMain
+            VideoPlayer
+            VideoRecordingToolbar
+            VideoRecorder
+            NoteSegment - show a video or textual note chat segment
+                NoteTextEditor - edit text segment
+                    Editor
+```
+
 ## Video State
 
 This is **nonpersistent** information concerning what video passage has currently been selected and what the state of the video display is e.g. playing, recording, stopped, etc.
