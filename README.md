@@ -1,8 +1,8 @@
-# System Overview
-
 The SLTT system consists of a client running in a browser and a backend server running on a Linux machine. Only the chrome browser is currently supported. We might in the future support a standalone version of the client using Electron or a similar package.
 
 Windows and OSx are supported.
+
+# System Overview
 
 ![Diagram](http://sign-language-translation-tools.github.io/sltt/overview.png)
 
