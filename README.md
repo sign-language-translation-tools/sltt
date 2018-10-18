@@ -31,7 +31,7 @@ This is stored as a tree of [mobx-state-tree](https://github.com/mobxjs/mobx-sta
 
 Initially this information is read from the project PouchDB database on the server. Any changes made to this data by this client or any other client accessing this project on the server are automatically sent to the client causing the project state model to be updated and triggering a re-rendering of the information in the React components.
 
-### Data Model
+### Project State Data Model
 
 ```
 Project
@@ -53,7 +53,7 @@ Project
                             username
                             videoCreated (creation timestamp for passage video)
                             duration (of recorded video)
-                            url (S3 url)
+                            url (S3 url of video file)
                     statuses
                         PassageStatus
                             statusCreated (creation timestamp for this status entry)
@@ -71,7 +71,7 @@ Project
                                     username
                                     [video thread comments only]
                                     duration
-                                    url (S3 url for this thread segment video)
+                                    url (S3 url of video file for this thread segment video)
                                     [text thread comments only]
                                     text (text of comment in draft-js content format)
 
