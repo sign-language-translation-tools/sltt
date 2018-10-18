@@ -25,6 +25,8 @@ class VideoMain extends Component {
         h: PropTypes.number.isRequired,
         remote: PropTypes.object.isRequired,  // VideoRemote control object
         project: PropTypes.object.isRequired, 
+        openTour: PropTypes.func,    // call this to start tour
+        tourOpen: PropTypes.bool,    // true iff tour is in progress
     }
 
     constructor(props) {
@@ -61,7 +63,7 @@ class VideoMain extends Component {
 
     render() {
         //console.log('render VideoMain')
-        let { project, remote, w, h } = this.props
+        let { project, remote, w, h, openTour, tourOpen } = this.props
         let { signedUrl, recordingPath } = remote
 
         // Force re-render when passage changes
@@ -87,6 +89,7 @@ class VideoMain extends Component {
                     w={w}
                     remote={remote}
                     project={project}
+                    openTour={openTour}
                     recordVideo={recordVideo}
                     createNote={createNote} />
 
@@ -110,7 +113,7 @@ class VideoMain extends Component {
                 </div>
 
                 <VideoPositionBar w={w} remote={remote} />
-                <NoteBar project={project} remote={remote} w={640} /> 
+                <NoteBar project={project} remote={remote} w={640} tourOpen={tourOpen} />
             </div>
         )
     }

@@ -36,6 +36,16 @@ export const PortionsViewButton = function({tooltip, onClick}) {
     )
 }
 
+export const TourButton = function ({ tooltip, onClick }) {
+    return (
+        <span className="sl-fa-button fa-bus sl-tour-button"
+            onClick={() => onClick && onClick()}
+            data-toggle="tooltip"
+            title={tooltip} >
+        </span>
+    )
+}
+
 
 export const RecordButton = function ({ enabled, onClick }) {
     //let className = classNames("et-right", "fa", "fa-2x", "fa-circle", "fa-fw", "text-danger", "video-up1", 
@@ -131,7 +141,7 @@ export const CreateLabelButton = function ({ enabled, onClick }) {
 
 export const AdjustCurrentTimeButtons = function ({ enabled, adjustCurrentTime }) {
     return (
-        <span>
+        <span className="sl-adjust-current-time-buttons">
             <img className={enableImg('sl-adjust-current-time-button', enabled)}
                 src="toolbar/1SecLeftButton.gif"
                 onClick={() => adjustCurrentTime(-1.0)}

@@ -7,8 +7,8 @@ import {observer} from 'mobx-react'
 import PropTypes from 'prop-types'
 import { displayError } from '../utils/Errors.jsx'
 
-import {
-    PlayButton, PauseButton, RecordButton, StopButton, CreateNoteButton, CreateLabelButton} from '../utils/Buttons.jsx'
+import {PlayButton, PauseButton, RecordButton, StopButton, CreateNoteButton, 
+    CreateLabelButton, TourButton } from '../utils/Buttons.jsx'
 import PassageStatusSelector from '../passages/PassageStatusSelector.jsx'
 import PassageVideoSelector from '../passages/PassageVideoSelector.jsx'
 
@@ -20,6 +20,7 @@ class VideoToolbar extends Component {
         remote: PropTypes.object.isRequired,  // VideoRemote control object
         createNote: PropTypes.func,
         recordVideo: PropTypes.func,
+        openTour: PropTypes.func,
         project: PropTypes.object.isRequired,
     }
 
@@ -33,7 +34,7 @@ class VideoToolbar extends Component {
     }
 
     render() {
-        let { remote, w, createNote, createLabel, recordVideo, project } = this.props
+        let { remote, w, createNote, createLabel, recordVideo, project, openTour } = this.props
         
         // h = h || this.defaultH
 
@@ -95,17 +96,28 @@ class VideoToolbar extends Component {
 
                     
                 </div>
-                
-                <div style={{ flex: 1 }}>
-                    {passageVideo &&
-                        <PassageStatusSelector 
-                            project={project} 
-                            onDelete={this.onDelete.bind(this)} />
-                    }
-                    {passageVideo &&
-                        <PassageVideoSelector project={project} remote={remote} />
-                    }
-                </div>
+
+                <div className="video-toolbar-right"
+                     style={{ flex: 1, flexGrow: 0 }}>
+                    <div style={{display: 'flex', flexDirection: 'row'}}>
+                        <div>
+                            {passageVideo &&
+                                <PassageVideoSelector project={project} remote={remote} />
+                            }
+                        </div>
+                        <div>
+                            {passageVideo &&
+                                <PassageStatusSelector 
+                                    project={project} 
+                            onDelete={this.onDelete.bind(this)} /> }
+                        </div>
+                        <div>
+                            <TourButton
+                                tooltip="Click to take a guided tour of this page."
+                                onClick={() => openTour && openTour()} />
+                        </div>
+                    </div>
+                </div> 
         </div>
         )
     }

@@ -12,7 +12,8 @@
 }
 
 .app-selector-icon {
-  margin-right: 15px;
+  padding-right: 10px;
+  margin-left: 12px;
 }
 
 .app-navbar-bottom-margin { margin-bottom: 10px; }

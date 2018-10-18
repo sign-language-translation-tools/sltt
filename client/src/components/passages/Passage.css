@@ -50,6 +50,18 @@
   transition-duration: .5s;
 }
 
+.passage-handle:hover {
+  color: #337ab7;
+}
+
+.tour-passage-handle {
+  color: #337ab7;
+  opacity: 1; 
+  margin-right: 5px;
+}
+
+
+
 .passage-menu { 
   display: inline-block;
   opacity: 0; 
@@ -90,18 +102,18 @@
   color: #337ab7;
 }
 
-.passage-add-button {
+.passage-adder {
   margin-left: 26px;
   color: lightgrey;
   font-size: 130%;
 }
 
-.passage-add-button:hover {
+.passage-adder:hover {
   color: #337ab7;
   font-size: 200%;
 }
 
-.passages:hover .passage-add-button {
+.passages:hover .passage-adder {
   opacity: 1; 
   transition-delay: .5s;
   transition-duration: .5s;  

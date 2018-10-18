@@ -27,7 +27,7 @@ const PassageAdder = observer(class PassageAdder extends Component {
         if (!this.adding)
             return (
                 <span
-                    className="passage-add-button"
+                    className="passage-adder"
                     data-toggle="tooltip" title="Add new passage." 
                     onClick={ () => {
                         this.adding = true; this.name = ''

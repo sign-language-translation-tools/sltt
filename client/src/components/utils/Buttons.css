@@ -93,3 +93,11 @@
 .sl-passage-add-button {
     font-size: 130% !important;
 }
+
+.sl-tour-button {
+    font-size: 180%;
+    margin-left: 5px;
+    position: relative;
+    top: 4px;
+    color: rgb(33, 147, 185)
+}

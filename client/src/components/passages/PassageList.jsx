@@ -5,7 +5,9 @@ import {SortableContainer, SortableElement, SortableHandle} from 'react-sortable
 import PropTypes from 'prop-types'
 
 import Passage from './Passage.jsx'
+import TourPassage from './TourPassage.jsx'
 import PassageAdder from './PassageAdder.jsx'
+import TourPassageAdder from './TourPassageAdder.jsx'
 import PortionSelector from './PortionSelector.jsx'
 
 const DragHandle = SortableHandle(() => 
@@ -50,6 +52,7 @@ const PassageList = observer(class PassageList extends Component {
     static propTypes = {
         project: PropTypes.object.isRequired,
         remote: PropTypes.object.isRequired,
+        tourOpen: PropTypes.bool,      // true iff reacttour is in progress
     }
     
     constructor(props) {
@@ -60,12 +63,20 @@ const PassageList = observer(class PassageList extends Component {
     }
 
     render() {
-        let { project, remote } = this.props
+        let { project, remote, tourOpen } = this.props
         let { portion } = project
 
         let items = (portion && portion.passages) || []
         /* eslint-disable no-unused-expressions */
         items.length // required to access length or list appears empty in view!!! why?
+
+        if (tourOpen) return (
+            <div className="passages">
+                <PortionSelector project={project} />
+                <TourPassage />
+                <TourPassageAdder />
+            </div>
+        )
 
         return (
             <div className="passages">

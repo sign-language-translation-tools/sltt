@@ -12,3 +12,7 @@
   flex-grow: 1;
 }
 
+.tour-mask {
+  opacity: 0.4;
+}
+

@@ -13,6 +13,7 @@ const NoteBar = observer(class NoteBar extends Component {
         project: PropTypes.object.isRequired,
         remote: PropTypes.object.isRequired,
         w: PropTypes.number.isRequired,
+        tourOpen: PropTypes.bool,   // true iff tour is in progress
     }
 
     // In Passage notes must be in ascending order by position in order to render correctly
@@ -30,13 +31,22 @@ const NoteBar = observer(class NoteBar extends Component {
     }
 
     render() {
-        let { project, remote, w } = this.props
+        let { project, remote, w, tourOpen } = this.props
         let { passage } = project
+        
+        if (!passage && !tourOpen) return null
 
-        if (!passage) return null
-        // console.log('NoteBar render', passage.notes.length, remote.duration)
+        let duration = (remote && remote.duration) || 100.0
+        let notes = (passage && passage.notes) || []
+        notes = notes.filter(note => !note.resolved)
 
-        this.createDrawable(passage.notes, remote.duration, w)
+        // If there are no notes and we are touring, create a dummy note to display
+        if (notes.length === 0 && tourOpen) {
+            notes = [{position: duration/3.0}]
+            this.fakeNotes = true
+        }
+
+        this.createDrawable(notes, duration, w)
 
         return (
             <div>
@@ -128,8 +138,8 @@ const NoteBar = observer(class NoteBar extends Component {
     }
 
     findNote(x) {
-        let { drawable } = this
-        if (!drawable) return
+        let { drawable, fakeNotes } = this
+        if (!drawable || fakeNotes) return null
 
         let radius = this.radius
 

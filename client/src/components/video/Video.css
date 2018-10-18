@@ -115,7 +115,6 @@
   border-radius: 0px;
   margin-top: 6px;
   margin-right: 1px;
-  float: right;
 }
 
 .passage-video-selector {
@@ -124,7 +123,6 @@
   border-radius: 0px;
   margin-top: 6px;
   margin-right: 1px;
-  float: right;
 }
 
 .passage-status-selector-2 { 
@@ -145,4 +143,8 @@
     margin-right: 5px;
     padding: 5px;
     background-image: none;
+}
+
+.video-toolbar-right {
+  margin-right: 13px;
 }

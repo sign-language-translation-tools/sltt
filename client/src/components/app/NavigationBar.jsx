@@ -31,7 +31,7 @@ class NavigationBar extends Component {
 
                 {id_token && 
                     <div className="navbar-header pull-right app-selector-div">
-                        <Link to="/" className="app-selector-icon">
+                        <Link to="/" className="app-selector-icon video-camera-button">
                             <i
                                 className={classNames("fa-video-camera", "fa", "fa-2x",
                                     { 'fa-border': selected === 'translation' })}
@@ -41,7 +41,7 @@ class NavigationBar extends Component {
                             </i>
                         </Link>
 
-                        <Link to="/portions" className="app-selector-icon">
+                        <Link to="/portions" className="app-selector-icon edit-portions-button">
                             <i
                                 className={classNames("fa-bars", "fa", "fa-2x",
                                     { 'fa-border': selected === 'portions' })}
@@ -53,7 +53,7 @@ class NavigationBar extends Component {
 
                         <Link to="/members" className="app-selector-icon">
                             <i
-                                className={classNames("fa-user", "fa", "fa-2x",
+                                className={classNames("fa-user", "fa", "fa-2x", "edit-members-button",
                                     { 'fa-border': selected === 'members' })}
                                 onClick={() => { selectPage('/members') }}
                                 data-toggle="tooltip"

@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import {observer} from 'mobx-react'
 import {extendObservable} from 'mobx'
 import PropTypes from 'prop-types' 
+import Tour from 'reactour'
 
 //import Playing from './Playing.jsx'
 import PassageList from '../passages/PassageList.jsx'
@@ -11,6 +12,7 @@ import NoteDialog from '../notes/NoteDialog.jsx'
 import './Translation.css'
 import '../video/Video.css'
 import '../notes/Note.css'
+import { tourSteps } from './TranslationEditorTour.jsx'
 
 class TranslationEditor extends Component {
     static propTypes = {
@@ -21,6 +23,7 @@ class TranslationEditor extends Component {
         super(props)
 
         extendObservable(this, { 
+            tourOpen: false
         })
 
         let { project } = this.props
@@ -49,7 +52,7 @@ class TranslationEditor extends Component {
         let { project } = this.props
         // eslint-disable-next-line
         let { note, passage, passageVideo } = project
-        let { remote } = this
+        let { remote, tourOpen } = this
 
         //console.log('render TranslationEditor')
         
@@ -59,21 +62,32 @@ class TranslationEditor extends Component {
 
                 <div className="translation-top-container">
                     <div className="translation-fixedpane">
-                        <PassageList project={project} remote={remote} />
+                        <PassageList project={project} remote={remote} tourOpen={tourOpen} />
                     </div>
 
                     <div className="translation-flexiblepane">
                         <VideoMain 
                             remote={remote}
                             project={project}
+                            openTour={() => this.tourOpen = true}
+                            tourOpen={tourOpen}
                             w={640} 
                             h={380} />
                         
                     </div>
                 </div>
-
+                <Tour
+                    steps={tourSteps}
+                    maskClassName="tour-mask"
+                    isOpen={tourOpen}
+                    showNavigation={false}
+                    onRequestClose={this.onCloseTour.bind(this)} />
             </div>
         )
+    }
+
+    onCloseTour() {
+        this.tourOpen = false
     }
 
     preventDrop(e) {
