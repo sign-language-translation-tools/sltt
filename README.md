@@ -2,6 +2,10 @@ The SLTT system consists of a client running in a browser and a backend server r
 
 Windows and OSx are supported.
 
+# Guided Tour
+
+Slideshow [HERE](https://docs.google.com/presentation/d/1gtVRTaFyQt9BM49vmk4WHVtOAsKy7F1ITBKRj9ram58/edit?usp=sharing)
+
 # System Overview
 
 ![Diagram](http://sign-language-translation-tools.github.io/sltt/overview.png)
