@@ -1,4 +1,7 @@
-// Portion actions, unit test
+/*
+     #item/<portion name>/portion
+     #item/<portion name>/<passage name>/passage
+ */ 
 
 import { types, getParent } from "mobx-state-tree"
 import _ from 'underscore'
@@ -93,15 +96,17 @@ function _duplicateCheck(items, name) {
 
 // ================== PORTION =====================
 
-// In order to allow renaming a portion without going back and changing all the references
-// to db items that mention the old name we will (someday) support a 'displayName' that
-// we show to the user.
+// A portion is a related list of passages.
+
 
 export const Portion = types.model("Portion", {
     _id: types.identifier(),
     name: types.string,
     // displayName: types.optional(types.string),
-    rank: types.number,
+            // In order to allow renaming a portion without going back and changing all the references
+            // to db items that mention the old name we will (someday) support a 'displayName' that
+            // we show to the user.
+    rank: types.number,  // order of this portion in the list of portions for this project
     passages: types.array(Passage, [])
 })
 .actions(self => ({
@@ -136,6 +141,7 @@ export const Portion = types.model("Portion", {
         return _db
     },
 
+    // Accept a portions document from the database and apply it to the model
     apply: (doc) => {
         let parts = doc._id.split('/')
         

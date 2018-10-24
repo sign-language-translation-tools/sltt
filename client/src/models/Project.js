@@ -17,7 +17,7 @@ export const Project = types.model("Project", {
     portion: types.maybe(types.reference(Portion)), // currently selected portion
     passage: types.maybe(types.reference(Passage)), // currently selected passage
     passageVideo: types.maybe(types.reference(PassageVideo)), // currently selected passage video
-    note: types.maybe(types.reference(PassageNote)), // currently selected passage
+    note: types.maybe(types.reference(PassageNote)), // currently selected note (null except when a note is open)
     
     username: types.optional(types.string, ''),
     iAmAdmin: types.optional(types.boolean, true),
@@ -37,15 +37,15 @@ export const Project = types.model("Project", {
             
             self.listenForChanges()
 
-            self.portions.load()
+            self.portions.load()  // fetch portions from server
                 .then(() => { 
-                    return self.members.load() 
+                    return self.members.load() // fetch members from server
                 })
                 .then(() => { 
-                    self.setRole()
+                    self.setRole() // determine user role in project and thus their permissions
                 })
                 .then(() => { 
-                    self.restoreDefaults(err => {
+                    self.restoreDefaults(err => {  // set project to point to  portion and passage based on save values in localStorage
                         debug('initialize done', err)
                         cb && cb(err)
                     })
@@ -57,6 +57,8 @@ export const Project = types.model("Project", {
         },
 
         //!!! also invoke this when members doc changes (also handle case where user is removed from project)
+
+        // Determine this user's role in the project.
         setRole: () => {
             let item = null
             if (self.members)
@@ -146,6 +148,8 @@ export const Project = types.model("Project", {
             localStorage.setItem(self.defaultsStorageName(), JSON.stringify(defaults))
         },
 
+        // Retrieve the previous user settings from local storage.
+        // Attempt to set project to previously selected portion and passage.
         restoreDefaults(cb) {
             debug(`[${self.name}] restoreDefaults`)
 
@@ -159,9 +163,9 @@ export const Project = types.model("Project", {
 
             defaults = defaults || { portionName: null, passageName: null }
 
-            //debug(`restoreDefaults`, defaults)
-
             let portions = self.portions.portions
+
+            // Look for a previously selected portion. If not found default to first portion present if any.
             let portion = _.findWhere(portions, { name: defaults.portionName }) || 
                                 portions.slice(0, 1).pop() || null
             self.setPortion(portion, err => {
@@ -229,6 +233,9 @@ export const Project = types.model("Project", {
         },
 
         // See https://pouchdb.com/api.html#changes
+        // Listen for changes to the database coming from the server.
+        // Apply them to the members and portion models.
+
         listenForChanges: () => {
             let options = {
                 live: true,
