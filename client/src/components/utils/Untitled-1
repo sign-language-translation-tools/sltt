@@ -1,0 +1,17 @@
+<span className="sl-label-dropdown">
+                        <SplitButton bsStyle={'default'} 
+                                     className="sl-fa-tag fa-tag"
+                                     id='label-button' title=''>
+                            <MenuItem eventKey="1">Action</MenuItem>
+                            <MenuItem eventKey="2">Another action</MenuItem>
+                    </SplitButton>
+                    </span>
+
+
+<div style={ {flex: 1} }>
+                    {createNote &&
+                        <AdjustCurrentTimeButtons
+                            enabled={createNoteEnabled}
+                        adjustCurrentTime={this.adjustCurrentTime.bind(this)} />
+                    }
+                </div>

@@ -123,8 +123,6 @@ class VideoToolbar extends Component {
     }
 
     onDelete() {
-        displayError('blah blah')
-
         let { project, remote } = this.props
         let { passage } = project
 
