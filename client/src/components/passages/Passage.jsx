@@ -3,17 +3,18 @@ import {extendObservable} from 'mobx'
 import {observer} from 'mobx-react'
 import className from 'classname'
 //import { MouseHoveringDetection } from 'react-detect-mouse-over'
-import Progress from 'react-progress'
 import 'react-confirm-alert/src/react-confirm-alert.css'
 import PropTypes from 'prop-types'
 import { confirmAlert } from 'react-confirm-alert'
 
 import './Passage.css'
-import PassageEditor from './PassageEditor'
+import PassageEditor from './PassageEditor.jsx'
+import VideoDropTarget from './VideoDropTarget.jsx'
 import { displayError, displaySuccess } from '../utils/Errors.jsx'
 
-//!! Code to support drag and drop should be a seperate component
-//!! Code to support menu actions should be a seperate component
+const debug = require('debug')('sltt:Passage') 
+
+// TODO Move code to support menu actions to a seperate component
 
 const Passage = observer(class Passage extends Component {
     static propTypes = {
@@ -41,20 +42,14 @@ const Passage = observer(class Passage extends Component {
         let { iAmTranslator } = project
         let { videos } = passage
 
-        // if (true) {
-        //     return (<p>{passage.name}</p>)
-        // }
-
         let present = videos.length > 0
         let passageSelected = project.passage && passage && (project.passage.name === passage.name)
 
         if (this.mode === 'editing') 
             return ( <PassageEditor 
-                                 project={project} 
-                                 passage={passage} 
-                                 done={this.done.bind(this)} /> )
-
-        let dropTargetCN = className('passage-box', { "passage-active-droptarget": this.droptarget })
+                        project={project} 
+                        passage={passage} 
+                        done={this.done.bind(this)} /> )
 
         let buttonCN = className(
             {
@@ -65,19 +60,13 @@ const Passage = observer(class Passage extends Component {
             },
         )
 
-        //console.log("cns", this.props.passage.name, iAmTranslator)
-        //onClick = { this.onClick.bind(this) }
         return (
-            <div className={dropTargetCN} >
-                <Progress percent={this.percent} height={8} color="lightblue" />
-                <span
-                    ref="dl" 
-                    onDrop={this.handleFileDrop.bind(this)}
-                    onDragOver={this.handleDragOver.bind(this)}
-                    onDragLeave={this.handleDragLeave.bind(this)}>
-                    <button className={buttonCN}
-                        onClick={this.onClick} >{passage.name}</button>
-                </span>
+            <div className={'passage-box'} >
+                <VideoDropTarget iAmTranslator={project.iAmTranslator} uploadFile={this.uploadFile.bind(this)}>
+                    <button className={buttonCN} onClick={this.onClick} >
+                        {passage.name}
+                    </button>
+                </VideoDropTarget>
 
                 {iAmTranslator && this.menu()}
             </div>
@@ -87,10 +76,6 @@ const Passage = observer(class Passage extends Component {
     componentWillReceiveProps(nextProps) {
         if (!this.props.isHoveringOver && nextProps.isHoveringOver && this.showCommands) {
             this.showCommands = false
-        }
-
-        if (!nextProps.isHoveringOver && this.droptarget) {
-            this.µ = false
         }
     }
 
@@ -180,37 +165,22 @@ const Passage = observer(class Passage extends Component {
         })
     }
 
-    handleFileDrop(e) {
-        let { project, passage } = this.props
-
-        e.stopPropagation()
-        e.preventDefault()
-
-        if (!project.iAmTranslator) {
-            displayError("Only admins or translators can upload videos to project.")
-            return
-        }
-        
-        let files = e.dataTransfer.files
-        if (!files || files.length > 1 || !files[0].name.endsWith(".mp4")) {
-            displayError("You must drop exactly one file and it must be a .mp4 file.")
-            return
-        }
-        
-        let file = files[0]
-        console.log(`handleFileDrop name=${file.name}`)
+    uploadFile(file, onprogress, ondone) {
+        debug(`uploadFile ${file}`)
+        let { passage } = this.props
         
         passage.uploadFile(file, 
-            this.onprogress.bind(this), 
+            onprogress, 
             (err) => {
+                debug(`uploadFile err = ${err}`)
+                ondone && ondone()
+
                 if (err) {
                     displayError(err)
                     return
                 }
 
-                setTimeout(() => { this.percent = 0 }, 2000)
-                this.droptarget = false
-
+                debug(`uploadFile success`)
                 displaySuccess(`${passage.name} uploaded!`) 
                 this.setPassage()
             })
@@ -227,27 +197,6 @@ const Passage = observer(class Passage extends Component {
             remote.loadPassage(passage)
         })
     }
-
-    onprogress(event) {
-        this.percent = 100 * (event.loaded / event.total)
-    }
-
-    handleDragOver(e) {
-        e.stopPropagation()
-        e.preventDefault()
-
-        e.dataTransfer.dropEffect = 'copy' // Explicitly show this is a copy.
-
-        this.droptarget = true
-    }
-
-    handleDragLeave(e) {
-        e.stopPropagation()
-        e.preventDefault()
-
-        this.droptarget = false
-    }
-
 })
 
 // CRASHING when I try to use MouseHoveringDetection

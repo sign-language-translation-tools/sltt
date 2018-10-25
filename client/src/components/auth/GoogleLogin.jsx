@@ -106,6 +106,8 @@ function expired(jwt) {
 
 export const getGoogleIdToken = function(user) {
   return new Promise((resolve, reject) => {
+    //log(`getGoogleIdToken start`)
+
     let _gapi = (typeof gapi !== 'undefined' && gapi) || null
     let auth2 = (_gapi && _gapi.auth2 && _gapi.auth2.getAuthInstance()) || null
     if (!auth2) {
@@ -125,7 +127,7 @@ export const getGoogleIdToken = function(user) {
 
     let id_token = googleUser.getAuthResponse().id_token
     if (id_token && !expired(id_token)) {
-      log('getGoogleIdToken - ok')
+      //log('getGoogleIdToken - ok')
       if (user.id_token !== id_token)
         user.id_token = id_token
       resolve(id_token)

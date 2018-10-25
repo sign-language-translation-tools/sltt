@@ -135,7 +135,12 @@ class VideoMain extends Component {
         remote.record(project.name, path)
     }
 
-    recordingDone(url, duration) {
+    recordingDone(err, url, duration) {
+        if (err) {
+            displayError(err)
+            return
+        }
+        
         let { project, remote } = this.props
         let { passage } = project
         let { videoCreated } = this

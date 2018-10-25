@@ -18,6 +18,7 @@ export const Project = types.model("Project", {
     passage: types.maybe(types.reference(Passage)), // currently selected passage
     passageVideo: types.maybe(types.reference(PassageVideo)), // currently selected passage video
     note: types.maybe(types.reference(PassageNote)), // currently selected note (null except when a note is open)
+    videoTourSignedUrl: types.optional(types.string, ''), // currently playing tour video
     
     username: types.optional(types.string, ''),
     iAmAdmin: types.optional(types.boolean, true),
@@ -79,6 +80,8 @@ export const Project = types.model("Project", {
             if (role === 'consultant' || role === 'translator' || role === 'admin') 
                 self.iAmConsultant = true
         },
+
+        setVideoTourSignedUrl: (videoTourSignedUrl) => { self.videoTourSignedUrl = videoTourSignedUrl},
 
         getDb: () => { return _db },
 

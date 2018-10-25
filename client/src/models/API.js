@@ -1,10 +1,15 @@
+// Library to perform non-PouchDB functions on the server
+//     pushBlob - push a blob from a video being recorded in the browser
+//     pushFile - push a file from the local machine to the server
+//     concatBlobs - concatenate the pushed blobs, push this to S3
+//     getUrl - get a signed url to access a S3 video
+
 import fetch from 'node-fetch'
 
 import { user } from '../components/auth/User.js'
 import { getGoogleIdToken } from '../components/auth/GoogleLogin.jsx'
 
 const debug = require('debug')('sltt:API') 
-
 
 let _hostUrl
 if (process.env.NODE_ENV === 'development') {
@@ -19,14 +24,14 @@ else {
 
 export let hostUrl = _hostUrl
 
-
 export function authorization() {
     if (!user.id_token) throw new Error('Authorization not set')
     return 'Bearer ' + user.id_token
 }
 
+// Thow an error if response status is not 200
 export function checkStatus(response) {
-    debug(`checkStatus ${response.status}`)
+    debug(`checkStatus status=${response.status}, statusText=${response.statusText}`)
 
     if (response.status === 200) {
         return Promise.resolve(response)
@@ -43,28 +48,12 @@ export function getJson(response) {
     return response.json()
 }
 
-
-// I could not make this work with 'fetch'
-// function pushBlob(project, path, seqNum, blob) {
-//     let path2 = `${hostUrl}/${project}/_push_/${path}=${seqNum}`
-//     let options = {
-//         method: 'PUT',
-//         headers: {
-//             "content-type": blob.type,
-//             Authorization: 'bearer ' + user.id_token
-//         },
-//         body: blob,
-//     }
-//     return fetch(path2, options)
-// }
-
-function refreshIdToken(promise) {
+export function refreshIdToken() {
     return getGoogleIdToken(user)
-        .then(promise)
 }
 
 // Called every time the video element has a new block to upload.
-export function pushBlob(projectName, path, seqNum, blob) {
+export async function pushBlob(projectName, path, seqNum, blob) {
     let _pushBlob = new Promise((resolve, reject) => {
         if (!user.id_token) { reject('Not logged in.'); return }
 
@@ -97,99 +86,95 @@ export function pushBlob(projectName, path, seqNum, blob) {
         xhr.send(blob)
     })
 
-    return refreshIdToken(_pushBlob)
- }
+    await getGoogleIdToken(user)
+    await _pushBlob
+}
 
-export function pushFile(file, projectName, path, onprogress) {
+export async function pushFile(file, projectName, path, onprogress) {
     let _pushFile = new Promise((resolve, reject) => {
-        if (!user.id_token) { reject('Not logged in.'); return }
-
         let url = `${hostUrl}/${projectName}/_push_/${path}=1`
         debug(`pushFile start ${url}`)
-
+        
         var xhr = new XMLHttpRequest()
-    
+        
         xhr.open('PUT', url, true)
         xhr.setRequestHeader('Authorization', 'bearer ' + user.id_token)
-    
+        
         xhr.onreadystatechange = () => {
             if (xhr.readyState !== 4) return
-
+            
             if (xhr.status !== 200) {
                 debug(`pushFile reject status=${xhr.status}`)
                 reject({ status: xhr.status })
                 return
             }
-
+            
             debug(`pushFile resolve`)
             resolve({ status: xhr.status } /* mimic fetch 'response' */)
         }
-
+        
         xhr.onerror = (err) => {
             debug(`*** pushFile onerror ${err}`)            
             reject(err)
         }
-
+        
         xhr.upload.onprogress = onprogress
-    
+        
         xhr.send(file)
     })
-
-    return refreshIdToken(_pushFile)
+    
+    await getGoogleIdToken(user)
+    await _pushFile
 }
 
 // After the the individual blobls have been pushed to server,
 // concatenate them and push them to S3.
 // Return the URL of the resulting video file S3 object.
 
-export function concatBlobs(projectName, path, seqNum) {
-    let _concatBlobs = new Promise((resolve, reject) => {
-        if (!user.id_token) { reject('Not logged in.'); return }
+export async function concatBlobs(projectName, path, seqNum) {
+    await getGoogleIdToken(user)
 
-        let path2 = `${hostUrl}/${projectName}/_concat_/${path}=${seqNum}`
-        debug(`concatBlobs ${path2}`)
-        
-        let options = {
-            method: 'GET',
-            headers: {Authorization: 'bearer ' + user.id_token},
-        }
-        return fetch(path2, options)
-    })
+    let path2 = `${hostUrl}/${projectName}/_concat_/${path}=${seqNum}`
+    debug(`concatBlobs start ${path2}`)
+    
+    let options = {
+        method: 'GET',
+        headers: {Authorization: 'bearer ' + user.id_token},
+    }
+    let response = await fetch(path2, options)
+    checkStatus(response)
+    
+    let url = await response.text()
+    debug(`concatBlobs success`)
+    return url
+}
 
-    return refreshIdToken(_concatBlobs)
+// Upload the file and return its url
+export async function uploadFile(file, projectName, path, onprogress) {
+    await pushFile(file, projectName, path, onprogress)
+    let url = await concatBlobs(projectName, path, 1)
+    return url
 }
 
 // Pass a url for an S3 video file object to server.
 // Get back a singed url that allows downloading the object.
 // This url will expire in 6 days.
 
-export function getUrl(projectName, url) {
-    let _getUrl = new Promise((resolve, reject) => {
-        if (!user.id_token) { reject('Not logged in.'); return}
-        debug(`getUrl start ${url}`)
+export async function getUrl(projectName, url) {
+    debug(`getUrl start ${url}`)
+    
+    await getGoogleIdToken(user)
 
-        let path2 = `${hostUrl}/${projectName}/_url_?url=${encodeURIComponent(url)}`
+    let path = `${hostUrl}/${projectName}/_url_?url=${encodeURIComponent(url)}`
 
-        let options = {
-            method: 'GET',
-            headers: { Authorization: 'bearer ' + user.id_token },
-        }
+    let options = {
+        method: 'GET',
+        headers: { Authorization: 'bearer ' + user.id_token },
+    }
+    let response = await fetch(path, options)
+    checkStatus(response)
 
-        getGoogleIdToken(user)
-            .then(() => fetch(path2, options))
-            .then(checkStatus)
-            .then(response => {
-                return response.text()
-            })
-            .then(url => {
-                debug(`getUrl resolve ${url}`)
-                resolve(url)
-            })
-            .catch(err => {
-                debug(`*** getUrl err: ${err}`)
-                reject(err)
-            })
-    })
-
-    return _getUrl
+    let signedUrl = await response.text()
+    debug(`getUrl success ${signedUrl.slice(0,80)}`)
+    return signedUrl
 }

@@ -2,7 +2,10 @@ import { extendObservable } from 'mobx'
 import  { EventEmitter } from 'fbemitter'
 import _ from 'underscore'
 
-import { checkStatus, pushBlob, concatBlobs } from '../../models/API.js'
+import { pushBlob, concatBlobs } from '../../models/API.js'
+
+const debug = require('debug')('sltt:VideoRemote') 
+
 
 
 /*
@@ -60,16 +63,16 @@ class VideoRemote extends EventEmitter {
 
     // Stop play or record action
     stop() {
+        debug('emit stop')
         this.emit('stop')
     }
 
     setStatus(status, message) {
-        console.log('...', status, message || '')
+        debug(`setStatus ${status}`)
+        message && debug(`message ${message}`)
+
         this.status = status
-        if (message) {
-            console.log('ERROR', message)
-            this.message = message
-        }
+        this.message = message
     }
 
     // ================= Recording related functions =================
@@ -90,86 +93,62 @@ class VideoRemote extends EventEmitter {
 
         this.blobs = []
         this.blobsSent = 0
-        this.sendingBlob = false
+        this.pushingBlob = false
+        this.recording = true
     }
 
     finalizeRecording() {
-        //console.log('!!!finalizeRecording')
+        debug('finalizeRecording')
+
         this.duration = (Date.now() - this.created) / 1000.0
-        this.setStatus('recording_uploading')
+        this.recording = false
     }
 
-    _checkForBlobsToSend() {
-        let self = this
+    // Recording and uploading complete.
+    // Concatenate the uloaded blobs, copy them to S3, return the S# url
+    async finishUpload() {
+        debug('finishUpload')
+        let { project, recordingPath, blobs } = this
 
-        return new Promise((resolve, reject) => {
-            let { project, recordingPath, blobs, blobsSent, sendingBlob } = self
-            //console.log('!!!_checkForBlobsToSend', recordingPath, blobs.length, blobsSent, sendingBlob)
-            
-            if (sendingBlob || blobsSent >= blobs.length) {
-                //console.log('!!!send in progress OR nothing to send', )
-                resolve()
-                return
-            }
-            
-            this.sendingBlob = true
-            pushBlob(project, recordingPath, blobsSent + 1, blobs[blobsSent])
-                .then(checkStatus)
-                .then(() => { 
-                    //console.log('success sending blob', )
-                    self.sendingBlob = false
-                    self.blobsSent = self.blobsSent + 1 
-                })
-                .then(self._checkForBlobsToSend.bind(self))
-                .then(self._checkForUploadingEnded.bind(self))
-                .catch(err => { 
-                    self.setStatus('error', 'pushBlob[1]: ' + JSON.stringify(err)) 
-                })
-        })
+        try {
+            this.url = await concatBlobs(project, recordingPath, blobs.length)
+        } catch (error) {
+            debug('concatBlobs error', error)
+            this.emit('recording_done', error)
+            return
+        }
+
+        debug(`finishUpload success ${this.url.slice(0,60)}`)
+
+        this.recordingPath = null
+        this.emit('recording_done', null, this.url, this.duration)
     }
 
-    _checkForUploadingEnded() {
-        let self = this
-
-        return new Promise((resolve, reject) => {
-            let { project, recordingPath, blobs, status } = self
-            //console.log('!!!_checkForUploadingEnded', recordingPath, blobs.length, status)
-
-            if (status !== 'recording_uploading') {
-                resolve()
-                return
-            }
-
-            concatBlobs(project, recordingPath, blobs.length)
-                .then(checkStatus)
-                .then(response => response.text())
-                .then(url => {
-                    self.recordingPath = null
-                    self.url = url
-                    self.emit('recording_done', url, this.duration)
-                })
-                .catch(err => { 
-                    self.setStatus('error', 'concatBlobs: ' + JSON.stringify(err)) 
-                })
-
-        })
-    }
-
-    push(blob) { 
-        let { blobs, blobsSent } = this
-        //console.log('!!!PUSH', blobEvent.data && blobEvent.data.size, blobs.length, blobsSent)
+    async push(blob) { 
+        debug(`pushBlob start`)
+        let { project, recordingPath, blobs } = this
 
         blobs.push(blob)
-        if (blobs.length > blobsSent+1) return
+        if (this.pushingBlob) return
 
-        this._checkForBlobsToSend()
-            .then( this._checkForUploadingEnded.bind(this) )
-            .catch(err => { 
-                this.setStatus('error', 'push[2]: ' + JSON.stringify(err)) 
-            })
+        this.pushingBlob = true
+
+        while (blobs.length > this.blobsSent) {
+            debug(`pushBlob ${this.blobsSent+1}`)
+            await pushBlob(project, recordingPath, this.blobsSent + 1, blobs[this.blobsSent])
+            debug(`pushBlob ${this.blobsSent + 1}`)
+
+            this.blobsSent = this.blobsSent + 1
+        }
+
+        this.pushingBlob = false
+
+        if (!this.recording)
+            await this.finishUpload()
     }
 
     // ================= Playing related functions =================
+    // TODO switch this to async/await for clarity
 
     // If passage is not null and has a recorded video load it.
     // Otherwise undisplay currently displayed passage if any.

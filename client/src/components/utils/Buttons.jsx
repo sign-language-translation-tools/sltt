@@ -117,6 +117,21 @@ export const CreateNoteButton = function ({ enabled, onClick }) {
     )
 }
 
+export const PlayTourStepButton = function ({ enabled, onClick }) {
+    let tooltip = enabled ? "Click to play sign language explanation or drag and drop an .mp4 file to supply an explanation in your sign language."
+        : "Drag and drop an .mp4 file here to supply an explanation in your sign language."
+
+    return (
+        <span
+            className={enable('sl-fa-button sl-play-tour-step-button fa-sign-language', enabled)}
+            onClick={() => enabled && onClick && onClick()}
+            data-toggle="tooltip"
+            title={tooltip} >
+        </span>
+    )
+}
+
+
 export const CreateLabelButton = function ({ enabled, onClick }) {
     let tooltip = "Create label in video at current location."
 

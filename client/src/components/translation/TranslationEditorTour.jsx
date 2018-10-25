@@ -1,119 +1,149 @@
+// Information to show uses for all the tour location for the main window.
+
 import React from 'react'
+
+import TourVideo from './TourVideo.jsx'
+
+let _project = null
+
+export const setTourProject = function (project) {
+    _project = project
+}
+
+export const getTourProject = function () {
+    return _project
+}
+
 
 export const tourSteps = [
     {
         selector: '.edit-members-button',
         position: 'bottom',
-        content: (<p>Project administrators can click here to add or remove members from the project.
-                     They may also specify what role each member has in the project.</p>)
+        content: (<div>Project administrators can click here to add or remove members from the project.
+                     They may also specify what role each member has in the project.
+                     <TourVideo stepName='edit-members' /></div>)
     },
 
     {
         selector: '.edit-portions-button',
         position: 'bottom',
-        content: (<p>Projects are divided into groups of videos called "portions".
+        content: (<div>Projects are divided into groups of videos called "portions".
                      Portions have a name like "Luke" or "The Prodigal Son".
                      Click here to add portions to a project or edit the names of existing portions.
-                     You must create at least one portion before you can start adding videos to the project.</p>)
+                     You must create at least one portion before you can start adding videos to the project.
+                     <TourVideo stepName='edit-portions-button' /></div>)
     },
 
     {
         selector: '.video-camera-button',
         position: 'bottom',
-        content: (<p>Click here to return to main project editing screen after editing portions or members.</p>)
+        content: (<div>Click here to return to main project editing screen after editing portions or members.
+            <TourVideo stepName='video-camera-button' /></div>)
     },
 
     {
         selector: '.portion-selector',
-        content: 'Select the portion you want to work with here.'
+        content: (<div>Select the portion you want to work with here.
+            <TourVideo stepName='portion-selector' /></div>)
     },
 
     {
         selector: '.passage-adder',
-        content: (<p>Each portion is divided into "Passages".
+        content: (<div>Each portion is divided into "Passages".
                       A passage is a single video. Click to add a new passage to this portion.
                       Give the passage a name like "James 2" or "Older Brother".
-                      You must do this before you can add video to the passage.</p>)
+                      You must do this before you can add video to the passage.
+                      <TourVideo stepName='passage-adder' /></div>)
     },
 
     {
         selector: '.passage-button',
-        content: (<p>Click to select this passage.
+        content: (<div>Click to select this passage.
                      All commands (play, record, etc.) apply to the selected passage.
-                     The name of the passage will appear in bold font if there has been any video recorded for this passage.</p>)
+                     The name of the passage will appear in bold font if there has been any video recorded for this passage.<TourVideo stepName='' /></div>)
     },
 
     {
         selector: '.passage-button',
-        content: (<p>You can drag a video file from your desktop and drop it here to add a new video draft to this passage.
-                     You can use the record button to record video using your computer's webcam.</p>),
+        content: (<div>You can drag a video file from your desktop and drop it here to add a new video draft to this passage.
+                     You can use the record button to record video using your computer's webcam.
+                     <TourVideo stepName='passage-button' /></div>),
         position: 'bottom',
     },
 
     {
         selector: '.tour-passage-handle',
-        content: (<p>Click and drag this handle to reorder this passage in the portion.</p>)
+        content: (<div>Click and drag this handle to reorder this passage in the portion.
+                     <TourVideo stepName='tour-passage-handle' /></div>)
     },
 
     {
         selector: '.passage-delete-button',
-        content: (<p>Click to delete this passage. If the passage has any videos present you will be asked to confirm the deletion.</p>)
+        content: (<div>Click to delete this passage. If the passage has any videos present you will be asked to confirm the deletion.
+                    <TourVideo stepName='passage-delete-button' /></div>)
     },
 
     {
         selector: '.sl-play-button',
-        content: (<p>Play the currently selected passage.</p>)
+        content: (<div>Play the currently selected passage.
+                      <TourVideo stepName='sl-play-button' /></div>)
     },
 
     {
         selector: '.sl-record-button',
-        content: (<p>Record a new draft of the currently selected passage.</p>)
+        content: (<div>Record a new draft of the currently selected passage.
+                      <TourVideo stepName='sl-record-button' /></div>)
     },
 
     {
         selector: '.sl-create-note-button',
-        content: (<p> Add a note to the passage the current position. 
-                      The note may be recorded with your webcam or typed.</p>)
+        content: (<div> Add a note to the passage the current position. 
+                      The note may be recorded with your webcam or typed.
+                      <TourVideo stepName='sl-create-note-button' /></div>)
     },
 
     {
         selector: '.note-bar',
-        content: (<p>Notes are shown in this box. 
+        content: (<div>Notes are shown in this box. 
                      Each note is shown as a green dot at its position in the video.
-                     Click the green dot to view the note or add additional video or written comments to it.</p>)
+                     Click the green dot to view the note or add additional video or written comments to it.
+                     <TourVideo stepName='note-bar' /></div>)
     },
 
     {
         selector: '.passage-video-selector',
-        content: (<p> This selector shows the date and times for all drafts of this passage.
+        content: (<div> This selector shows the date and times for all drafts of this passage.
                        Select which draft you wish to view here.
                         By default we show the latest draft of the video.
-        </p>)
+                        <TourVideo stepName='passage-video-selector' /></div>)
     },
 
     {
         selector: '.passage-status-selector',
-        content: (<p> Set the draft status for the current video.
+        content: (<div> Set the draft status for the current video.
                       One filmstrip when the first project review stage has been passed.
                       Two filmstrips for the second review stage, etc.
                       Selecting the trashcan icon will delete this draft.
-        </p>)
+                      <TourVideo stepName='passage-status-selector' /></div>)
     },
 
     {
         selector: '.video-rate-input-slider',
-        content: (<p>Select the  playback speed for the video. Move the selector upwards for faster playback.</p>)
+        content: (<div>Select the  playback speed for the video. Move the selector upwards for faster playback.
+                  <TourVideo stepName='video-rate-input-slider' /></div>)
     },
 
     {
         selector: '.sl-adjust-current-time-buttons',
-        content: (<p>Adjust the current position in the video. You can move forward and backward by either one frame or one second.</p>)
+        content: (<div>Adjust the current position in the video. You can move forward and backward by either one frame or one second.
+                      <TourVideo stepName='sl-adjust-current-time-buttons' /></div>)
     },
 
     {
         selector: '.video-positionbar',
-        content: (<p> The cursor in this box shows the position in the video. 
-                      Click on the line or drag the cursor to adjust the video position.</p>)
+        content: (<div> The cursor in this box shows the position in the video. 
+                      Click on the line or drag the cursor to adjust the video position.
+                      <TourVideo stepName='video-positionbar' /></div>)
     },
 
 ]

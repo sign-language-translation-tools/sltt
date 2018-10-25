@@ -35,7 +35,7 @@ function uploadTimestamp(file) {
 const setSignedUrl = function(setter, project, url, cb) {
     getUrl(project, url)
         .then(signedUrl => {
-            debug(`setSignedUrl ${signedUrl.slice(0,40)}`)
+            debug(`setSignedUrl ${signedUrl.slice(0,80)}`)
             setter(signedUrl)
             cb && cb()
         })

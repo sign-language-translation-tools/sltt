@@ -12,7 +12,12 @@ import NoteDialog from '../notes/NoteDialog.jsx'
 import './Translation.css'
 import '../video/Video.css'
 import '../notes/Note.css'
-import { tourSteps } from './TranslationEditorTour.jsx'
+import { tourSteps, setTourProject } from './TranslationEditorTour.jsx'
+import TourVideoPlayer from './TourVideoPlayer.jsx'
+
+// eslint-disable-next-line
+const debug = require('debug')('sltt:TranslationEditor') 
+
 
 class TranslationEditor extends Component {
     static propTypes = {
@@ -40,6 +45,7 @@ class TranslationEditor extends Component {
     componentWillUpdate() {
         let { project } = this.props
         let { remote } = this
+        this.startAt = 0
 
         // If there is no longer a passage or a passageVideo selected make sure
         // that the video control is not displaying a video
@@ -51,11 +57,9 @@ class TranslationEditor extends Component {
     render() {
         let { project } = this.props
         // eslint-disable-next-line
-        let { note, passage, passageVideo } = project
+        let { note, videoTourSignedUrl } = project
         let { remote, tourOpen } = this
 
-        //console.log('render TranslationEditor')
-        
         return (
             <div ref={c => { this.topDiv = c }}>
                 { note && <NoteDialog project={project} /> } 
@@ -69,7 +73,10 @@ class TranslationEditor extends Component {
                         <VideoMain 
                             remote={remote}
                             project={project}
-                            openTour={() => this.tourOpen = true}
+                            openTour={() => {
+                                setTourProject(project)
+                                this.tourOpen = true
+                            }}
                             tourOpen={tourOpen}
                             w={640} 
                             h={380} />
@@ -82,6 +89,9 @@ class TranslationEditor extends Component {
                     isOpen={tourOpen}
                     showNavigation={false}
                     onRequestClose={this.onCloseTour.bind(this)} />
+                <TourVideoPlayer
+                    signedUrl={videoTourSignedUrl}
+                    onEnded= { () => project.setVideoTourSignedUrl('') } />
             </div>
         )
     }

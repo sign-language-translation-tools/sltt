@@ -12,11 +12,13 @@ it('can push blobs to s3', (done) => {
     let line1 = Date.now().toString() + '\r\n'
     let line2 = 'line 2\r\n'
 
-    remote.addListener('recording_done', (url) => {
+    remote.addListener('recording_done', (err, url) => {
         // Verify that we can retrieve the uloaded S3 file
 
+        if (err) throw Error(err)
+
         getUrl('_test1', url)
-            .then(checkStaatus)
+            .then(checkStatus)
             .then(getText)
             .then(signedUrl => {
                 return fetch(signedUrl)

@@ -19,6 +19,7 @@ class VideoPlayer extends Component {
         h: PropTypes.number.isRequired,
         remote: PropTypes.object.isRequired,  // VideoRemote control object
         closeWhenEnded: PropTypes.bool,
+        //requestFullscreen: PropTypes.bool,
         autoPlay: PropTypes.bool,
     }
 
@@ -49,21 +50,13 @@ class VideoPlayer extends Component {
         this.setCurrentTimeListener.remove()
     }
 
-    // componentWillUpdate() {
-    //     console.log('componentWillUpdate')
-    //     setTimeout(() => this.requestFullScreen(), 200)
-    // }
-
-    // componentDidMount() {
-    //     console.log('componentDidMount')
-    //     this.requestFullScreen()
-    // }
-
     render() {
         let { remote, autoPlay } = this.props
         let { signedUrl } = remote
         let playbackRate = remote.playbackRate || 1.0
         let tooltip = `Speed = ${playbackRate.toFixed(1)}`
+
+        //requestFullscreen && setTimeout(() => this.requestFullScreen(), 200)
 
         //console.log('VideoPlayer render', signedUrl.substring(0,30))
 

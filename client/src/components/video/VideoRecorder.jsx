@@ -8,6 +8,10 @@ import { observer } from 'mobx-react'
 import PropTypes from 'prop-types'
 
 import "./Video.css"
+import { displayError } from '../utils/Errors.jsx'
+
+const debug = require('debug')('sltt:VideoRecorder') 
+
 
 class VideoRecorder extends Component {
     static propTypes = {
@@ -42,8 +46,6 @@ class VideoRecorder extends Component {
         let { w, h, remote } = this.props
         let { videoSrc } = this
 
-        console.log('!!!videoRecorder render', remote.recordingPath)
-        
         return (
             <div className="video-recorder video-border">
                 <div>
@@ -60,55 +62,68 @@ class VideoRecorder extends Component {
         )
     }
 
-    setStatus(status) {
-        this.props.remote.setStatus(status)
+    async record()
+    {        
+        let { remote } = this.props
+        //let setStatus = remote.setStatus.bind(remote)
+
+        try {
+            debug("recording_initializing")
+            let mediaStream = await navigator.mediaDevices.getUserMedia({
+                audio: false,
+                video: {
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                }
+            })
+
+            debug('get mediaStream')
+
+            remote.initializeRecording()
+            let recorder = new MediaRecorder(mediaStream)
+            this.recorder = recorder
+
+            recorder.ondataavailable = this.dataAvailable.bind(this)
+            recorder.onstop = remote.finalizeRecording.bind(remote)
+
+            const url = window.URL.createObjectURL(mediaStream)
+            this.videoSrc = url
+
+            debug("recording start")
+            recorder.start(3000)
+        } catch (error) {
+            debug("record error", error)
+        }            
     }
 
-    record()
-    {        
+    dataAvailable(event) {
+        let { data } = event
         let { remote } = this.props
         let push = remote.push.bind(remote)
 
-        const initializeRecording = (mediaStream) => {
-            remote.initializeRecording()
-            
-            this.recorder = new MediaRecorder(mediaStream)
-            this.recorder.ondataavailable = (event => push(event.data))
-            this.recorder.onstop = remote.finalizeRecording.bind(remote)
-            
-            const url = window.URL.createObjectURL(mediaStream)
-            this.videoSrc = url
-            
-            this.setStatus("recording")
-            this.recorder.start(3000)
-        }
-        
-        this.setStatus("recording_initializing")
-        navigator.mediaDevices.getUserMedia({
-            audio: false,
-            video: {
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
-            }
-        })
-        .then(initializeRecording)
-        .catch(err => {
-            //Bugsnag.notifyException(err)
-            let name = err.name || '*noname*'
-            let message = err.message || ''
-            message = name + "/" + message
-            this.setStatus("error", message)
-        })
+        debug('dataAvailable')
+        push(data)
+            .then(() => {
+                debug('dataAvailable done')
+            })
+            .catch(err => {
+                debug('push error', err)
+                this.stop()
+                displayError(err)
+            })
     }
 
+    // Event handler for remote object stop event
     stop() {
-        let { remote } = this.props
-        let { status } = remote
+        let { recorder } = this
         
-        console.log('!!!stopping recorder', status)
-        if (!['recording_initializing', 'recording'].includes(status)) return
-
-        this.recorder.stop()
+        debug('stop')
+        try {
+            recorder && recorder.stop()
+            this.recorder = null
+        } catch (error) {
+            debug(`stop ERROR=${JSON.stringify(error)}`)
+        }
     }
 
 }

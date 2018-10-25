@@ -9,6 +9,7 @@ import {observer} from 'mobx-react'
 import PropTypes from 'prop-types' 
 //import _ from 'underscore'
 
+import { displayError } from '../utils/Errors.jsx'
 import VideoRemote from '../video/VideoRemote.js'
 import VideoRecordingToolbar from '../video/VideoRecordingToolbar.jsx'
 import VideoRecorder from '../video/VideoRecorder.jsx'
@@ -145,7 +146,12 @@ class NoteMain extends Component {
         remote.record(project.name, path)
     }
 
-    addSegment(url, duration) {
+    addSegment(err, url, duration) {
+        if (err) {
+            displayError(err)
+            return
+        }
+
         let text = ''
 
         let { note } = this.props.project
