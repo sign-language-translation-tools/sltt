@@ -365,3 +365,7 @@ PouchDB is used to store all the information from the Project State structure. T
 In some locations access to the Internet is unreliable or slow. In these locations we will need to run a local server that maintains a copy of the Project State database and synchronizes this information with the Internet-based server when bandwidth is available. This local server will also need to cache copies of the locally recorded videos as well as videos from reference projects such as ASLV.
 
 It will be possible for a consultant visiting a project to have a local cache server running on their machine and for the data on the consultant machine and the project's cache server to be automatically synchronized. This allows the consultant to bring back the local data in the case where the project internet connection is insufficient to do this.
+
+# Miscelaneous
+
+Information on how to run/debug a local copy of the client on your machine is found in ```client/_README.md```

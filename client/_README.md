@@ -12,6 +12,7 @@
 
 # Enable debug output
 
+    [enter in browser console]
     localStorage.debug = 'sltt:*'   [see www.npmjs.com/package/debug]
 
 # View server log (real time)
