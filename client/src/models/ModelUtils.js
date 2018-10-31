@@ -27,7 +27,7 @@ export function removeFromDB(db, _id) {
 
         db.allDocs(options)
             .then(response => {
-                console.log(`removeFromDB ${_id}, count=${response.rows.length}`)
+                //console.log(`removeFromDB ${_id}, count=${response.rows.length}`)
                 
                 let docs = _.map(response.rows, row => {
                     return {

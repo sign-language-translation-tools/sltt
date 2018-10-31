@@ -18,6 +18,9 @@ import { displayError } from '../utils/Errors.jsx'
 
 import "./Video.css"
 
+const log = require('debug')('sltt:VideoMain') 
+
+
 
 class VideoMain extends Component {
     static propTypes = {
@@ -70,6 +73,8 @@ class VideoMain extends Component {
         // eslint-disable-next-line
         let { portion, passage, iAmTranslator, iAmConsultant } = project
 
+        //log(`render`, signedUrl, iAmConsultant)
+
         let showVideoRecorder = recordingPath
         let showVideoPlayer = signedUrl && !showVideoRecorder
 
@@ -119,6 +124,8 @@ class VideoMain extends Component {
     }
 
     recordVideo() {
+        log(`recordVideo`)
+
         let { project, remote } = this.props
         let { portion, passage } = project
 
@@ -137,9 +144,12 @@ class VideoMain extends Component {
 
     recordingDone(err, url, duration) {
         if (err) {
+            log(`recordingDone ERR=${err}`)
             displayError(err)
             return
         }
+        log(`recordingDone`, url, duration)
+
         
         let { project, remote } = this.props
         let { passage } = project
@@ -199,6 +209,5 @@ class VideoMain extends Component {
     }
 
 }
-
 
 export default observer(VideoMain)

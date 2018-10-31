@@ -1,97 +1,115 @@
 // Singleton userProjects object. 
-// When initialized contains all the projects for current user.
+// When initializingStarted contains all the projects for current user.
 
-import { extendObservable } from 'mobx'
-import _ from 'underscore'
+import { extendObservable, autorun } from 'mobx'
+//import _ from 'underscore'
 
 import { Project } from '../../models/Project.js'
 import { getAuthorizedProjects } from '../../models/Db.js'
+import { user } from '../auth/User.js'
+import { displayError } from '../utils/Errors.jsx'
 
-const log = require('debug')('sltt:UserProject') 
+// add debug code
+// add exception handler
 
-class Projects {
+const log = require('debug')('sltt:UserProjects') 
+
+class UserProjects {
     constructor () {
         extendObservable(this, {
             projects: [],
+            initializingStarted: false,
             initialized: false,
+            id_token: '',
+        })
+
+        autorun(() => {
+            this.initializeProjects()  // run this whenever id_token changes
         })
     }
 
-    _createProject(name, username) {
+    // Initialize projects for this user.
+    // Automatically rerun by autorun whenever id_token changes.
+    async initializeProjects() {
+        let { id_token, username } = user
+        log(`initializeProjects username=${username} id_token=${id_token && id_token.slice(0,60)}`)
+
+        if (!id_token || !username) {
+            this.clear()   // If we no longer have a token or username, clear the projects
+            return
+        }
+
+        if (this.initializingStarted) return
+
+        this.initializingStarted = true
+
+        let names = await this.getProjectNames(username)
+
+        try {
+            for (let name of names) {
+                await this.createProject(name)
+            }
+        } catch (error) {
+            log(`ERROR getAuthorizedProjects`, error)
+            displayError(error)
+        }
+
+        this.initialized = true
+    }
+
+    getProjectNames(username) {
         return new Promise((resolve, reject) => {
-            log(`[${name}] _createProject`)
+            log(`getAuthorizedProjects ${username}`)
 
-            let project = Project.create({
-                name,
-                username,
+            getAuthorizedProjects((err, projectNames) => {
+                if (err) {
+                    reject(err)
+                    return
+                }
+
+                projectNames = projectNames.filter(pn => !pn.startsWith('_test'))
+
+                log(`getProjectNames projects=${projectNames}`)
+                resolve(projectNames)
             })
+        })
+    }
 
+    createProject(name) {
+        return new Promise((resolve, reject) => {
+            let { projects } = this
+            let { username } = user
+
+            log(`[${name}] createProject (${username})`)
+
+            let project = Project.create({ name, username })
             project.initialize(err => {
                 if (err) {
-                    log(`ERROR [${name}] _createProject ${err.stack}`)
-                    resolve(null)
+                    let message = `ERROR [${name}] _createProject ${err.stack}`
+                    log(message)
+                    displayError(message)
+                    resolve()  // don't stop everything just because one project fails to initialize
                     return
                 }
 
                 log(`[${project.name}] initialize done`)
 
-                resolve(project)
+                projects.push(project)
+                resolve()
             })
         })
     }
 
-    _createAllMyProjects = function (username, cb) {
-        log('createAllMyProjects')
-
-        getAuthorizedProjects((err, projectNames) => {
-            if (err) {
-                log(`ERROR getAuthorizedProjects ${err}`)
-                cb(err)
-                return
-            }
-
-            projectNames = projectNames.filter(pn => !pn.startsWith('_test'))
-
-            log(`[${username}] authorizedProjects: ${projectNames}`)
-            projectNames = projectNames || []
-            let promises = projectNames.map(projectName => this._createProject(projectName, username))
-
-            Promise.all(promises)
-                .then(projects => {
-                    projects = _.filter(projects, project => project !== null)
-                    cb(null, projects)
-                })
-                .catch(err => cb(err))
-        })
-    }
-
-    initialize(username, cb) {
-        log(`initialize ${username}`)
-
-        this.projects = []
-        this.initialized = false
-
-        this._createAllMyProjects(username, (err, _projects) => {
-            if (err) {
-                cb && cb(err)
-                return
-            }
-
-            this.initialized = true
-            this.projects = _projects
-            cb && cb()
-        })
-     }
-
     clear() {
-        log('clear')
+        log('clear', this.projects.length)
         this.projects.forEach(p => p.cancel())  
         
         if (this.projects.length) 
             this.projects = []
             
+        this.initializingStarted = false
         this.initialized = false
     }
 }
 
-export const userProjects = new Projects()
+export const userProjects = new UserProjects()

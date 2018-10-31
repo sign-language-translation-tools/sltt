@@ -58,7 +58,7 @@ export const PassageNoteSegment = types.model("PassageNoteSegment", {
     duration: types.number,
     url: types.string,
     signedUrl: types.optional(types.string, ''),    
-    text: types.string,
+    text: types.optional(types.string, ''),
 
     // videoCreated, noteCreated, segmentCreated, username, position, duration, text, url, 
 })
@@ -146,8 +146,7 @@ export const PassageNote = types.model("PassageNote", {
     },
 
     insertSegment(doc) {
-        let segment =_insertBy(doc, self.segments, 'segmentCreated')
-        segment._getSignedUrl().catch(err => { debug('!!_getSignedUrl failed') })
+        _insertBy(doc, self.segments, 'segmentCreated')
     },
 
     removeSegment: (_id, cb) => {
@@ -334,8 +333,12 @@ export const Passage = types.model("Passage", {
         let portion = self.getPortion()
         let db = portion.getDb()
         db.put(doc)
-          .then(() => { cb && cb() })
-          .catch(err => { cb && cb(err)})
+          .then(() => { 
+              cb && cb() 
+          })
+          .catch(err => { 
+              cb && cb(err)
+          })
     },
 
     setStatus: (passageVideo, status, cb) => {

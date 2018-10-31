@@ -2,9 +2,9 @@ import PouchDb from 'pouchdb'
 import fetch from 'node-fetch'
 import upsert from 'pouchdb-upsert'
 
-import { hostUrl, checkStatus, authorization, getJson } from './API.js'
+import { getHostUrl, checkStatus, authorization, getJson } from './API.js'
 
-const debug = require('debug')('sltt:Db') 
+const log = require('debug')('sltt:Db') 
 
 PouchDb.plugin(upsert)
 
@@ -12,7 +12,7 @@ PouchDb.plugin(upsert)
 
 
 export const createDb = function(name) {
-    debug(`createDb ${name}`)
+    log(`createDb ${name}`)
 
     let options = {
         ajax: {
@@ -20,7 +20,7 @@ export const createDb = function(name) {
         },
     }
 
-    let dbUrl = `${hostUrl}/${name}`
+    let dbUrl = `${getHostUrl()}/${name}`
     return new PouchDb(dbUrl, options)
 }
 
@@ -30,13 +30,14 @@ export const destroyTestDbs = function (done) {
         headers: { Authorization: authorization() },
     }
 
-    let path = `${hostUrl}/destroyTestDbs`
+    let path = `${getHostUrl()}/destroyTestDbs`
+
     fetch(path, options)
         .then(checkStatus)
         .then(() => done())
         .catch(err => {
             let msg = `destroyTestDbs: ${err}`
-            debug(msg)
+            log(msg)
             done(msg)
         })
 }
@@ -47,13 +48,13 @@ export const initializeTestProjects = function (done) {
         headers: { Authorization: authorization() },
     }
 
-    let path = `${hostUrl}/initializeTestProjects`
+    let path = `${getHostUrl()}/initializeTestProjects`
     fetch(path, options)
         .then(checkStatus)
         .then(() => done())
         .catch(err => {
             let msg = `initializeTestProjects: ${err}`
-            debug(msg)
+            log(msg)
             done(msg)
         })
 }
@@ -64,19 +65,19 @@ export const getAuthorizedProjects = function (cb) {
         headers: { Authorization: authorization() },
     }
 
-    let path = `${hostUrl}/_projects`
-    debug(`getAuthorizedProjects ${path}`)
+    let path = `${getHostUrl()}/_projects`
+    log(`getAuthorizedProjects ${path}`)
 
     fetch(path, options)
         .then(checkStatus)
         .then(getJson)
         .then(projects => {
-            debug(`getAuthorizedProjects result= ${projects}`)
+            log(`getAuthorizedProjects result= ${projects}`)
             cb(null, projects)
         })
         .catch(err => {
             let msg = `*** getAuthorizedProjects ${err}`
-            debug(msg)
+            log(msg)
             cb(msg)
         })
     

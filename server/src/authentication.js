@@ -4,6 +4,7 @@
 // Currently this code assumes we are getting our id_token from Google
 
 // const { log } = require('./log.js')
+const debug = require('debug')('sltt:authentication')
 
 const { OAuth2Client } = require('google-auth-library')
 
@@ -38,7 +39,19 @@ exports.checkAuthentication = function (req, res, next) {
         return
     }
 
+    // Ensure that client CORS processing knows that Authorization headers are allowed
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization")
+
     let idToken = parts[1]
+
+    if (idToken && idToken === process.env.SLTT_USER_JWT) {
+        debug(`SLTT test user authenticated`)
+        req.email = process.env.SLTT_USER
+        next()
+        return
+    }
+
+    debug('not test user')
 
     verify(idToken)
         .then(email => {
@@ -48,10 +61,6 @@ exports.checkAuthentication = function (req, res, next) {
             }
 
             req.email = email
-
-            // Ensure that client CORS processing knows that Authorization headers are allowed
-            res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization")
-
             next()
        })
        .catch(err => {

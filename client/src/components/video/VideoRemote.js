@@ -4,9 +4,7 @@ import _ from 'underscore'
 
 import { pushBlob, concatBlobs } from '../../models/API.js'
 
-const debug = require('debug')('sltt:VideoRemote') 
-
-
+const log = require('debug')('sltt:VideoRemote') 
 
 /*
     Events emitted:
@@ -63,13 +61,13 @@ class VideoRemote extends EventEmitter {
 
     // Stop play or record action
     stop() {
-        debug('emit stop')
+        log('emit stop')
         this.emit('stop')
     }
 
     setStatus(status, message) {
-        debug(`setStatus ${status}`)
-        message && debug(`message ${message}`)
+        log(`setStatus ${status}`)
+        message && log(`message ${message}`)
 
         this.status = status
         this.message = message
@@ -78,6 +76,8 @@ class VideoRemote extends EventEmitter {
     // ================= Recording related functions =================
 
     record(project, recordingPath) {
+        log('record', project, recordingPath)
+
         if (!project) throw new Error('No recording project')
         if (!recordingPath) throw new Error('No recording path')
 
@@ -86,6 +86,8 @@ class VideoRemote extends EventEmitter {
     }
 
     initializeRecording() {
+        log('initializeRecording')
+
         this.created = new Date()
 
         this.duration = 0.0
@@ -98,7 +100,7 @@ class VideoRemote extends EventEmitter {
     }
 
     finalizeRecording() {
-        debug('finalizeRecording')
+        log('finalizeRecording')
 
         this.duration = (Date.now() - this.created) / 1000.0
         this.recording = false
@@ -107,25 +109,25 @@ class VideoRemote extends EventEmitter {
     // Recording and uploading complete.
     // Concatenate the uloaded blobs, copy them to S3, return the S# url
     async finishUpload() {
-        debug('finishUpload')
+        log('finishUpload')
         let { project, recordingPath, blobs } = this
 
         try {
             this.url = await concatBlobs(project, recordingPath, blobs.length)
         } catch (error) {
-            debug('concatBlobs error', error)
+            log('concatBlobs error', error)
             this.emit('recording_done', error)
             return
         }
 
-        debug(`finishUpload success ${this.url.slice(0,60)}`)
+        log(`finishUpload success ${this.url.slice(0,60)}`)
 
         this.recordingPath = null
         this.emit('recording_done', null, this.url, this.duration)
     }
 
     async push(blob) { 
-        debug(`pushBlob start`)
+        log(`pushBlob start`)
         let { project, recordingPath, blobs } = this
 
         blobs.push(blob)
@@ -134,9 +136,9 @@ class VideoRemote extends EventEmitter {
         this.pushingBlob = true
 
         while (blobs.length > this.blobsSent) {
-            debug(`pushBlob ${this.blobsSent+1}`)
+            log(`pushBlob ${this.blobsSent+1}`)
             await pushBlob(project, recordingPath, this.blobsSent + 1, blobs[this.blobsSent])
-            debug(`pushBlob ${this.blobsSent + 1}`)
+            log(`pushBlob ${this.blobsSent + 1}`)
 
             this.blobsSent = this.blobsSent + 1
         }
@@ -153,6 +155,8 @@ class VideoRemote extends EventEmitter {
     // If passage is not null and has a recorded video load it.
     // Otherwise undisplay currently displayed passage if any.
     loadPassage(passage, passageVideo) {
+        log('loadPassage', passage && passage.name, passageVideo)
+
         if (!passageVideo) {
             passageVideo = _.last(passage && passage.videosNotDeleted)
         }
@@ -167,12 +171,15 @@ class VideoRemote extends EventEmitter {
                     return
                 }
 
+                log(`set signedUrl=${passageVideo.signedUrl}`)
                 this.signedUrl = passageVideo.signedUrl
             })
         }
     }
 
     clearPassage() {
+        log('clearPassage')
+
         if (this.signedUrl) this.signedUrl = null
         if (this.playing) this.playing = false
     }
@@ -182,10 +189,13 @@ class VideoRemote extends EventEmitter {
     // rate = null, means 1.0
     // VideoMain is the primary listener for this event.
     play(startTime, endTime, rate) {
+        log(`play ${startTime} to ${endTime}, rate=${rate}`)
         this.emit('play', startTime, endTime, rate)
     }
 
     playSignedUrl(signedUrl) {
+        log(`playSignedUrl ${signedUrl.slice(0,80)}`)
+
         this.signedUrl = signedUrl
     }
 
@@ -196,6 +206,8 @@ class VideoRemote extends EventEmitter {
     }
 
     togglePlayRecord() {
+        log('togglePlayRecord')
+
         if (this.playing || this.recordingPath) this.stop()
         if (this.signedUrl && !this.playing) this.play()
     }

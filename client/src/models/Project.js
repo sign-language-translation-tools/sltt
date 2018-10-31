@@ -7,7 +7,7 @@ import { Members } from './Members.js'
 import { createDb } from './Db.js'
 import { timestamp } from './Passages.js'
 
-const debug = require('debug')('sltt:Portions') 
+const log = require('debug')('sltt:Project') 
 
 export const Project = types.model("Project", {
     name: types.string,
@@ -47,12 +47,12 @@ export const Project = types.model("Project", {
                 })
                 .then(() => { 
                     self.restoreDefaults(err => {  // set project to point to  portion and passage based on save values in localStorage
-                        debug('initialize done', err)
+                        log('initialize done', err)
                         cb && cb(err)
                     })
                 })
                 .catch(err => { 
-                    debug(`*** [${self.name}] initialize error: ${err}`)
+                    log(`*** [${self.name}] initialize error: ${err}`)
                     cb && cb(err) 
                 })
         },
@@ -65,11 +65,13 @@ export const Project = types.model("Project", {
             if (self.members)
                 item = _.findWhere(self.members.items, {email: self.username})
 
+            
             self.iAmAdmin = false
             self.iAmTranslator = false
             self.iAmConsultant = false
-
+            
             let role = item && item.role
+            log(`setRole ${self.username} = ${role}`)
             
             if (role === 'admin') 
                 self.iAmAdmin = true
@@ -86,7 +88,7 @@ export const Project = types.model("Project", {
         getDb: () => { return _db },
 
         setPassage: (passage, cb) => {
-            debug(`[${self.name}] setPassage: ${passage && passage.name}`)
+            log(`[${self.name}] setPassage: ${passage && passage.name}`)
 
             self.passage = passage
             if (!passage) {
@@ -98,7 +100,7 @@ export const Project = types.model("Project", {
             let videos = passage.videosNotDeleted
             let passageVideo = passage && _.last(videos)
 
-            //debug(`[${self.name}] setPassage |${passage && passage._id} | ${video && video._id}|`)
+            //log(`[${self.name}] setPassage |${passage && passage._id} | ${video && video._id}|`)
 
             self.saveDefaults()
 
@@ -121,7 +123,7 @@ export const Project = types.model("Project", {
         // cb does not happen until info for portion has been loaded from server.
 
         setPortion: (portion, cb) => {
-            debug(`[${self.name}] setPortion: ${portion && portion.name}`)
+            log(`[${self.name}] setPortion: ${portion && portion.name}`)
 
             self.portion = portion 
             self.passage = null
@@ -147,21 +149,28 @@ export const Project = types.model("Project", {
                 passageName: self.passage && self.passage.name,
             }
 
-            //debug(`saveDefaults`, defaults)
+            //log(`saveDefaults`, defaults)
             localStorage.setItem(self.defaultsStorageName(), JSON.stringify(defaults))
         },
 
         // Retrieve the previous user settings from local storage.
         // Attempt to set project to previously selected portion and passage.
         restoreDefaults(cb) {
-            debug(`[${self.name}] restoreDefaults`)
+            log(`[${self.name}] restoreDefaults`)
+
+            if (typeof localStorage === 'undefined') {
+                // we are not running in a browser
+                // this should only happen during unit tests
+                cb()
+                return
+            }
 
             let defaults
             try {
                 let text = localStorage.getItem(self.defaultsStorageName())
                 defaults = (text && JSON.parse(text))
             } catch (error) {
-                debug(`*** restoreDefaults ${error}`)
+                log(`*** restoreDefaults ${error}`)
             }
 
             defaults = defaults || { portionName: null, passageName: null }
@@ -173,7 +182,7 @@ export const Project = types.model("Project", {
                                 portions.slice(0, 1).pop() || null
             self.setPortion(portion, err => {
                 if (err) {
-                    debug(`*** restoreDefaults#setPortion ${err}`)
+                    log(`*** restoreDefaults#setPortion ${err}`)
                     self.setPassage(null)
                     return
                 }
@@ -205,7 +214,7 @@ export const Project = types.model("Project", {
             note.getSignedUrls(err => {
                 if (err) {
                     //!!! handle error
-                    debug(err)
+                    log(err)
                     return
                 }
                 self._setNote(note)
@@ -215,7 +224,7 @@ export const Project = types.model("Project", {
         _setNote: (note) => { self.note = note },
 
         createNote: (position) => {
-            debug('createNote', position)
+            log('createNote', position)
 
             let passage = self.passage
             let video = _.last(passage.videos)
@@ -251,20 +260,20 @@ export const Project = types.model("Project", {
 
             self.changeListener = _db.changes(options)
                 .on('change', change => {
-                    debug(`[${self.name}] on.change ${change.doc._id}`)
+                    log(`[${self.name}] on.change ${change.doc._id}`)
                     if (self.members) self.members.apply(change.doc)
                     if (self.portions) self.portions.apply(change.doc)
                 })
                 .on('error', err => {
                     //if (err.message === 'ETIMEDOUT') return
-                    debug(`*** [${self.name}] listenForChanges err = ${JSON.stringify(err)}`)
+                    log(`*** [${self.name}] listenForChanges err = ${JSON.stringify(err)}`)
                 })
         },
 
         // Cancel listening for changes.
         // If we don't do this on logout we get TIMEOUT errors.
         cancel: () => {
-            debug(`[${self.name}] cancel`)
+            log(`[${self.name}] cancel`)
 
             self.changeListener.cancel()
         }

@@ -16,6 +16,10 @@
 const { _PouchDB } = require('./src/_PouchDB.js')
 let express = require('express')
 let cors = require('cors')
+const _debug = require('debug')
+_debug.log = console.log.bind(console)
+_debug.enable('sltt:.*')
+const debug = _debug('sltt:index')
 
 let { logRequest } = require('./src/logRequest.js')
 let { pushBlob } = require('./src/pushBlob.js')
@@ -33,7 +37,7 @@ let _expressPouchdb = require('express-pouchdb')
 let expressPouchdb = _expressPouchdb(_PouchDB) // see express-pouchdb/lib/index.js(77)
 
 function intercept(req, resp, next) {
-    //console.log("intercept", req.url)
+    //debug("intercept", req.url)
     expressPouchdb(req, resp, next)
 }
 
@@ -70,5 +74,5 @@ app.use(/.*_url_/, getUrl)
 
 app.use('/', intercept)
 
-console.log('listen on 3001')
+debug('listen on 3001')
 app.listen(3001)

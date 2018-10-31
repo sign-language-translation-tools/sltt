@@ -1,8 +1,14 @@
 import _ from 'underscore'
 
-let { createDb, initializeTestProjects, destroyTestDbs, getAuthorizedProjects } = require('./Db.js')
+let dotenv = require('dotenv')
+dotenv.config({path: '/users/nmiles/slEnvFile'})
+
+// Uncomment to test against server running on localhost
+// process.env.NODE_ENV = 'localserver'
 
 require('../components/auth/User.js').user.setupTestUser()
+
+let { createDb, initializeTestProjects, destroyTestDbs, getAuthorizedProjects } = require('./Db.js')
 
 // Initial test config members info
 //

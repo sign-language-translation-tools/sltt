@@ -1,8 +1,5 @@
-import { extendObservable, autorun } from 'mobx'
+import { extendObservable } from 'mobx'
 import debug from 'debug'
-
-import { userProjects } from '../app/UserProjects.js'
-import { displayError } from '../utils/Errors.jsx'
 
 const log = debug('sltt:User') 
 
@@ -45,44 +42,6 @@ class User {
             // True when user is allowed to see the database debugging tool.
             allowDatabase: false,
         })
-
-        autorun(() => {
-            this.reactToTokenIdChange()  // run this whenever id_token changes
-        })
-    }
-
-    reactToTokenIdChange() {
-        let { id_token } = this
-
-        if (!id_token) {
-            log(`eactToTokenIdChange id_token=null`)
-            userProjects.clear()
-            return
-        }
-
-        log(`reactToTokenIdChange id_token=${id_token && id_token.substring(0,15)}`)
-        
-        let payload = id_token.split('.')[1]
-        let parsedPayload = JSON.parse(atob(payload))
-        let username = parsedPayload.email
-
-        //!!! make this be a configured role
-        this.allowDatabase = username === 'milesnlwork@gmail.com'
-
-        // When username is first available or there is a new username, initialize the projects
-        // for this username.
-        if (username !== this.username) {
-            this.username = username
-
-            userProjects.initialize(username, err => {
-                if (err) {
-                    displayError(err)
-                    return
-                }
-                
-                log(`userProjects.reactToTokenIdChange done`)
-            })
-        }
     }
 
     googleLogin() {
@@ -93,8 +52,28 @@ class User {
         auth2.signIn(options).then(googleUser => {
             log('googleLogin done')
             let id_token = googleUser.getAuthResponse().id_token
-            this.id_token = id_token
+            this.setIdToken(id_token)
+
+            //!!! make this be a configured role
+            this.allowDatabase = (this.username === 'milesnlwork@gmail.com')
         })
+    }
+
+    setIdToken(id_token) {
+        this.id_token = id_token
+        
+        if (!id_token) {
+            log('setIdToken NO ID_TOKEN')
+            this.username = ''
+            return
+        }
+
+        let payload = id_token.split('.')[1]
+        let parsedPayload = JSON.parse(atob(payload))
+        let username = parsedPayload.email
+
+        this.username = username
+        log(`setIdToken=${username}`)
     }
 
     logout() {
@@ -102,15 +81,13 @@ class User {
         const auth2 = gapi.auth2.getAuthInstance()
         auth2.signOut()
 
-        this.id_token = ''
-        this.username = ''
-
-        userProjects.clear()
+        this.setIdToken('')
     }
 
     setupTestUser() {
         this.id_token = process.env.SLTT_USER_JWT
         this.username = 'milesnlwork@gmail.com'
+        this.testuser = true
     }
 }
 

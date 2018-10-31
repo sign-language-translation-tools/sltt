@@ -1,13 +1,17 @@
 // Test Passages, Passage, PassageVideo, PassageNote, PassageNoteSegment models.
 // Users in memory DB and should not access server.
 
-
 import _ from 'underscore'
 import PouchDB from 'pouchdb'
+
+// Create an in-memory test DB.
+// Exercise the model functions∫ relating to passages.
 
 import { Project } from './Project.js'
 import { Portions, Portion } from './Portions.js'
 import { Passages, Passage, PassageVideo, PassageNote, PassageNoteSegment } from './Passages.js'
+
+require('../components/auth/User.js').user.setupTestUser()
 
 // Create in-memory test DB
 PouchDB.plugin(require('pouchdb-adapter-memory'))

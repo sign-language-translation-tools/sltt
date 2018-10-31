@@ -26,15 +26,14 @@
             "cwd": "${workspaceRoot}",
             "args": [
                 "--runInBand",
-                "NoteDialog.test.jsx"
+                "Passages.test.js"
             ],
             "runtimeArgs": [
-                "--nolazy"
+                "--nolazy",
             ],
             "env": {
-                "NODE_ENV": "development"
+                //"NODE_ENV": "localserver",
             },
-            "envFile": "${workspaceFolder}/../slEnvFile",
             "sourceMaps": true
         },
 
@@ -53,9 +52,8 @@
                 "--nolazy"
             ],
             "env": {
-                "NODE_ENV": "development"
+                //"NODE_ENV": "localserver"
             },
-            "envFile": "${workspaceRoot}/../slEnvFile",
             "sourceMaps": true
         },
 
@@ -74,9 +72,8 @@
                 "--nolazy"
             ],
             "env": {
-                "NODE_ENV": "development"
+                //"NODE_ENV": "localserver"
             },
-            "envFile": "${workspaceFolder}/../slEnvFile",
             "sourceMaps": true
         },
 
@@ -94,8 +91,7 @@
             "runtimeArgs": [
                 "--nolazy"
             ],
-            "env": { "NODE_ENV": "development" },
-            "envFile": "${workspaceFolder}/../slEnvFile",
+            //"env": { "NODE_ENV": "localserver" },
             "sourceMaps": true
         },
         
@@ -112,9 +108,8 @@
                 "--nolazy"
             ],
             "env": {
-                "NODE_ENV": "development"
+                //"NODE_ENV": "localserver"
             },
-            "envFile": "${workspaceFolder}/../slEnvFile",
             "sourceMaps": true
         }
     ]

@@ -72,12 +72,12 @@ export default class GoogleLogin extends React.Component {
   }
 
   render () {
-    const { ...props } = this.props
-
-    props.disabled = this.state.disabled || props.disabled
+    const { props } = this
+    let disabled = this.state.disabled || props.disabled
 
     return (
-      <Button {...props} 
+      <Button
+          disabled={disabled}
           bsStyle="primary"
           className="google-login app-accountsUI btn-margin"
           onClick={() => { log('googleLogin'); user.googleLogin() } }>
@@ -104,15 +104,21 @@ function expired(jwt) {
 // If current token expired, try to renew it.
 // If cannot renew, resolve to null.
 
-export const getGoogleIdToken = function(user) {
+export const getGoogleIdToken = function() {
   return new Promise((resolve, reject) => {
     //log(`getGoogleIdToken start`)
+
+    // If this is the unit test user, just return their permanent id_token
+    if (user.testuser) {
+      resolve(user.id_token)
+      return
+    }
 
     let _gapi = (typeof gapi !== 'undefined' && gapi) || null
     let auth2 = (_gapi && _gapi.auth2 && _gapi.auth2.getAuthInstance()) || null
     if (!auth2) {
       log('getGoogleIdToken - no AuthInstance!!!')
-      user.id_token = null
+      user.setIdToken('')
       reject('no AuthInstance')
       return
     }
@@ -120,7 +126,7 @@ export const getGoogleIdToken = function(user) {
     let googleUser = auth2.currentUser.get()
     if (!googleUser) { 
       log('getGoogleIdToken - no googleUser!!!')
-      user.id_token = null
+      user.setIdToken('')
       resolve(null)
       return 
     }
@@ -129,7 +135,7 @@ export const getGoogleIdToken = function(user) {
     if (id_token && !expired(id_token)) {
       //log('getGoogleIdToken - ok')
       if (user.id_token !== id_token)
-        user.id_token = id_token
+        user.setIdToken(id_token)
       resolve(id_token)
       return
     }
@@ -137,13 +143,13 @@ export const getGoogleIdToken = function(user) {
     googleUser.reloadAuthResponse()
       .then(authResponse => {
         log('getGoogleIdToken - reloaded')
-        user.id_token = authResponse.id_token
+        user.setIdToken(authResponse.id_token)
         resolve(authResponse.id_token)
       })
       .catch(err => {
         // Not able to reload, no id_token available
         log('getGoogleIdToken - reload failed!!!', err)
-        user.id_token = null
+        user.setIdToken('')
         resolve(null)
       })
   })
@@ -167,7 +173,7 @@ export const checkIdTokenNowAndOnWakeup = function(user) {
       // We fetch the IdToken here for the side effect of clearing it
       // if this token can no longer be refreshed to a valid state.
       log('checkIdTokenNowAndOnWakeup triggered')
-      getGoogleIdToken(user)
+      getGoogleIdToken()
         .then(() => { })
         .catch(() => { })
     }

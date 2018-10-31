@@ -167,7 +167,15 @@ export const Portion = types.model("Portion", {
     },    
 
     removePassageReference(_id) {
-        let project = self.getProject()
+        let project
+        
+        try {
+            project = self.getProject()
+        } catch (error) {
+            // no parent, so no need to remove reference from parent
+            // normally this should only happen when running unit tests
+            return            
+        }
 
         if (project.passage && project.passage._id === _id) {
             project.setPassage(null)
@@ -278,7 +286,7 @@ export const Portions = types.model("Portions", {
 
     return {
         load: () => {
-            debug(`[${self.project.name}] Portions#load`)
+            debug(`Portions#load`)
 
             let options = {
                 startkey: '#item/',
@@ -292,7 +300,7 @@ export const Portions = types.model("Portions", {
             return new Promise((resolve, reject) => {
                 _db.allDocs(options)
                     .then(response => {
-                        debug(`   [${self.project.name}] Portions#load [rows=${response.rows.length}]`)
+                        debug(`   Portions#load [rows=${response.rows.length}]`)
                         // response = {rows: [{doc: {...} }]}
 
                         // Process portions first so we have an owner for each passage
@@ -360,7 +368,16 @@ export const Portions = types.model("Portions", {
         },
 
         removePortionReference(_id) {
-            let project = self.getProject()
+            let project
+
+            try {
+                project = self.getProject()
+            } catch (error) {
+                // no parent, so no need to remove reference from parent
+                // normally this should only happen when running unit tests
+                return
+            }
+
             let portions = project.portions.portions
 
             if (project.portion && project.portion._id === _id) {

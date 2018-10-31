@@ -245,7 +245,7 @@ class VideoPlayer extends Component {
         this.stop()
         let { remote } = this.props
         this.vc.currentTime = remote.currentTime
-        console.log('setCurrentTime', this.vc.currentTime, remote.currentTime)
+        //console.log('setCurrentTime', this.vc.currentTime, remote.currentTime)
     }
 
     timeupdate() {

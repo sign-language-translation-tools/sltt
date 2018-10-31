@@ -9,20 +9,18 @@ import fetch from 'node-fetch'
 import { user } from '../components/auth/User.js'
 import { getGoogleIdToken } from '../components/auth/GoogleLogin.jsx'
 
-const debug = require('debug')('sltt:API') 
+const log = require('debug')('sltt:API') 
 
-let _hostUrl
-if (process.env.NODE_ENV === 'development') {
-    _hostUrl = `https://sl.paratext.org:4000`
+export function getHostUrl() {
+    let hostUrl = 'https://sl.paratext.org:4000'
+
+    if (process.env.NODE_ENV === 'localserver') {
+        hostUrl = 'http://localhost:3001'
+        log(`hostUrl=LOCALHOST:3001`)
+    }
+
+    return hostUrl
 }
-else {
-    _hostUrl = `https://sl.paratext.org:4000`
-}
-
-// UNCOMMENT to access server on localhost
-// _hostUrl = `http://localhost:3001`
-
-export let hostUrl = _hostUrl
 
 export function authorization() {
     if (!user.id_token) throw new Error('Authorization not set')
@@ -31,11 +29,10 @@ export function authorization() {
 
 // Thow an error if response status is not 200
 export function checkStatus(response) {
-    debug(`checkStatus status=${response.status}, statusText=${response.statusText}`)
-
     if (response.status === 200) {
         return Promise.resolve(response)
     } else {
+      log(`checkStatus ERROR status=${response.status}, statusText=${response.statusText}`)
       return Promise.reject(new Error(response.statusText))
     }
 }
@@ -49,7 +46,7 @@ export function getJson(response) {
 }
 
 export function refreshIdToken() {
-    return getGoogleIdToken(user)
+    return getGoogleIdToken()
 }
 
 // Called every time the video element has a new block to upload.
@@ -57,7 +54,7 @@ export async function pushBlob(projectName, path, seqNum, blob) {
     let _pushBlob = new Promise((resolve, reject) => {
         if (!user.id_token) { reject('Not logged in.'); return }
 
-        let path2 = `${hostUrl}/${projectName}/_push_/${path}=${seqNum}`
+        let path2 = `${getHostUrl()}/${projectName}/_push_/${path}=${seqNum}`
 
         let xhr = new XMLHttpRequest()
         xhr.open('PUT', path2, true)
@@ -67,33 +64,33 @@ export async function pushBlob(projectName, path, seqNum, blob) {
             if (xhr.readyState !== 4) return
 
             if (xhr.status !== 200) {
-                debug(`*** pushBlob reject status=${xhr.status}`)
+                log(`*** pushBlob reject status=${xhr.status}`)
                 reject({ status: xhr.status })
                 return
             }
 
-            debug(`pushBlob resolve`)
+            log(`pushBlob resolve`)
             resolve({ status: xhr.status } /* mimic fetch 'response' */)
         }
 
         xhr.onerror = (err) => {
-            debug(`*** pushBlob onerror ${err}`)            
+            log(`*** pushBlob onerror ${err}`)            
             reject(err)
         }
 
         // Initiate the upload of this video segment
-        debug('pushBlob xhr.send')
+        log('pushBlob xhr.send')
         xhr.send(blob)
     })
 
-    await getGoogleIdToken(user)
+    await getGoogleIdToken()
     await _pushBlob
 }
 
 export async function pushFile(file, projectName, path, onprogress) {
     let _pushFile = new Promise((resolve, reject) => {
-        let url = `${hostUrl}/${projectName}/_push_/${path}=1`
-        debug(`pushFile start ${url}`)
+        let url = `${getHostUrl()}/${projectName}/_push_/${path}=1`
+        log(`pushFile start ${url}`)
         
         var xhr = new XMLHttpRequest()
         
@@ -104,17 +101,17 @@ export async function pushFile(file, projectName, path, onprogress) {
             if (xhr.readyState !== 4) return
             
             if (xhr.status !== 200) {
-                debug(`pushFile reject status=${xhr.status}`)
+                log(`pushFile reject status=${xhr.status}`)
                 reject({ status: xhr.status })
                 return
             }
             
-            debug(`pushFile resolve`)
+            log(`pushFile resolve`)
             resolve({ status: xhr.status } /* mimic fetch 'response' */)
         }
         
         xhr.onerror = (err) => {
-            debug(`*** pushFile onerror ${err}`)            
+            log(`*** pushFile onerror ${err}`)            
             reject(err)
         }
         
@@ -123,7 +120,7 @@ export async function pushFile(file, projectName, path, onprogress) {
         xhr.send(file)
     })
     
-    await getGoogleIdToken(user)
+    await getGoogleIdToken()
     await _pushFile
 }
 
@@ -132,10 +129,10 @@ export async function pushFile(file, projectName, path, onprogress) {
 // Return the URL of the resulting video file S3 object.
 
 export async function concatBlobs(projectName, path, seqNum) {
-    await getGoogleIdToken(user)
+    await getGoogleIdToken()
 
-    let path2 = `${hostUrl}/${projectName}/_concat_/${path}=${seqNum}`
-    debug(`concatBlobs start ${path2}`)
+    let path2 = `${getHostUrl()}/${projectName}/_concat_/${path}=${seqNum}`
+    log(`concatBlobs start ${path2}`)
     
     let options = {
         method: 'GET',
@@ -145,7 +142,7 @@ export async function concatBlobs(projectName, path, seqNum) {
     checkStatus(response)
     
     let url = await response.text()
-    debug(`concatBlobs success`)
+    log(`concatBlobs success`)
     return url
 }
 
@@ -161,11 +158,11 @@ export async function uploadFile(file, projectName, path, onprogress) {
 // This url will expire in 6 days.
 
 export async function getUrl(projectName, url) {
-    debug(`getUrl start ${url}`)
+    log(`getUrl start ${url}`)
     
-    await getGoogleIdToken(user)
+    await getGoogleIdToken()
 
-    let path = `${hostUrl}/${projectName}/_url_?url=${encodeURIComponent(url)}`
+    let path = `${getHostUrl()}/${projectName}/_url_?url=${encodeURIComponent(url)}`
 
     let options = {
         method: 'GET',
@@ -175,6 +172,6 @@ export async function getUrl(projectName, url) {
     checkStatus(response)
 
     let signedUrl = await response.text()
-    debug(`getUrl success ${signedUrl.slice(0,80)}`)
+    log(`getUrl success ${signedUrl.slice(0,80)}`)
     return signedUrl
 }
