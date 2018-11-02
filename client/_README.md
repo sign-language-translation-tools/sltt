@@ -5,14 +5,23 @@
 
 # To run (debug mode)
 
-    yarn start  (start client)
+    yarn start
+        # starts client in browser
+        # you can close this browser because starting debug will open a new browser
+        # do not ^c the code running in the terminal
+
     
     select debug mode
+    select Chrome launch.json entry
     Debug > Start Debugging
+
+        break points can be set in VSC and will be honored by browser
+        Not everything visible in browser log is visible in VSC Debug Console (by most stuff is)
 
 # Enable debug output
 
-    [enter in browser console]
+To turn on debug output in browser console window
+
     localStorage.debug = 'sltt:*'   [see www.npmjs.com/package/debug]
 
 # View server log (real time)
