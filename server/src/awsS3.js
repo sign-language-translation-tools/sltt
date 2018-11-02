@@ -4,8 +4,8 @@ const AWS = require('aws-sdk')
 AWS.config.update({
     region: 'us-east-1',
     credentials: {
-        accessKeyId: process.env.signlanguage_uploader_access_key,
-        secretAccessKey: process.env.signlanguage_uploader_secret_access_key,
+        accessKeyId: process.env.SLTT_UPLOADER_ACCESS_KEY,
+        secretAccessKey: process.env.SLTT_UPLOADER_SECRET_ACCESS_KEY,
     }
 })
 

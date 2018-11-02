@@ -14,7 +14,7 @@ const log = require('debug')('sltt:API')
 export function getHostUrl() {
     let hostUrl = 'https://sl.paratext.org:4000'
 
-    if (process.env.NODE_ENV === 'localserver') {
+    if (process.env.SLTT_SERVER_LOCATION === 'local') {
         hostUrl = 'http://localhost:3001'
         log(`hostUrl=LOCALHOST:3001`)
     }

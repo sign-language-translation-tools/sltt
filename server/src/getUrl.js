@@ -9,9 +9,9 @@ const { createPresignedS3URL } = require('aws-signature-v4')
 
 function getSignedUrl(path) {
     let signedUrl = createPresignedS3URL(path, {
-        bucket: 'ubs-signlanguage-upload',
-        key: process.env.signlanguage_uploader_access_key,
-        secret: process.env.signlanguage_uploader_secret_access_key,
+        bucket: process.env.SLTT_BUCKET,
+        key: process.env.SLTT_UPLOADER_ACCESS_KEY,
+        secret: process.env.SLTT_UPLOADER_SECRET_ACCESS_KEY,
         region: 'us-east-1',
         method: 'GET',
         expires: 6*24*60,

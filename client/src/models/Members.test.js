@@ -2,7 +2,7 @@ import { Project } from './Project.js'
 import { createDb, initializeTestProjects, destroyTestDbs } from './Db.js'
 
 let dotenv = require('dotenv')
-dotenv.config({ path: '/users/nmiles/slEnvFile' })
+dotenv.config({ path: '/users/nmiles/sltt_environment' })
 process.env.NODE_ENV = 'localserver'
 
 require('../components/auth/User.js').user.setupTestUser()

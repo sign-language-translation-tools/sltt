@@ -1,7 +1,7 @@
 import _ from 'underscore'
 
 let dotenv = require('dotenv')
-dotenv.config({path: '/users/nmiles/slEnvFile'})
+dotenv.config({path: '/users/nmiles/sltt_environment'})
 
 // Uncomment to test against server running on localhost
 // process.env.NODE_ENV = 'localserver'

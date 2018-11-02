@@ -9,7 +9,7 @@ const { log } = require('./log.js')
 // We flatten this to avoid needing to create deeply nested directories
 // to hold the temporary files.
 function localPath(url) {
-    let baseDir = process.env.VIDEOSDIR || '/Users/nmiles/source/server/videos'
+    let baseDir = process.env.SLTT_VIDEOS_DIR || '/Users/nmiles/source/server/videos'
     if (!baseDir.endsWith('/')) baseDir += '/'
 
     // When we write files locally on the server we changes /'s to &'s

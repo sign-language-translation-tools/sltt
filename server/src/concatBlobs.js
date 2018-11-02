@@ -52,7 +52,7 @@ function copyToS3(req, res, url) {
     let params = {
         Body: fs.createReadStream(localPath(url)),
         Key,
-        Bucket: 'ubs-signlanguage-upload',
+        Bucket: process.env.SLTT_BUCKET,
     }
 
     awsS3.putObject(params, (err) => {
