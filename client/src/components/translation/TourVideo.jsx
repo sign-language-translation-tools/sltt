@@ -10,7 +10,7 @@ import TourVideoDropTarget from './TourVideoDropTarget.jsx'
 import { getTourProject } from './TranslationEditorTour.jsx'
 import { getUrl } from '../../models/API.js'
 
-const debug = require('debug')('sltt:TourVideo') 
+const log = require('debug')('sltt:TourVideo') 
 
 
 class TourVideo extends Component {
@@ -36,7 +36,7 @@ class TourVideo extends Component {
 
     getSignedUrl = async function (props) {
         let { stepName } = props
-        debug(`getSignedUrl stepName=${stepName}`)
+        log(`getSignedUrl stepName=${stepName}`)
 
         let project = getTourProject()
         let db = project.getDb()
@@ -45,13 +45,21 @@ class TourVideo extends Component {
         let doc
         try {
             doc = await db.get(_id)
-            this.signedUrl = await getUrl(project.name, doc.url)
         } catch (error) {
+            log(`getSignedUrl db.get ERROR=${error}`)
             // ignore fetch error, no video yet to play
             this.signedUrl = ''
+            return
         }
         
-        debug(`signedUrl=${this.signedUrl}`)
+        try {
+            this.signedUrl = await getUrl(project.name, doc.url)
+        } catch (error) {
+            log(`getSignedUrl getUrl ERROR=${error}`)
+            this.signedUrl = ''
+        }
+
+        log(`signedUrl=${this.signedUrl}`)
     }
 
     render() {
