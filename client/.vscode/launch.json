@@ -26,7 +26,7 @@
             "cwd": "${workspaceRoot}",
             "args": [
                 "--runInBand",
-                "Passages.test.js"
+                "Db.test.js"
             ],
             "runtimeArgs": [
                 "--nolazy",

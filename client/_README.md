@@ -75,3 +75,6 @@ Breakpoints work ok.
 # Notes
 
 * Major problems with click not working in react-bootstrap/SplitButton. Gave up. Complicated React stacked on top of complicated bootstrap. Learned that React does not attach event handlers at the element level ... so chrome does not show anything there.
+
+* Locked 'debug' module at 3.2.5 because later version was causing 'yarn build' to fail with 'failed to 
+minify browser.js' error.
