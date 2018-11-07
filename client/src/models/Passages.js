@@ -54,7 +54,7 @@ function fetchSignedUrl(projectName, videoObject, cb) {
             log(`fetchSignedUrl REFRESHED url=${signedUrl.slice(0,80)}`)
 
             let match = signedUrl.match(/(X-Amz-Expires)=(\d+)/)
-            let expiresIn = (match && parseInt(match[2])) || 3500
+            let expiresIn = (match && parseInt(match[2], 10)) || 3500
 
             videoObject.setSignedUrlHelper(signedUrl, now + expiresIn - 10)
             cb && cb(null, signedUrl)
@@ -128,6 +128,7 @@ export const PassageNote = types.model("PassageNote", {
 })
 .actions(self => ({
     getSignedUrls: (cb) => {
+        log(`getSignedUrls count=${self.segments && self.segments.length}`)
         let _gets = _.map(self.segments, segment => segment.getSignedUrl())
         Promise.all(_gets)
             .then(() => {cb && cb()})

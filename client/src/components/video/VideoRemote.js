@@ -112,6 +112,8 @@ class VideoRemote extends EventEmitter {
         log('finishUpload')
         let { project, recordingPath, blobs } = this
 
+        this.recordingPath = null // Ends display of VideoRecorder
+
         try {
             this.url = await concatBlobs(project, recordingPath, blobs.length)
         } catch (error) {
@@ -122,7 +124,6 @@ class VideoRemote extends EventEmitter {
 
         log(`finishUpload success ${this.url.slice(0,60)}`)
 
-        this.recordingPath = null
         this.emit('recording_done', null, this.url, this.duration)
     }
 

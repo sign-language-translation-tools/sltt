@@ -167,6 +167,9 @@ class NoteMain extends Component {
                 console.log('addSegment err:', err)
                 return
             }
+            
+            note.getSignedUrls()   // get signedUrls for all segments (including one just added)
+                                   // so that previews display correctly
         })
     }
 
