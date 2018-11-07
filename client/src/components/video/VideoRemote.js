@@ -162,17 +162,18 @@ class VideoRemote extends EventEmitter {
         }
         this.duration = (passageVideo && passageVideo.duration) || 0.1
         this.playing = false
-        this.signedUrl = null
+        this.setSignedUrl(null)
+
+        this.passageVideo = passageVideo
 
         if (passageVideo) {
-            passageVideo.getSignedUrl(err => {
+            passageVideo.getSignedUrl((err, signedUrl) => {
                 if (err) {
                     this.setStatus('error', 'loadPassage: ' + JSON.stringify(err)) 
                     return
                 }
 
-                log(`set signedUrl=${passageVideo.signedUrl}`)
-                this.signedUrl = passageVideo.signedUrl
+                this.setSignedUrl(signedUrl)
             })
         }
     }
@@ -190,11 +191,25 @@ class VideoRemote extends EventEmitter {
     // VideoMain is the primary listener for this event.
     play(startTime, endTime, rate) {
         log(`play ${startTime} to ${endTime}, rate=${rate}`)
-        this.emit('play', startTime, endTime, rate)
+
+        if (!this.passageVideo) {
+            log('play NO PASSAGE VIDEO')
+            return
+        }
+
+        this.passageVideo.getSignedUrl((err, signedUrl) => {
+            if (err) {
+                this.setStatus('error', 'loadPassage: ' + JSON.stringify(err))
+                return
+            }
+
+            this.setSignedUrl(signedUrl)
+            this.emit('play', startTime, endTime, rate)
+        })
     }
 
-    playSignedUrl(signedUrl) {
-        log(`playSignedUrl ${signedUrl.slice(0,80)}`)
+    setSignedUrl(signedUrl) {
+        log(`setSignedUrl ${signedUrl && signedUrl.slice(0,80)}`)
 
         this.signedUrl = signedUrl
     }

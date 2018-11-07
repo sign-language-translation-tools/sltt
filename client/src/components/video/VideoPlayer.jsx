@@ -127,7 +127,9 @@ class VideoPlayer extends Component {
 
     checkCloseWhenEnded() {
         let { remote, closeWhenEnded } = this.props
-        if (closeWhenEnded) remote.signedUrl = null
+        if (closeWhenEnded) {
+            remote.setSignedUrl(null)
+        }
     }
 
     onError(e) {

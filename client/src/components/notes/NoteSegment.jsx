@@ -6,6 +6,8 @@ import {extendObservable} from 'mobx'
 import {observer} from 'mobx-react'
 import PropTypes from 'prop-types' 
 import NoteTextEditor from './NoteTextEditor.jsx'
+import { displayError } from '../utils/Errors.jsx'
+
 
 class NoteSegment extends Component {
     static propTypes = {
@@ -83,7 +85,14 @@ class NoteSegment extends Component {
 
     onClick() {
         let { remote, segment } = this.props
-        remote.playSignedUrl(segment.signedUrl)
+        segment.getSignedUrl()
+            .then(signedUrl => { 
+                remote.setSignedUrl(signedUrl) 
+            })
+           .catch(err => {
+               displayError(err)
+           })
+        
     }
 
     localTime(created) {

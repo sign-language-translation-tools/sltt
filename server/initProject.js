@@ -1,7 +1,7 @@
 let fs = require('fs-extra')
 const { _PouchDB } = require('./src/_PouchDB.js')
 
-const project = process.argv.length >= 3 && process.argv[2]
+const project = (process.argv.length >= 3 && process.argv[2]) || 'ASLVtest'
 const remove = process.argv.length >= 4 && process.argv[3] === '-r'
 
 // node initProject ASLVtest -r
@@ -10,7 +10,9 @@ const remove = process.argv.length >= 4 && process.argv[3] === '-r'
 
 if (!project) process.exit(1)
 
-if (remove) { fs.removeSync(`./projects/${project}`) }
+if (remove) {
+    fs.removeSync(`${process.env.SLTT_PROJECTS_DIR}${project}`) 
+}
 
 function init(dbName, members) {
     let db = new _PouchDB(dbName)
@@ -27,7 +29,7 @@ function init(dbName, members) {
     })
 }
 
-init(project, [ { email: 'nmiles@biblesocieties.org', role: 'admin' } ])
+init(project, [{ email: 'milesnlwork@gmail.com', role: 'admin' } ])
 .then(() => {
     console.error('DONE!')
 })

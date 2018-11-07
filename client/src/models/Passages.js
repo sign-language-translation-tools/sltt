@@ -6,7 +6,7 @@ import { checkStatus, pushFile, concatBlobs, getUrl } from './API.js'
 import { user } from '../components/auth/User.js'
 import { deletedStatus } from './PassagesStatus.js'
 
-const debug = require('debug')('sltt:Passages') 
+const log = require('debug')('sltt:Passages') 
 
 let previousDate = new Date()
 
@@ -31,16 +31,39 @@ function uploadTimestamp(file) {
     return formatTimestamp(new Date(file.lastModified))
 }
 
+// Before you can play a video you have to get a signed S3 url for the video.
+// This url has an expiration date.
+// If you already have a signed url for this object and it has not expired,
+// use the existing url.
+// Otherwise fetch a signed url for the video from the server.
+// videoObject is a PassageNoteSegment or VideoPassage
 
-const setSignedUrl = function(setter, project, url, cb) {
-    getUrl(project, url)
+function fetchSignedUrl(projectName, videoObject, cb) {
+    let { url, signedUrl, signedUrlExpires } = videoObject
+    const now = Date.now() / 1000
+    log(`fetchSignedUrl url=${url}, signedUrl=${signedUrl}, signedUrlExpires=${signedUrlExpires}, now=${now}`)
+
+    if (signedUrl && signedUrlExpires && signedUrlExpires > now) {
+        log(`fetchSignedUrl REUSING signedUrl`)
+        cb && cb(null, signedUrl)
+        return
+    }
+
+    getUrl(projectName, url)
         .then(signedUrl => {
-            debug(`setSignedUrl ${signedUrl.slice(0,80)}`)
-            setter(signedUrl)
-            cb && cb()
+            log(`fetchSignedUrl REFRESHED url=${signedUrl.slice(0,80)}`)
+
+            let match = signedUrl.match(/(X-Amz-Expires)=(\d+)/)
+            let expiresIn = (match && parseInt(match[2])) || 3500
+
+            videoObject.setSignedUrlHelper(signedUrl, now + expiresIn - 10)
+            cb && cb(null, signedUrl)
         })
         .catch(
-            err => { cb && cb(err) }
+            err => { 
+                log('fetchSignedUrl ERR', err)
+                cb && cb(err) 
+            }
         )
 }
 
@@ -58,17 +81,28 @@ export const PassageNoteSegment = types.model("PassageNoteSegment", {
     duration: types.number,
     url: types.string,
     signedUrl: types.optional(types.string, ''),    
+    signedUrlExpires: types.optional(types.number, 0),    
     text: types.optional(types.string, ''),
 
     // videoCreated, noteCreated, segmentCreated, username, position, duration, text, url, 
 })
 .actions(self => ({
-    _getSignedUrl: () => {
+    // Get the signedUrl for this note segment video into the signedUrl attribute.
+    // If cb is passed, do this as a callback.
+    // Otherwise return a promise.
+
+    getSignedUrl: cb => {
+        let projectName = self.getPassage().getPortion().getProject().name
+        
+        if (cb) {
+            fetchSignedUrl(projectName, self, cb)
+            return null
+        }
+
         return new Promise((resolve, reject) => {
-            let projectName = self.getPassage().getPortion().getProject().name
-            setSignedUrl(self.setSignedUrl, projectName, self.url, err => {
+            fetchSignedUrl(projectName, self, err => {
                 if (err) reject(err)
-                else resolve()
+                else resolve(self.signedUrl)
             })
         })
     },
@@ -78,8 +112,9 @@ export const PassageNoteSegment = types.model("PassageNoteSegment", {
         return passage
     },
 
-    setSignedUrl: signedUrl => {
+    setSignedUrlHelper: (signedUrl, signedUrlExpires) => {
         self.signedUrl = signedUrl
+        self.signedUrlExpires = signedUrlExpires
     },
 }))
 
@@ -93,7 +128,7 @@ export const PassageNote = types.model("PassageNote", {
 })
 .actions(self => ({
     getSignedUrls: (cb) => {
-        let _gets = _.map(self.segments, segment => segment._getSignedUrl())
+        let _gets = _.map(self.segments, segment => segment.getSignedUrl())
         Promise.all(_gets)
             .then(() => {cb && cb()})
             .catch(err => {cb && cb(err)})
@@ -174,6 +209,7 @@ export const PassageVideo = types.model("PassageVideo", {
     duration: types.number,
     url: types.string,
     signedUrl: types.optional(types.string, ''),
+    signedUrlExpires: types.optional(types.number, 0),    
 })
 .actions(self => ({
 
@@ -184,14 +220,14 @@ export const PassageVideo = types.model("PassageVideo", {
         let projectName = self.getPassage().getPortion().getProject().name
 
         if (cb) {
-            setSignedUrl(self.setSignedUrl, projectName, self.url, cb)
+            fetchSignedUrl(projectName, self, cb)
             return null
         }
 
         return new Promise((resolve, reject) => {
-            setSignedUrl(self.setSignedUrl, projectName, self.url, err => {
+            fetchSignedUrl(projectName, self, err => {
                 if (err) reject(err)
-                else resolve()
+                else resolve(self.signedUrl)
             })
         })
     },
@@ -204,9 +240,9 @@ export const PassageVideo = types.model("PassageVideo", {
         self.getPassage().setStatus(self, status)
     },
 
-    setSignedUrl: signedUrl => {
-        //debug('PassageVideo setSignedUrl', signedUrl && signedUrl.substring(0, 40))
+    setSignedUrlHelper: (signedUrl, signedUrlExpires) => {
         self.signedUrl = signedUrl
+        self.signedUrlExpires = signedUrlExpires
     },
 }))
 .views(self => ({
@@ -293,14 +329,14 @@ export const Passage = types.model("Passage", {
 
     putPromise: (doc) => {
         return new Promise((resolve, reject) => {
-            debug('putPromise', doc)
+            log('putPromise', doc)
             self.put(doc, err => {
                 if (err) {
                     reject(err)
                     return
                 }
 
-                debug('putPromise resolve')
+                log('putPromise resolve')
                 resolve()
             })
 
@@ -328,7 +364,7 @@ export const Passage = types.model("Passage", {
     },
 
     put: (doc, cb) => {
-        debug('PUT', doc._id)
+        log('PUT', doc._id)
 
         let portion = self.getPortion()
         let db = portion.getDb()
@@ -354,8 +390,8 @@ export const Passage = types.model("Passage", {
         }
         self.statuses.push(doc)
 
-        //debug('setStatus')
-        //_.forEach(self.statuses, s => debug(s))
+        //log('setStatus')
+        //_.forEach(self.statuses, s => log(s))
         
         self.setId(doc, 'status')
         self.put(doc, cb)
@@ -363,7 +399,7 @@ export const Passage = types.model("Passage", {
 
     addVideo: (doc, cb) => {
         // doc: { username, videoCreated, duration, url }
-        debug('addVideo', doc.duration, doc.url)
+        log('addVideo', doc.duration, doc.url)
         //!! ensure that videoCreated is later than existing videos
 
         self.setId(doc, 'video', 'webm')
@@ -390,7 +426,7 @@ export const Passage = types.model("Passage", {
     },
 
     apply: (doc) => {
-        //debug('passages apply', doc._id)
+        //log('passages apply', doc._id)
         
         let { noteCreated, _deleted } = doc
 
@@ -470,9 +506,9 @@ export const Passage = types.model("Passage", {
     get videosNotDeleted() {
         let videos = self.videos || []
         
-        //debug('videos pre', videos.map(pv => `${pv.videoCreated}|${pv.status}`), deletedStatus)
+        //log('videos pre', videos.map(pv => `${pv.videoCreated}|${pv.status}`), deletedStatus)
         videos = _.filter(videos, pv => pv.status !== deletedStatus)
-        //debug('videos post', videos.map(pv => `${pv.videoCreated}|${pv.status}`))
+        //log('videos post', videos.map(pv => `${pv.videoCreated}|${pv.status}`))
         return videos
     }
 }))

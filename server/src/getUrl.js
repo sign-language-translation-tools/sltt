@@ -7,6 +7,10 @@ const { log } = require('./log.js')
 const { awsS3 } = require('./awsS3.js')
 const { createPresignedS3URL } = require('aws-signature-v4')
 
+let expires = 24*3600 // 24 hours, this is the max that AWS will allow given
+   // through this request mechanism
+// expires = 35  // !!! TESTING
+
 function getSignedUrl(path) {
     let signedUrl = createPresignedS3URL(path, {
         bucket: process.env.SLTT_BUCKET,
@@ -14,7 +18,7 @@ function getSignedUrl(path) {
         secret: process.env.SLTT_UPLOADER_SECRET_ACCESS_KEY,
         region: 'us-east-1',
         method: 'GET',
-        expires: 6*24*60,
+        expires
     })
 
     //console.log('getUrl', signedUrl)

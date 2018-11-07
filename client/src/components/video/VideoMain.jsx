@@ -163,7 +163,13 @@ class VideoMain extends Component {
             project.setPassageVideo(passage, passageVideo, err => {
                 if (err) { displayError(err); return }
                 // Trigger Load of new video into player
-                remote.signedUrl = passageVideo.signedUrl
+                passageVideo.getSignedUrl()
+                    .then(signedUrl => {
+                        remote.setSignedUrl(signedUrl)
+                    })
+                    .catch(err => {
+                        displayError(err)
+                    })
             })
         })
     }

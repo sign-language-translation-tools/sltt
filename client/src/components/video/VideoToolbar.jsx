@@ -126,7 +126,7 @@ class VideoToolbar extends Component {
         let { project, remote } = this.props
         let { passage } = project
 
-        remote.signedUrl = null
+        remote.setSignedUrl(null)
 
         // Find the first not deleted video, if any
         let passageVideo = passage.videosNotDeleted.slice(-1)[0]  // might be null if no video remaining
@@ -134,7 +134,18 @@ class VideoToolbar extends Component {
         project.setPassageVideo(passage, passageVideo, err => {
             if (err) { displayError(err); return }
 
-            remote.signedUrl = passageVideo && passageVideo.signedUrl
+            if(!passageVideo) {
+                remote.setSignedUrl(null)
+                return
+            }
+
+            passageVideo.getSignedUrl()
+                .then(signedUrl => {
+                    remote.setSignedUrl(signedUrl)
+                })
+                .catch(err => {
+                    displayError(err)
+                })
         })
     }
 

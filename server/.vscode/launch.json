@@ -15,9 +15,9 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "initASLV",
+            "name": "initProject",
             "envFile": "${workspaceFolder}/../../sltt_environment",
-            "program": "${workspaceFolder}/initASLV.js"
+            "program": "${workspaceFolder}/initProject.js"
         },
         {
             "type": "node",
