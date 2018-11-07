@@ -14,13 +14,16 @@
     "aws-sdk": "^2.205.0",
     "aws-signature-v4": "^1.2.1",
     "cors": "^2.8.4",
+    "del": "^3.0.0",
     "express": "^4.16.2",
     "express-pouchdb": "^4.0.0",
     "google-auth-library": "^2.0.0",
     "jsonwebtoken": "^8.2.0",
+    "mv": "^2.1.1",
     "pouchdb": "^6.4.3",
     "pouchdb-fauxton": "^0.0.6",
     "pouchdb-server": "^4.0.0",
+    "rm": "^0.1.8",
     "underscore": "^1.8.3"
   },
   "devDependencies": {

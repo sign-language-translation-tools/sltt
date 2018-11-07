@@ -19,7 +19,7 @@ let cors = require('cors')
 const _debug = require('debug')
 _debug.log = console.log.bind(console)
 _debug.enable('sltt:.*')
-const debug = _debug('sltt:index')
+const log = _debug('sltt:index')
 
 let { logRequest } = require('./src/logRequest.js')
 let { pushBlob } = require('./src/pushBlob.js')
@@ -30,6 +30,8 @@ let { checkAuthorization } = require('./src/authorization.js')
 let { getMembers } = require('./src/getMembers.js')
 let { initializeTestProjects, destroyTestDbs } = require('./src/initializeTestProjects.js')
 let { projects } = require('./src/projects.js')
+let { createProject } = require('./src/createProject.js')
+let { deleteProject } = require('./src/deleteProject.js')
 
 let app = express()
 
@@ -37,11 +39,9 @@ let _expressPouchdb = require('express-pouchdb')
 let expressPouchdb = _expressPouchdb(_PouchDB) // see express-pouchdb/lib/index.js(77)
 
 function intercept(req, resp, next) {
-    //debug("intercept", req.url)
+    //log("intercept", req.url)
     expressPouchdb(req, resp, next)
 }
-
-app.use(logRequest)
 
 app.use(cors({ 
     credentials: true, 
@@ -52,6 +52,7 @@ app.use(cors({
 // CORS interactions. Note that this means if the CORS processing fails it will make
 // it look like the server is getting no request at all. If you suspect CORS
 // problems move this before the CORS line.
+app.use(logRequest)
 
 //app.use((req, resp, next) => {
 //    resp.status(500).send('FAIL')
@@ -68,11 +69,14 @@ app.use(checkAuthorization)   //
 //app.use(express.static('node_modules/pouchdb-fauxton/www'))
 
 //!! why doesn't a more specific RE path work in the following?
+app.use(/.*_create_/, createProject)
+app.use(/.*_delete_/, deleteProject)
+
 app.use(/.*_push_/, pushBlob)
 app.use(/.*_concat_/, concatBlobs)
 app.use(/.*_url_/, getUrl)
 
 app.use('/', intercept)
 
-debug('listen on 3001')
+log('listen on 3001')
 app.listen(3001)

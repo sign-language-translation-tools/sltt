@@ -6,6 +6,7 @@ import { Passage, PassageNote, PassageVideo } from './Passages.js'
 import { Members } from './Members.js'
 import { createDb } from './Db.js'
 import { timestamp } from './Passages.js'
+import { user } from '../components/auth/User.js'
 
 const log = require('debug')('sltt:Project') 
 
@@ -21,6 +22,7 @@ export const Project = types.model("Project", {
     videoTourSignedUrl: types.optional(types.string, ''), // currently playing tour video
     
     username: types.optional(types.string, ''),
+    iAmRoot: types.optional(types.boolean, true),
     iAmAdmin: types.optional(types.boolean, true),
     iAmTranslator: types.optional(types.boolean, true),
     iAmConsultant: types.optional(types.boolean, true),
@@ -65,21 +67,25 @@ export const Project = types.model("Project", {
             if (self.members)
                 item = _.findWhere(self.members.items, {email: self.username})
 
-            
+            self.iAmRoot = false
             self.iAmAdmin = false
             self.iAmTranslator = false
             self.iAmConsultant = false
             
             let role = item && item.role
-            log(`setRole ${self.username} = ${role}`)
+            let iAmRoot = user.iAmRoot
+            log(`setRole ${self.username} = ${role}, root=${iAmRoot}`)
             
-            if (role === 'admin') 
+            if (iAmRoot)
+                self.iAmRoot = true
+
+            if (iAmRoot || ['admin'].includes(role))
                 self.iAmAdmin = true
             
-            if (role === 'translator' || role === 'admin') 
+            if (iAmRoot || ['admin', 'translator'].includes(role))
                 self.iAmTranslator = true
             
-            if (role === 'consultant' || role === 'translator' || role === 'admin') 
+            if (iAmRoot || ['admin', 'translator', 'consultant'].includes(role))
                 self.iAmConsultant = true
         },
 

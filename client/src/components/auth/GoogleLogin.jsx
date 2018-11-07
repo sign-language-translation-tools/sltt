@@ -133,7 +133,7 @@ export const getGoogleIdToken = function() {
 
     let id_token = googleUser.getAuthResponse().id_token
     if (id_token && !expired(id_token)) {
-      log('getGoogleIdToken - ok, (not expired)')
+      //log('getGoogleIdToken - ok, (not expired)')
       if (user.id_token !== id_token) {
         log('getGoogleIdToken - update to new token')
         user.setIdToken(id_token)

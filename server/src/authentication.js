@@ -1,10 +1,11 @@
 // Verify the OpenID bearer id_token in the header.
-// Fail request if not found or invalid.
+// Fail request (401/404) if not found or invalid.
 // Add req.email for verified user.
+// Set req.isRoot if root (admin for all projects) user.
 // Currently this code assumes we are getting our id_token from Google
 
-// const { log } = require('./log.js')
-const debug = require('debug')('sltt:authentication')
+const log = require('debug')('sltt:authentication')
+const debug = require('debug')('slttdebug:authentication')
 
 const { OAuth2Client } = require('google-auth-library')
 
@@ -12,6 +13,8 @@ const googleClientId = "6286565436-21s5kkroam6583qtdjfoh82prcf0klbn.apps.googleu
 
 const client = new OAuth2Client(googleClientId);
 
+// Verify that the idToken is has valid content and signature.
+// Return email address for this user [or throw an exception]
 async function verify(idToken) {
     const ticket = await client.verifyIdToken({
         idToken,
@@ -26,7 +29,7 @@ exports.checkAuthentication = function (req, res, next) {
 
     if (!auth) {
         let error = 'No authorization header!'
-        console.log('!!!', error)
+        log(error)
         res.status(401).send(error)
         return
     }
@@ -34,7 +37,7 @@ exports.checkAuthentication = function (req, res, next) {
     let parts = auth.split(' ')
     if (parts.length < 2 || parts[0].toLowerCase() !== 'bearer') {
         let error = 'No bearer token!'
-        console.log('!!!', error, auth)
+        log(`${error} ${auth}`)
         res.status(401).send(error)
         return
     }
@@ -44,27 +47,34 @@ exports.checkAuthentication = function (req, res, next) {
 
     let idToken = parts[1]
 
+    // Check for the forever valid unit test idToken
     if (idToken && idToken === process.env.SLTT_USER_JWT) {
-        debug(`SLTT test user authenticated`)
+        debug(`SLTT_USER_JWT authenticated`)
         req.email = process.env.SLTT_USER
+        req.isUnittest = true
         next()
         return
     }
 
-    debug('not test user')
-
     verify(idToken)
         .then(email => {
             if (!email) {
+                log(`verify ERROR, No email address`)
                 sendError(res, 404, 'No email address!')
                 return
             }
 
             req.email = email
+
+            let rootUsers = process.env.SLTT_ROOT_USERS
+            req.isRoot = rootUsers && rootUsers.split(' ').includes(email)
+
+            debug(`verify email=${email}, isRoot=${req.isRoot}`)
+
             next()
        })
        .catch(err => {
-            console.log('!!!', err)
+            log(`verify ERROR ${err}`)
             res.status(401).send(err)
        })
 }

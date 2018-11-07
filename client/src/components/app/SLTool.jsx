@@ -8,15 +8,16 @@ import createHistory from 'history/createBrowserHistory'
 
 import MembersEditor from '../members/MembersEditor.jsx'
 import DatabaseEditor from './DatabaseEditor.jsx'
+import ProjectsEditor from './ProjectsEditor.jsx'
 import PortionsEditor from '../portions/PortionsEditor'
 import ProjectsTabs from './ProjectsTabs.jsx'
 //import HelpVideo from './HelpVideo'
 //import Helps from './Helps'
 import NavigationBar from './NavigationBar.jsx'
-import { user } from '../auth/User.js'
 import './SLTool.css'
 //import { displayError } from '../utils/Errors.jsx'
 import { userProjects } from './UserProjects.js'
+import { user } from '../auth/User.js'
 
 export const history = createHistory()
 
@@ -36,16 +37,16 @@ class SLTool extends Component {
     render() {
         let { projects, initialized } = userProjects
         let { selectedTabIndex, selected } = this
-        let { allowDatabase } = user
 
         let project = (projects.length  && projects[selectedTabIndex]) || null
+        let iAmRoot = user.iAmRoot
         let selectPage = this.selectPage.bind(this)
 
         return (
             <div className="app-container">
                 <Router history={history}>
                     <div>
-                        <NavigationBar selected={selected} selectPage={selectPage} history={history} allowDatabase={allowDatabase} />
+                        <NavigationBar selected={selected} selectPage={selectPage} history={history} iAmRoot={iAmRoot} />
 
                         <Route exact={true} path="/"
                             render={props => (<ProjectsTabs 
@@ -66,13 +67,16 @@ class SLTool extends Component {
                                 project={project} />
                             } />
 
-                        { allowDatabase && <Route path="/database"
+                        { iAmRoot && <Route path="/database"
                             render={props => <DatabaseEditor
                                 project={project} />
                             } />
                         }
-                        {/* <Route path="/helps"
-                            render={props => <Helps />} /> */}
+                        {iAmRoot && <Route path="/projects"
+                            render={props => <ProjectsEditor
+                                projects={projects} />
+                            } />
+                        }
                     </div>
                 </Router>
                 <ToastContainer

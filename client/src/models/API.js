@@ -14,7 +14,12 @@ const log = require('debug')('sltt:API')
 export function getHostUrl() {
     let hostUrl = 'https://sl.paratext.org:4000'
 
-    if (process.env.SLTT_SERVER_LOCATION === 'local') {
+    // process.env comes from the .env.development and .env.production files.
+    // Only variable names starting with REACT_APP are imported!
+    // To see these values when debugging use a console.log.
+    // You CANNOT see the process.env values in the debug console or watch window!
+    
+    if (process.env.REACT_APP_WEB_HOSTNAME === 'localhost') {
         hostUrl = 'http://localhost:3001'
         log(`hostUrl=LOCALHOST:3001`)
     }
@@ -175,3 +180,52 @@ export async function getUrl(projectName, url) {
     log(`getUrl success ${signedUrl.slice(0,80)}`)
     return signedUrl
 }
+
+export async function createProject(projectName) {
+    log(`createProject ${projectName}`)
+
+    await getGoogleIdToken()
+
+    let path = `${getHostUrl()}/${projectName}/_create_`
+
+    let options = {
+        method: 'PUT',
+        headers: { Authorization: 'bearer ' + user.id_token },
+    }
+
+    let response = await fetch(path, options)
+        .catch(error => {
+            console.log(error)
+            throw error
+        })
+        
+    checkStatus(response)
+
+    log(`createProject success`)
+}
+
+export async function deleteProject(projectName) {
+    log(`deleteProject ${projectName}`)
+
+    await getGoogleIdToken()
+
+    let path = `${getHostUrl()}/${projectName}/_delete_`
+
+    let options = {
+        method: 'PUT',
+        headers: { Authorization: 'bearer ' + user.id_token },
+    }
+
+    let response
+    try {
+        response = await fetch(path, options)
+    } catch (error) {
+        console.log(error)
+        throw error
+    }
+
+    checkStatus(response)
+
+    log(`deleteProject success`)
+}
+

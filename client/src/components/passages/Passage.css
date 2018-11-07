@@ -23,6 +23,10 @@
   margin-top: 5px;
 }
 
+.passage-droptarget {
+  display: inline-block;
+}
+
 .passage-active-droptarget {
   /* background-color: lightblue; */
   /* font-size: 150%; */
@@ -59,8 +63,6 @@
   opacity: 1; 
   margin-right: 5px;
 }
-
-
 
 .passage-menu { 
   display: inline-block;
@@ -103,6 +105,7 @@
 }
 
 .passage-adder {
+  margin-top: 10px;
   margin-left: 26px;
   color: lightgrey;
   font-size: 130%;

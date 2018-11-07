@@ -12,11 +12,11 @@ class NavigationBar extends Component {
         selectPage: PropTypes.func.isRequired,
         selected: PropTypes.string.isRequired,
         history: PropTypes.object.isRequired,
-        allowDatabase: PropTypes.bool,
+        iAmRoot: PropTypes.bool,
     }                        
     
     render() {
-        let { selectPage, selected, history, allowDatabase } = this.props
+        let { selectPage, selected, history, iAmRoot } = this.props
         let { id_token } = user
 
         return (
@@ -73,7 +73,7 @@ class NavigationBar extends Component {
                             </i>
                         </Link>
 
-                        { allowDatabase && <Link to="/database" className="app-selector-icon">
+                        { iAmRoot && <Link to="/database" className="app-selector-icon">
                             <i
                                 className={classNames("fa-database", "fa", "fa-2x",
                                     { 'fa-border': selected === 'database' })}
@@ -83,15 +83,16 @@ class NavigationBar extends Component {
                             </i>
                             </Link> }
 
-                        {/* <Link to="/helps" className="app-selector-icon">
+                        {iAmRoot && <Link to="/projects" className="app-selector-icon">
                             <i
-                                className={classNames("fa-question-circle", "fa", "fa-2x",
-                                    { 'fa-border': selected === 'helps' })}
-                                onClick={() => { selectPage('helps') }}
+                                className={classNames("fa-server", "fa", "fa-2x",
+                                    { 'fa-border': selected === 'projects' })}
+                                onClick={() => { selectPage('/projects') }}
                                 data-toggle="tooltip"
-                                title="View project helps.">
+                                title="Projects on server.">
                             </i>
-                        </Link> */}
+                        </Link>}
+
                     </div>
                 }
             </nav>

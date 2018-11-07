@@ -29,3 +29,24 @@
 .app-database-details {
   width: 700px;
 }
+
+.project-adder {
+  margin-top: 10px;
+  margin-left: 26px;
+  color: lightgrey;
+  font-size: 130%;
+}
+
+.project-adder:hover {
+  color: #337ab7;
+  font-size: 200%;
+}
+
+.project-name-box {
+  margin-top: 5px;
+}
+
+.delete-project-button {
+  color: #337ab7;
+  margin-left: 10px;
+}

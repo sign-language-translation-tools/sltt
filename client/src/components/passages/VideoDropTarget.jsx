@@ -30,7 +30,10 @@ class VideoDropTarget extends Component {
 
     render() {
         let { children } = this.props
-        let CN = className({ "passage-active-droptarget": this.droptarget })
+        let CN = className({ 
+            "passage-droptarget": true,
+            "passage-active-droptarget": this.droptarget 
+        })
 
         return (
             <div className={CN} >

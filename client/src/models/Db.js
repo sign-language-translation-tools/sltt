@@ -4,6 +4,7 @@ import upsert from 'pouchdb-upsert'
 
 import { getHostUrl, checkStatus, authorization, getJson } from './API.js'
 import { getGoogleIdToken } from '../components/auth/GoogleLogin.jsx'
+import { user } from '../components/auth/User.js'
 
 
 const log = require('debug')('sltt:Db') 
@@ -11,7 +12,6 @@ const log = require('debug')('sltt:Db')
 PouchDb.plugin(upsert)
 
 //PouchDb.debug.enable('*')
-
 
 export const createDb = function(name) {
     log(`createDb ${name}`)
@@ -88,14 +88,15 @@ export const getAuthorizedProjects = function (cb) {
     }
 
     let path = `${getHostUrl()}/_projects`
-    log(`getAuthorizedProjects ${path}`)
+    //log(`getAuthorizedProjects ${path}`)
 
     fetch(path, options)
         .then(checkStatus)
         .then(getJson)
-        .then(projects => {
-            log(`getAuthorizedProjects result= ${projects}`)
-            cb(null, projects)
+        .then(result => {
+            log(`getAuthorizedProjects result= ${JSON.stringify(result)}`)
+            user.iAmRoot = result.iAmRoot
+            cb(null, result.projectNames)
         })
         .catch(err => {
             let msg = `*** getAuthorizedProjects ${err}`

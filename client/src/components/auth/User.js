@@ -38,9 +38,7 @@ class User {
 
             // User name for current user. Currently we use their email address
             username: '',
-
-            // True when user is allowed to see the database debugging tool.
-            allowDatabase: false,
+            iAmRoot: false,
         })
     }
 
@@ -53,9 +51,6 @@ class User {
             log('googleLogin done')
             let id_token = googleUser.getAuthResponse().id_token
             this.setIdToken(id_token)
-
-            //!!! make this be a configured role
-            this.allowDatabase = (this.username === 'milesnlwork@gmail.com')
         })
     }
 

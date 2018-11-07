@@ -8,6 +8,7 @@ import { Project } from '../../models/Project.js'
 import { getAuthorizedProjects } from '../../models/Db.js'
 import { user } from '../auth/User.js'
 import { displayError } from '../utils/Errors.jsx'
+import { createProject as _createProject, deleteProject as _deleteProject } from '../../models/API.js'
 
 // add debug code
 // add exception handler
@@ -26,6 +27,16 @@ class UserProjects {
         autorun(() => {
             this.initializeProjects()  // run this whenever id_token changes
         })
+    }
+
+    reinitializeProjects() {
+        this.initializingStarted = false
+        this.initialized = false
+        this.projects = []
+
+        this.initializeProjects()
+            .catch(err => displayError(err))
+
     }
 
     // Initialize projects for this user.
@@ -47,7 +58,7 @@ class UserProjects {
 
         try {
             for (let name of names) {
-                await this.createProject(name)
+                await this.initializeProject(name)
             }
         } catch (error) {
             log(`ERROR getAuthorizedProjects`, error)
@@ -75,7 +86,7 @@ class UserProjects {
         })
     }
 
-    createProject(name) {
+    initializeProject(name) {
         return new Promise((resolve, reject) => {
             let { projects } = this
             let { username } = user
@@ -98,6 +109,55 @@ class UserProjects {
                 resolve()
             })
         })
+    }
+
+    // Add new project to system.
+    // Can only be done by root user
+    createProject(name, cb) {
+        log(`[${name}] addProject`)
+
+        let err = this.checkName(name)
+        if (err) {
+            cb && cb(err)
+            return
+        }
+
+        _createProject(name)
+            .then(() => {
+                log(`[${name}] addProject done`)
+                
+                this.reinitializeProjects()
+                cb && cb()
+            })
+            .catch(err => {
+                cb && cb(err)
+            })
+    }
+
+    deleteProject(name, cb) {
+        log(`[${name}] deleteProject`)
+
+        _deleteProject(name)
+            .then(() => {
+                log(`[${name}] removeProject done`)
+
+                this.reinitializeProjects()
+                cb && cb()
+            })
+            .catch(err => {
+                cb && cb(err)
+            })
+    }
+
+    checkName(name) {
+        //! validate name contents
+
+        let dups = this.projects.filter(p => p.name === name)
+        if (dups.length) {
+            return "Duplicate project name."
+        }
+
+        return ""
     }
 
     clear() {
