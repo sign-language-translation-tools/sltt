@@ -427,7 +427,7 @@ export const Passage = types.model("Passage", {
     },
 
     apply: (doc) => {
-        log('passages apply', doc)
+        //log('passages apply', doc)
         
         let { noteCreated, _deleted } = doc
 

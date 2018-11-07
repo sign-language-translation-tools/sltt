@@ -26,14 +26,14 @@ const PassageAdder = observer(class PassageAdder extends Component {
 
         if (!this.adding)
             return (
-                <span
+                <div
                     className="passage-adder"
                     data-toggle="tooltip" title="Add new passage." 
                     onClick={ () => {
                         this.adding = true; this.name = ''
                     } }>
                     <i className="fa fa-fw fa-plus-square-o"></i>
-                </span>
+                </div>
             )
 
         return (
