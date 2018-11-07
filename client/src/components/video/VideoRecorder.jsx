@@ -10,7 +10,7 @@ import PropTypes from 'prop-types'
 import "./Video.css"
 import { displayError } from '../utils/Errors.jsx'
 
-const debug = require('debug')('sltt:VideoRecorder') 
+const log = require('debug')('sltt:VideoRecorder') 
 
 
 class VideoRecorder extends Component {
@@ -44,7 +44,6 @@ class VideoRecorder extends Component {
 
     render() {
         let { w, h, remote } = this.props
-        let { videoSrc } = this
 
         return (
             <div className="video-recorder video-border">
@@ -52,7 +51,6 @@ class VideoRecorder extends Component {
                     <video 
                         ref={(vc) => { this.vc = vc }} 
                         autoPlay={true}
-                        src={videoSrc}
                         width={w}
                         height={h}
                         onClick={remote.stop.bind(remote)}
@@ -68,7 +66,7 @@ class VideoRecorder extends Component {
         //let setStatus = remote.setStatus.bind(remote)
 
         try {
-            debug("recording_initializing")
+            log("recording_initializing")
             let mediaStream = await navigator.mediaDevices.getUserMedia({
                 audio: false,
                 video: {
@@ -77,7 +75,7 @@ class VideoRecorder extends Component {
                 }
             })
 
-            debug('get mediaStream')
+            log('get mediaStream')
 
             remote.initializeRecording()
             let recorder = new MediaRecorder(mediaStream)
@@ -86,13 +84,12 @@ class VideoRecorder extends Component {
             recorder.ondataavailable = this.dataAvailable.bind(this)
             recorder.onstop = remote.finalizeRecording.bind(remote)
 
-            const url = window.URL.createObjectURL(mediaStream)
-            this.videoSrc = url
+            this.vc.srcObject = mediaStream
 
-            debug("recording start")
+            log("recording start")
             recorder.start(3000)
         } catch (error) {
-            debug("record error", error)
+            log("record error", error)
         }            
     }
 
@@ -101,13 +98,13 @@ class VideoRecorder extends Component {
         let { remote } = this.props
         let push = remote.push.bind(remote)
 
-        debug('dataAvailable')
+        log('dataAvailable')
         push(data)
             .then(() => {
-                debug('dataAvailable done')
+                log('dataAvailable done')
             })
             .catch(err => {
-                debug('push error', err)
+                log('push error', err)
                 this.stop()
                 displayError(err)
             })
@@ -117,12 +114,12 @@ class VideoRecorder extends Component {
     stop() {
         let { recorder } = this
         
-        debug('stop')
+        log('stop')
         try {
             recorder && recorder.stop()
             this.recorder = null
         } catch (error) {
-            debug(`stop ERROR=${JSON.stringify(error)}`)
+            log(`stop ERROR=${JSON.stringify(error)}`)
         }
     }
 

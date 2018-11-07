@@ -427,12 +427,13 @@ export const Passage = types.model("Passage", {
     },
 
     apply: (doc) => {
-        //log('passages apply', doc._id)
+        log('passages apply', doc)
         
         let { noteCreated, _deleted } = doc
 
-        if (noteCreated && _deleted) {
-            self.applyDeleteNoteSegment(doc)
+        if (_deleted) {
+            if (noteCreated)
+                self.applyDeleteNoteSegment(doc)
             return
         }
     
