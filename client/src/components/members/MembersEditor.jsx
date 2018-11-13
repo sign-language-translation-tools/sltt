@@ -8,7 +8,7 @@ import MemberAdder from './MemberAdder.jsx'
 
 class MembersEditor extends Component {
     static propTypes = {
-        project: PropTypes.object.isRequired,
+        project: PropTypes.object,
     }
 
     // constructor(props) {
@@ -18,6 +18,10 @@ class MembersEditor extends Component {
 
     render() {
         let { project } = this.props
+        if (!project) {
+            return (<span>No Project Available!</span>)
+        }
+
         let { iAmAdmin, name, members } = project
         console.log(`MembersEditor render ${iAmAdmin}`)
 

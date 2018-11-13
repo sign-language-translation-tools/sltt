@@ -1,6 +1,6 @@
 import React from 'react'
 import './Buttons.css'
-import { MenuItem, Dropdown } from 'react-bootstrap'
+//import { MenuItem, Dropdown } from 'react-bootstrap'
 
 
 function enable(cns, enabled) { return enabled ? cns : cns + ' sl-button-disabled' }
@@ -132,24 +132,109 @@ export const PlayTourStepButton = function ({ enabled, onClick }) {
 }
 
 
-export const CreateLabelButton = function ({ enabled, onClick }) {
-    let tooltip = "Create label in video at current location."
+export const CreateSegmentButton = function ({ enabled, onClick }) {
+    let tooltip = "Create segment in video at current location."
 
     return (
         <span>
             <span
-                className={enable('sl-fa-button sl-create-label-button fa-tag', enabled)}
+                className={enable('sl-fa-button sl-create-segment-button fa-tag', enabled)}
                 onClick={() => enabled && onClick && onClick()}
                 data-toggle="tooltip"
                 title={tooltip} >
             </span>
-            <Dropdown id="dropdown-select-label">
+            {/* 
+            ??? should we support a dropdown menu to select a segment?
+            <Dropdown id="dropdown-select-segment">
                 <Dropdown.Toggle bsStyle="default" />
                 <Dropdown.Menu>
                     <MenuItem eventKey="1">Luke 15.11-24</MenuItem>
                     <MenuItem eventKey="2">Luke 15.25-31</MenuItem>
                 </Dropdown.Menu>
-            </Dropdown>
+            </Dropdown> */}
+        </span>
+    )
+}
+
+export const EditSegmentButton = function ({ enabled, onClick, tooltip }) {
+
+    return (
+        <span>
+            <span
+                className={enable('sl-fa-button sl-edit-segment-button fa-pencil-square-o', enabled)}
+                onClick={() => enabled && onClick && onClick()}
+                data-toggle="tooltip"
+                title={tooltip} >
+            </span>
+        </span>
+    )
+}
+
+export const OkEditSegmentButton = function ({ enabled, onClick }) {
+    let tooltip = "Save edits."
+
+    return (
+        <span>
+            <span
+                className={enable('sl-fa-button sl-ok-edit-segment-lables-button fa-check', enabled)}
+                onClick={() => enabled && onClick && onClick()}
+                data-toggle="tooltip"
+                title={tooltip} >
+            </span>
+        </span>
+    )
+}
+
+export const CancelEditSegmentButton = function ({ enabled, onClick }) {
+    let tooltip = "Cancel edits."
+
+    return (
+        <span>
+            <span
+                className={enable('sl-fa-button sl-cancel-edit-segment-lables-button fa-times-circle-o', enabled)}
+                onClick={() => enabled && onClick && onClick()}
+                data-toggle="tooltip"
+                title={tooltip} >
+            </span>
+        </span>
+    )
+}
+
+export const DeleteSegmentButton = function ({ tooltip, enabled, onClick }) {
+    return (
+        <span>
+            <span
+                className={enable('sl-delete-segment-button fa-trash', enabled)}
+                onClick={() => enabled && onClick && onClick()}
+                data-toggle="tooltip"
+                title={tooltip} >
+            </span>
+        </span>
+    )
+}
+
+export const PreviousSegmentButton = function ({ tooltip, enabled, onClick }) {
+    return (
+        <span>
+            <span
+                className={enable('sl-fa-button sl-previous-segment-button fa-arrow-left', enabled)}
+                onClick={() => enabled && onClick && onClick()}
+                data-toggle="tooltip"
+                title={tooltip} >
+            </span>
+        </span>
+    )
+}
+
+export const NextSegmentButton = function ({ tooltip, enabled, onClick }) {
+    return (
+        <span>
+            <span
+                className={enable('sl-fa-button sl-next-segment-button fa-arrow-right', enabled)}
+                onClick={() => enabled && onClick && onClick()}
+                data-toggle="tooltip"
+                title={tooltip} >
+            </span>
         </span>
     )
 }

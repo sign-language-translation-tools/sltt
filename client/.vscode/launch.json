@@ -21,6 +21,21 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "PassageSegment.test",
+            "program": "${workspaceRoot}/src/models/PassageSegment.test.js",
+            "cwd": "${workspaceRoot}/src",
+            "outFiles": [
+                "${workspaceRoot}/.compiled/**/*.js"
+            ],
+            "env": {
+                "NODE_PATH": "${workspaceRoot}/.compiled/",
+            },
+            "sourceMaps": true
+        },
+
+        {
+            "type": "node",
+            "request": "launch",
             "name": "FOCUS",
             "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
             "cwd": "${workspaceRoot}",
@@ -32,7 +47,7 @@
                 "--nolazy",
             ],
             "env": {
-                //"NODE_ENV": "localserver",
+                "NODE_PATH": "src/"
             },
             "sourceMaps": true
         },
@@ -52,7 +67,7 @@
                 "--nolazy"
             ],
             "env": {
-                //"NODE_ENV": "localserver"
+                "NODE_PATH": "src/"
             },
             "sourceMaps": true
         },
@@ -72,7 +87,7 @@
                 "--nolazy"
             ],
             "env": {
-                //"NODE_ENV": "localserver"
+                "NODE_PATH": "src/"
             },
             "sourceMaps": true
         },
@@ -91,7 +106,9 @@
             "runtimeArgs": [
                 "--nolazy"
             ],
-            //"env": { "NODE_ENV": "localserver" },
+            "env": {
+                "NODE_PATH": "src/"
+            },
             "sourceMaps": true
         },
         
@@ -108,6 +125,7 @@
                 "--nolazy"
             ],
             "env": {
+                "NODE_PATH": "src/"
                 //"NODE_ENV": "localserver"
             },
             "sourceMaps": true

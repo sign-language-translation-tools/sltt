@@ -3,7 +3,7 @@ import fetch from 'node-fetch'
 import upsert from 'pouchdb-upsert'
 
 import { getHostUrl, checkStatus, authorization, getJson } from './API.js'
-import { getGoogleIdToken } from '../components/auth/GoogleLogin.jsx'
+import { getGoogleIdToken } from '../components/auth/GoogleLogin'
 import { user } from '../components/auth/User.js'
 
 

@@ -8,7 +8,8 @@ import PropTypes from 'prop-types'
 import { displayError } from '../utils/Errors.jsx'
 
 import {PlayButton, PauseButton, RecordButton, StopButton, CreateNoteButton, 
-    CreateLabelButton, TourButton } from '../utils/Buttons.jsx'
+    TourButton } from '../utils/Buttons.jsx'
+import { PassageSegmentsIcon } from '../utils/Icons.jsx'
 import PassageStatusSelector from '../passages/PassageStatusSelector.jsx'
 import PassageVideoSelector from '../passages/PassageVideoSelector.jsx'
 
@@ -19,6 +20,7 @@ class VideoToolbar extends Component {
         h: PropTypes.number,
         remote: PropTypes.object.isRequired,  // VideoRemote control object
         createNote: PropTypes.func,
+        createSegment: PropTypes.func,
         recordVideo: PropTypes.func,
         openTour: PropTypes.func,
         project: PropTypes.object.isRequired,
@@ -34,7 +36,7 @@ class VideoToolbar extends Component {
     }
 
     render() {
-        let { remote, w, createNote, createLabel, recordVideo, project, openTour } = this.props
+        let { remote, w, createNote, createSegment, recordVideo, project, openTour } = this.props
         
         // h = h || this.defaultH
 
@@ -47,6 +49,17 @@ class VideoToolbar extends Component {
         let stopShown = recordingPath
 
         let createNoteEnabled = signedUrl && !playing
+        let createSegmentEnabled = passageVideo && !playing
+
+        // If I try to move the following to a .css file it stops working.
+        // I have no idea why.
+        let passageSegmentIconStyle = {
+            cursor: 'pointer',
+            verticalAlign: 'middle',
+            position: 'relative',
+            top: '-17px',
+            marginLeft: '11px',
+        }
 
         return (
             <div className="video-toolbar" 
@@ -88,13 +101,14 @@ class VideoToolbar extends Component {
                             onClick={() => createNote(remote.currentTime)} /> 
                     }
 
-                    {createLabel &&
-                        <CreateLabelButton
-                            enabled={createNoteEnabled}
-                        onClick={() => createLabel && createLabel(remote.currentTime)} />
+                    {createSegment &&
+                        <PassageSegmentsIcon
+                            style={passageSegmentIconStyle}
+                            tooltip="Create new segment in this video"
+                            enabled={createSegmentEnabled}
+                            onClick={() => createSegment(remote.currentTime)} />
                     }
 
-                    
                 </div>
 
                 <div className="video-toolbar-right"

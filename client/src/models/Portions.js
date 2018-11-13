@@ -122,13 +122,26 @@ export const Portion = types.model("Portion", {
                 .allDocs(options)
                 .then(response => {
                     // response = {rows: [{doc: {...} }]}
-                    for (let row of response.rows) {
-                        self.apply(row.doc)
-                    }
+
+                    let nonSegmentsRows = response.rows.filter(row => row.doc.tag !== 'segment')
+                    let segmentRows = response.rows.filter(row => row.doc.tag === 'segment')
+
+                    // process the segments last since they have to be applied individual
+                    // VideoPassage entries
+                    nonSegmentsRows.forEach(row => self.apply(row.doc))
+                    segmentRows.forEach(row => self.apply(row.doc))
+
                     resolve()
                 })
                 .catch(err => {
-                    let message = `[${self.getProject().name}/${self.name}] Portion.load ${err.stack}`
+                    let projectName = '*unknown*'
+                    try {
+                        projectName = self.getProject().name
+                    }
+                    catch (err) {}
+
+                    let message = `[${projectName}/${self.name}] Portion.load ${err.stack}`
+                    console.log(message)
                     debug('*** ' + message)
                     reject(message)
                 })
@@ -214,7 +227,7 @@ export const Portion = types.model("Portion", {
             .catch(err => cb && cb(err))
     },    
 
-    addPassage: (name, cb) => {
+    _addPassage: (name, cb) => {
         let err = self.checkName(name)
         if (err) {
             cb && cb(err)
@@ -230,6 +243,18 @@ export const Portion = types.model("Portion", {
             videos: [],
         }
         _add(self.getDb(), doc, self.passages, cb)
+    },
+    
+    addPassage: (name, cb) => {
+        if (cb)
+            return self._addPassage(name, cb)
+
+        return new Promise((resolve, reject) => {
+            self._addPassage(name, err => {
+                if (err) reject(err)
+                else resolve()
+            })
+        })
     },
 
     checkName: (name) => {
@@ -419,7 +444,7 @@ export const Portions = types.model("Portions", {
                 .catch(err => cb && cb(err))
         },
 
-        addPortion: (name, cb) => {
+        _addPortion: (name, cb) => {
             let err = self.checkName(name)
             if (err) {
                 cb && cb(err)
@@ -430,6 +455,19 @@ export const Portions = types.model("Portions", {
             let doc = { _id, name, passages: [] }
             _add(_db, doc, self.portions, cb)
         },
+
+        addPortion: (name, cb) => {
+            if (cb)
+                return self._addPortion(name, cb)
+
+            return new Promise((resolve, reject) => {
+                self._addPortion(name, err => {
+                    if (err) reject(err)
+                    else resolve()
+                })
+            })
+        },
+
 
         checkName: (name) => {
             return _invalidNameCheck(name) || _duplicateCheck(self.portions, name)

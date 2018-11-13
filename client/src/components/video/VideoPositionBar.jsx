@@ -12,6 +12,12 @@ import { AdjustCurrentTimeButtons } from '../utils/Buttons';
 
 
 class VideoPositionBar extends Component {
+    static propTypes = {
+        w: PropTypes.number.isRequired,
+        h: PropTypes.number,
+        passageVideo: PropTypes.object,   // PassageVideo (if one has been selected)
+        remote: PropTypes.object.isRequired,  // VideoRemote control object
+    }
 
     constructor(props) {
         super(props)
@@ -27,10 +33,11 @@ class VideoPositionBar extends Component {
         let { w, h, remote } = this.props
         h = h || this.defaultH
 
-        // We must access currentTime in order to force a re-render whenever it changes
+        // We must access currentTime/duration in order to force a re-render whenever it changes
         // eslint-disable-next-line
-        let { currentTime } = remote
-        //console.log('vpb render', currentTime, remote.duration)
+        let { currentTime, duration, passageVideo } = remote
+        // eslint-disable-next-line
+        passageVideo && passageVideo.sortedSegments
 
         return (
             <div>
@@ -90,24 +97,49 @@ class VideoPositionBar extends Component {
     }
 
     updateCanvas() {
-        let { w, h, remote } = this.props
+        let { w, h, remote, passageVideo } = this.props
         let { currentTime, duration } = remote
+        //console.log('!!!', currentTime, duration)
 
         h = h || this.defaultH
         let m = h / 2
-
-        let position = (currentTime / duration) * w
 
         const ctx = this.canvas.getContext('2d')
         ctx.clearRect(0, 0, w, h)
         ctx.beginPath()
 
+        // Draw time line
         ctx.moveTo(0, m)
         ctx.lineTo(w, m)
+        ctx.stroke()
 
-        ctx.moveTo(position, m-3)
-        ctx.lineTo(position, m+3)
-        
+        // Draw segment boundaries
+
+        ctx.strokeStyle = 'lightblue'
+        ctx.beginPath()
+        let segments = (passageVideo && passageVideo.sortedSegments) || []
+
+        segments.forEach(segment => {
+            let position2 = (segment.position / duration) * w
+
+            ctx.clearRect(position2-4, m-2, 8, 4)
+
+            ctx.moveTo(position2, m - 10)
+            ctx.lineTo(position2, m + 10)
+        })
+
+        ctx.lineWidth = 4
+        ctx.stroke()
+
+        // Draw current position cursor
+        let position = (currentTime / duration) * w
+        if (position < 1) position = 1  // if we draw cursor at origin we can only see half of it
+
+        ctx.lineWidth = 2
+        ctx.strokeStyle = 'black'
+        ctx.beginPath()
+        ctx.moveTo(position, m - 6)
+        ctx.lineTo(position, m + 6)
         ctx.stroke()
     }
 
@@ -115,12 +147,6 @@ class VideoPositionBar extends Component {
 
   componentDidUpdate() {this.updateCanvas() }
 
-}
-
-VideoPositionBar.propTypes = {
-    w: PropTypes.number.isRequired,
-    h: PropTypes.number,
-    remote: PropTypes.object.isRequired,  // VideoRemote control object
 }
 
 export default observer(VideoPositionBar)

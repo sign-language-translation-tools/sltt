@@ -4,14 +4,15 @@ import * as Sentry from '@sentry/browser'
 
 function stringify(err) {
   if (typeof err === 'string') return err
+  if (err instanceof Error) return err.toString()
   return JSON.stringify(err)
 }
 
-export function displayError(message) { 
-  message = stringify(message)
-  console.log('<ERROR>', message)
-  Sentry.captureException(message)
-  return toast.error(message, {autoClose: 20000}) 
+export function displayError(err) { 
+  let message2 = stringify(err)
+  console.log('<ERROR>', err, message2)
+  Sentry.captureException(err)
+  return toast.error(message2, {autoClose: 20000}) 
 }
 
 export function displayInfo(message) { 

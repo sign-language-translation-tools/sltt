@@ -6,8 +6,8 @@
 
 import fetch from 'node-fetch'
 
-import { user } from '../components/auth/User.js'
-import { getGoogleIdToken } from '../components/auth/GoogleLogin.jsx'
+import { user } from 'components/auth/User.js'
+import { getGoogleIdToken } from 'components/auth/GoogleLogin'
 
 const log = require('debug')('sltt:API') 
 
@@ -19,7 +19,7 @@ export function getHostUrl() {
     // To see these values when debugging use a console.log.
     // You CANNOT see the process.env values in the debug console or watch window!
     
-    if (process.env.REACT_APP_WEB_HOSTNAME === 'localhost') {
+    if (process.env.REACT_APP_NODE_HOSTNAME === 'localhost') {
         hostUrl = 'http://localhost:3001'
         log(`hostUrl=LOCALHOST:3001`)
     }

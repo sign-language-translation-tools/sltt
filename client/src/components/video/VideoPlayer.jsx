@@ -12,6 +12,9 @@ import InputSlider from 'react-input-slider'
 import '../../../node_modules/react-input-slider/dist/input-slider.css'
 
 import {} from "./Video.css"
+import DisplayLabel from './DisplayLabel.jsx'
+
+const log = require('debug')('sltt:VideoPlayer') 
 
 class VideoPlayer extends Component {
     static propTypes = {
@@ -19,7 +22,7 @@ class VideoPlayer extends Component {
         h: PropTypes.number.isRequired,
         remote: PropTypes.object.isRequired,  // VideoRemote control object
         closeWhenEnded: PropTypes.bool,
-        //requestFullscreen: PropTypes.bool,
+        fullscreen: PropTypes.bool,
         autoPlay: PropTypes.bool,
     }
 
@@ -52,11 +55,11 @@ class VideoPlayer extends Component {
 
     render() {
         let { remote, autoPlay } = this.props
-        let { signedUrl } = remote
+        let { signedUrl, segment } = remote
         let playbackRate = remote.playbackRate || 1.0
         let tooltip = `Speed = ${playbackRate.toFixed(1)}`
 
-        //requestFullscreen && setTimeout(() => this.requestFullScreen(), 200)
+        let labels = (segment && segment.labels) || []
 
         //console.log('VideoPlayer render', signedUrl.substring(0,30))
 
@@ -74,6 +77,9 @@ class VideoPlayer extends Component {
                         onClick = { this.onClick.bind(this) }
                         onCanPlayThrough = { this.onCanPlayThrough } 
                     />
+                    { labels.map(label => (
+                        <DisplayLabel key={`${label.x.toString()} + ${label.y.toString()}`} label={label} />
+                    ))}
                 </div>
                 <div className="u-slider u-slider-y video-player-slider" slidertooltip={tooltip}>
                     <InputSlider
@@ -146,9 +152,11 @@ class VideoPlayer extends Component {
     onEnded() {
         //console.log('onEnded', vc.duration)
 
-        this.cancelFullScreen()
+        
+        let { remote, fullScreen } = this.props
+        
+        if (fullScreen) this.cancelFullScreen()
 
-        let { remote } = this.props
         remote.playing = false
         this.checkCloseWhenEnded()
     }
@@ -209,16 +217,20 @@ class VideoPlayer extends Component {
     // endTime = null, means play through until end
 
     play(startTime, endTime) {
-        let { remote } = this.props
+        let { remote, fullScreen, playing } = this.props
         let { vc } = this
+        log(`play startTime=${startTime}, endTime=${endTime}, playing=${playing}`)
 
-        if (remote.playing) this.stop()
+        if (playing) { 
+            log('play - stop before restarting play')
+            this.stop() 
+        }
 
         if (!isNaN(startTime)) {
             vc.currentTime = startTime
         }
 
-        this.requestFullScreen()
+        if (fullScreen) this.requestFullScreen()
 
         this.endTime = endTime
 
@@ -234,6 +246,7 @@ class VideoPlayer extends Component {
     stop()
     {
         let { remote } = this.props
+        log(`stop playing=${remote.playing}`)
 
         if (remote.playing) {
             this.stopupdater()
@@ -244,6 +257,7 @@ class VideoPlayer extends Component {
 
     // Invoked externally based on event
     setCurrentTime() {
+        log('setCurrentTime')
         this.stop()
         let { remote } = this.props
         this.vc.currentTime = remote.currentTime
@@ -263,11 +277,12 @@ class VideoPlayer extends Component {
 
         let currentTime = vc.currentTime
         if (endTime && currentTime >= endTime) {
+            log('timeupdate stop')
             this.stop()
             return
         }
 
-        remote.currentTime = currentTime
+        remote.updateCurrentTime(currentTime)
     }
 
     // Currently the only way I know to reliably inform other components

@@ -5,6 +5,7 @@ import { _insertBy, _remove } from './ModelUtils.js'
 import { checkStatus, pushFile, concatBlobs, getUrl } from './API.js'
 import { user } from '../components/auth/User.js'
 import { deletedStatus } from './PassagesStatus.js'
+import { PassageSegment } from './PassageSegment.js'
 
 const log = require('debug')('sltt:Passages') 
 
@@ -211,6 +212,9 @@ export const PassageVideo = types.model("PassageVideo", {
     url: types.string,
     signedUrl: types.optional(types.string, ''),
     signedUrlExpires: types.optional(types.number, 0),    
+    segments: types.optional(types.array(PassageSegment), []),
+        // key 'segmentCreated'
+        // ordered by 'position' ascending
 })
 .actions(self => ({
 
@@ -245,8 +249,104 @@ export const PassageVideo = types.model("PassageVideo", {
         self.signedUrl = signedUrl
         self.signedUrlExpires = signedUrlExpires
     },
+
+    // Add a single segment
+    __addSegment(position, cb) {
+        let { videoCreated } = self
+        let passage = self.getPassage()
+
+        let doc = {
+            videoCreated,
+            segmentCreated: timestamp(),
+            position,
+            labels: [
+            ],
+            cc: '',
+        }
+        passage.setId(doc, 'segment')
+        self.applySegment(doc)
+
+        passage.put(doc, cb)
+    },
+
+    _addSegment: (position, cb) => {
+        // Ensure that there is always a segment at position 0 so that no matter where
+        // you go in the timeline some segment is present
+        if (self.segments.length === 0 && position !== 0) {
+            self.__addSegment(0, err => {
+                if (err) {
+                    cb && cb(err)
+                    return
+                }
+
+                self.__addSegment(position, cb)
+            })
+
+            return
+        }
+
+        self.__addSegment(position, cb)
+    },
+
+    addSegment: (position, cb) => {
+        log(`PassageVideo.addSegment position=${position}`)
+        if (cb)
+            return self._addSegment(position, cb)
+            
+        return new Promise((resolve, reject) => {
+            self._addSegment(position, err => {
+                if (err) reject(err)
+                else resolve()
+            })
+        })
+    },
+
+    _removeSegment: (segmentCreated, cb) => {
+        log(`PassageVideo.removeSegment`, segmentCreated)
+
+        let segment = _.findWhere(self.segments, {segmentCreated})
+        if (!segment) {
+            log('_removeSegment: segment not found')
+            cb && cb('segment not found')
+            return
+        }
+
+        let db = self.getPassage().getPortion().getDb()
+        _remove(db, self.segments, segment._id, cb)
+    },
+
+    removeSegment: (segmentCreated, cb) => {
+        if (cb)
+            return(self._removeSegment(segmentCreated, cb))
+
+        return new Promise((resolve, reject) => {
+            self._removeSegment(segmentCreated, err => {
+                if (err) reject(err)
+                else resolve()
+            })
+        })
+    },
+
+    applySegment: doc => {
+        //log('PassageVideo.applySegment', doc)
+        let idx = _.findIndex(self.segments, seg => seg.segmentCreated === doc.segmentCreated)
+        if (idx >= 0) {
+            self.segments[idx].apply(doc)
+            return
+        }
+
+        // It does not matter what order the segments are in in the array because 
+        // sortedSegments can be used in cases where you need to see them in position
+        // order.
+        self.segments.push(doc)
+    },
 }))
 .views(self => ({
+    get sortedSegments() {
+        return self.segments
+            .sort((a, b) => a.position - b.position)
+    },
+
     get created() {
         return self.videoCreated.slice(0, -3)
     },
@@ -443,6 +543,7 @@ export const Passage = types.model("Passage", {
         switch (doc.tag) {
             case 'video': self.applyVideo(doc); break
             case 'status': self.applyStatus(doc); break
+            case 'segment': self.applySegment(doc); break
             case 'notesegment': note.apply(doc); break
             case 'resolved': note.apply(doc); break
             default: throw new Error(`Invalid tag: ${doc.tag}`)
@@ -477,6 +578,16 @@ export const Passage = types.model("Passage", {
         if (status) return   // Status already exists, nothing to do
 
         _insertBy(doc, self.statuses, 'statusCreated')
+    },
+
+    applySegment: (doc) => {
+        let videos = self.videos.filter(video => video.videoCreated >= doc.videoCreated)
+
+        // I am assume that the order of entries in the db will ensure that we never see
+        // a segment entry before we see the passage video
+        if (videos.length === 0) throw Error('no video found for segment')
+
+        videos.forEach(video => video.applySegment(doc))
     },
 
     findOrCreateNote: (doc) => {

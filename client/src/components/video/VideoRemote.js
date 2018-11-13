@@ -52,11 +52,47 @@ class VideoRemote extends EventEmitter {
             created: 0, // Date.now() when video recording initiated
             currentTime: 0.0, // seconds from start of video
             duration: 0.0, // seconds
+            segment: null,
+            passageVideo: null,
 
             recordingPath: null,
             project: '',
             signedUrl: null,
         })
+    }
+
+    // Change the current time and notify everyone that this has happened
+    setCurrentTime(currentTime, forceSetSegment) {
+        this.updateCurrentTime(currentTime, forceSetSegment)
+        this.emit('setCurrentTime')
+    }
+
+    // update currentTime and corresponding segment
+    updateCurrentTime(currentTime, forceSetSegment) {
+        if (currentTime === this.currentTime && !forceSetSegment) return
+        
+        this.currentTime = currentTime
+
+        // If we are editing the segment position we do not want anything
+        // the user does in timeline to change what the current segment it.
+        if (this.editingSegmentPosition) return
+        
+        let { passageVideo, segment } = this
+        let _segment = null
+        let segments = (passageVideo && passageVideo.sortedSegments) || []
+        
+        let i = _.findIndex(segments, segment => segment.position > currentTime)
+        //log(`updateCurrentTime ${currentTime}, ${i}`)
+        if (i >= 1) {
+            _segment = segments[i-1]
+        } else  {
+            _segment = segments.slice(-1)[0]  // get last segment or null if no segments
+        }
+
+        log(`updateCurrentTime i=${i}`, forceSetSegment)
+
+        if (_segment !== segment || forceSetSegment)
+            this.segment = _segment
     }
 
     // Stop play or record action
@@ -175,6 +211,10 @@ class VideoRemote extends EventEmitter {
                 }
 
                 this.setSignedUrl(signedUrl)
+
+                // Cause segment to be set to fist segment
+                this.currentTime = 0
+                this.updateCurrentTime(0.01)
             })
         }
     }
@@ -213,12 +253,6 @@ class VideoRemote extends EventEmitter {
         log(`setSignedUrl ${signedUrl && signedUrl.slice(0,80)}`)
 
         this.signedUrl = signedUrl
-    }
-
-    setCurrentTime(currentTime) {
-        //!! error if not in range 0..duration
-        this.currentTime = currentTime
-        this.emit('setCurrentTime')
     }
 
     togglePlayRecord() {

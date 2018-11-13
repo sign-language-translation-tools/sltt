@@ -45,7 +45,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "jest --runInBand models",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "compile": "babel src --out-dir .compiled --source-maps --watch"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -54,7 +55,8 @@
     "babel-preset-stage-2": "^6.24.1",
     "babel-register": "^6.26.0",
     "enzyme": "^3.3.0",
-    "enzyme-adapter-react-16": "^1.1.1"
+    "enzyme-adapter-react-16": "^1.1.1",
+    "expect": "^23.6.0"
   },
   "babel": {
     "presets": [

@@ -64,6 +64,17 @@ class VideoMain extends Component {
         this.recordingDoneListener && this.recordingDoneListener.remove()
     }
 
+    addSegment(position) {
+        let { project, remote } = this.props
+        let { passageVideo } = project
+        passageVideo.addSegment(position, err => {
+            remote.setCurrentTime(position, true)
+            if (err) {
+                displayError(err)
+            }
+        })
+    }
+
     render() {
         //console.log('render VideoMain')
         let { project, remote, w, h, openTour, tourOpen } = this.props
@@ -71,7 +82,7 @@ class VideoMain extends Component {
 
         // Force re-render when passage changes
         // eslint-disable-next-line
-        let { portion, passage, iAmTranslator, iAmConsultant } = project
+        let { portion, passage, iAmTranslator, iAmConsultant, passageVideo } = project
 
         //log(`render`, signedUrl, iAmConsultant)
 
@@ -84,8 +95,10 @@ class VideoMain extends Component {
         }
         
         let createNote = null
-        if (signedUrl && iAmConsultant) {
+        let createSegment = null
+        if (iAmConsultant) {
             createNote = (duration) => project.createNote(duration)
+            createSegment = this.addSegment.bind(this)
         }
 
         return (
@@ -96,6 +109,7 @@ class VideoMain extends Component {
                     project={project}
                     openTour={openTour}
                     recordVideo={recordVideo}
+                    createSegment={createSegment}
                     createNote={createNote} />
 
                 <div className='video-area' 
@@ -117,7 +131,10 @@ class VideoMain extends Component {
                     }
                 </div>
 
-                <VideoPositionBar w={w} remote={remote} />
+                <VideoPositionBar 
+                    w={w}
+                    passageVideo={passageVideo}
+                    remote={remote} />
                 <NoteBar project={project} remote={remote} w={640} tourOpen={tourOpen} />
             </div>
         )
@@ -175,10 +192,11 @@ class VideoMain extends Component {
     }
 
     keydown(e) {
-        //console.log("VideoMain keydown", e.keyCode, e.ctrlKey, e)
         let { remote } = this.props
+        log(`keydown code=${e.code}, control=${e.ctrlKey}, remote status=${remote.status}`,e)
 
         let adjustCurrentTime = function(delta) {
+            e.preventDefault()
             remote.setCurrentTime(remote.currentTime + delta)
         }
 
@@ -187,7 +205,7 @@ class VideoMain extends Component {
             return 
         }
 
-        if (e.code === 'ArrowLeft' && e.ctrlKey) {
+        if (e.code === 'ArrowLeft' && e.metaKey) {
             adjustCurrentTime(-.05)
             return 
         }
@@ -197,18 +215,19 @@ class VideoMain extends Component {
             return 
         }
 
-        if (e.code === 'ArrowRight' && e.ctrlKey) {
+        if (e.code === 'ArrowRight' && e.metaKey) {
             adjustCurrentTime(.05)
             return 
         }
 
-        if (e.key === ' ' /* && e.ctrlKey */ && remote.status === 'recording') {
+        if (e.code === 'Space' && remote.status === 'recording') {
             e.preventDefault()
             remote.stop()
             return
         }
 
         if (e.key === 'F2' && remote.status !== 'recording') {
+            e.preventDefault()
             remote.record()
             return
         }

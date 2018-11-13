@@ -98,6 +98,26 @@ it("Can set status", (done) => {
     })
 })
 
+it("Can add segment, remove segment", (done) => {
+    let video = passage.videos[0]
+
+    let test = async function() {
+        await video.addSegmentPromise(1)
+        expect(video.segments.length).toBe(1)
+
+        await video.addSegmentPromise(3)
+        expect(video.segments.length).toBe(2)
+
+        let { segmentCreated } = video.segments[0]
+        await video.removeSegmentPromise(segmentCreated)
+        expect(video.segments.length).toBe(1)
+
+        done()
+    }
+
+    test()
+})
+
 it("Can add a new note", (done) => {
     let segment = {
         videoCreated:   '2018-01-01 00.00.00',

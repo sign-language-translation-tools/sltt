@@ -3,16 +3,90 @@
   width: 100%;
 }
 
-.translation-fixedpane {
+.translation-left-pane {
   width: 202px;
   overflow-y: auto;
 }
 
-.translation-flexiblepane {
+.translation-middle-pane {
+  /* flex-grow: 2; */
+  width: 659px;
+}
+
+.translation-right-pane {
   flex-grow: 1;
+  margin-left: 10px;
+  margin-top: 5px;
 }
 
 .tour-mask {
   opacity: 0.4;
 }
+
+.segment-heading {
+  color: #337ab7;
+  margin-right: 10px;
+  font-size: 112%;
+  font-weight: bold;
+}
+
+.segment-dialog-heading {
+  color: #337ab7;
+  margin-right: 10px;
+  font-size: 112%;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+
+.segment-label-text {
+  font-size: 112%;
+}
+
+.segment-labels-editor {
+  border-style: solid;
+  border-width: 2px;
+  border-radius: 10px;
+  padding: 20px;
+  border-color: #337ab7;
+}
+
+.segment-label-text-editor {
+  width: 83%;
+}
+
+.passage-segments-editor {
+  border-left: 1px solid lightgrey;
+  padding-left: 7px;
+  min-height: 500px;
+}
+
+.segment-labels {
+  padding-left: 63px;
+  text-indent: -63px;
+}
+
+.segment-position-editor {
+  margin-top: 10px;
+  border-style: solid;
+  border-width: 2px;
+  border-radius: 10px;
+  padding: 20px;
+  border-color: #337ab7;
+}
+
+.segment-selector {
+  margin-left: 138px;
+  margin-bottom: 10px;
+}
+
+.segment-selector-text {
+  color: #337ab7;
+  font-size: 120%;
+  font-weight: bold;
+  vertical-align: 6%;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
 

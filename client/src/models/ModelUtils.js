@@ -1,6 +1,9 @@
 import { detach } from "mobx-state-tree"
 import _ from 'underscore'
 
+const log = require('debug')('sltt:ModelUtils') 
+
+
 // Insert doc into a list of items ranked by named attribute.
 export function _insertBy(doc, list, orderedBy) {
     // If element with doc._id already present, no insert necessary
@@ -39,8 +42,12 @@ export function removeFromDB(db, _id) {
 
                 return db.bulkDocs(docs)
             })
-            .then(resolve)
+            .then(() => {
+                log('bulkDocs update done')
+                resolve()
+            })
             .catch(err => {
+                log('removeFromDB.buldDocs ERROR', err)
                 reject(`ModelUtils#removeFromDB(${_id}): ${err}`)
             })
     })
@@ -48,8 +55,10 @@ export function removeFromDB(db, _id) {
 
 // Remove an item from the list and update the project database to reflect this.
 export function _remove(db, list, _id, cb) {
+    log(`_remove`, _id, list)
     let idx = _.findIndex(list, {_id})
     if (idx < 0) {
+        log(`_remove find failed ${_id}`, list)
         cb(`_remove: cannot find ${_id}`)
         return
     }
@@ -57,12 +66,18 @@ export function _remove(db, list, _id, cb) {
     // splice immediately makes the object inaccessible and it is hard to
     // stop react from accessing it in that state and crashing
     detach(list[idx])
-
+    
     // Match this item all its subitems (if any).
     // E.g. for the portition #item/Progigal Son/portion
     // we also want to match the passage #item/Prodigal Son/Part 1/passage
-
+        
     removeFromDB(db, _id)
-        .then(() => cb && cb())
-        .catch(err => cb && cb(err))
+        .then(() => { 
+            log('_remove done')
+            cb && cb() 
+        })
+        .catch(err => { 
+            log('_remove ERROR', err)
+            cb && cb(err) 
+        } )
 }

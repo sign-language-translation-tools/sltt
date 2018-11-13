@@ -62,18 +62,44 @@
     color: green;
 }
 
-.sl-create-label-button {
-    cursor: pointer;
+.sl-edit-segment-button {
+    color: #337ab7;
+    margin-left: 12px;
+    font-size: 170%;
     vertical-align: baseline;
-    font-size: 220%;
-
-    position:  relative;
-    top: -6px;
-    padding-left: 13px;
-    color: blue;
+    position: relative;
+    top: 5px;
+    cursor: pointer;
+    opacity: 0; 
 }
 
-#dropdown-select-label {
+.passage-segments-editor:hover .sl-edit-segment-button {
+  opacity: 1; 
+  transition-delay: .5s;
+  transition-duration: 1s; 
+}
+
+.sl-ok-edit-segment-lables-button {
+    color: green;
+    font-size: 250%;
+    vertical-align: baseline;
+    top: 5px;
+    cursor: pointer;
+    position: relative;
+    right: -273px;
+}
+
+.sl-cancel-edit-segment-lables-button {
+    /* color: red; */
+    font-size: 250%;
+    vertical-align: baseline;
+    top: 5px;
+    cursor: pointer;
+    position: relative;
+    right: -283px;
+}
+
+#dropdown-select-segment {
     top: -18px;
     background-image: none;
     border: none;
@@ -106,3 +132,32 @@
     font-size: 2em;
     color: rgb(33, 147, 185)
 }
+
+.sl-delete-segment-button { 
+    font-size: 170%;
+    font-family: "FontAwesome";
+    cursor: pointer;
+    opacity: 0;
+    color: #337ab7;
+}
+
+.sl-previous-segment-button { 
+    font-size: 170%;
+    font-family: "FontAwesome";
+    cursor: pointer;
+    color: #337ab7;
+}
+
+.sl-next-segment-button { 
+    font-size: 170%;
+    font-family: "FontAwesome";
+    cursor: pointer;
+    color: #337ab7;
+}
+
+.passage-segments-editor:hover .sl-delete-segment-button {
+  opacity: 1; 
+  transition-delay: .5s;
+  transition-duration: 1s; 
+}
+

@@ -280,6 +280,13 @@ TranslationEditor (A)
         VideoPositionBar - adjust time position in video
             AdjustCurrentTimeButtons
         NoteBar - show notes for current video
+    TranslationRightPane
+        PassageSegmentsEditor
+            SegmentLabels - show the labels for current segment
+                SegmentLabelsEditor - edit labels for current segment
+                    LabelTextEditor
+            SegmentPosition - show start position of current segment
+                SegmentPositionEditor - edit start position of current segment
     NoteDialog - edit video note
         NoteMain
             VideoPlayer

@@ -24,6 +24,7 @@
 
 .video-player-video {
   flex-grow: 1;
+  position: relative;
 }
 
 .video-player-video-video {

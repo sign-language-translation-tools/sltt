@@ -9,6 +9,7 @@ import PassageList from '../passages/PassageList.jsx'
 import VideoMain from '../video/VideoMain.jsx'
 import VideoRemote from '../video/VideoRemote.js'
 import NoteDialog from '../notes/NoteDialog.jsx'
+import TranslationRightPane from './TranslationRightPane.jsx'
 import './Translation.css'
 import '../video/Video.css'
 import '../notes/Note.css'
@@ -65,11 +66,11 @@ class TranslationEditor extends Component {
                 { note && <NoteDialog project={project} /> } 
 
                 <div className="translation-top-container">
-                    <div className="translation-fixedpane">
+                    <div className="translation-left-pane">
                         <PassageList project={project} remote={remote} tourOpen={tourOpen} />
                     </div>
 
-                    <div className="translation-flexiblepane">
+                    <div className="translation-middle-pane">
                         <VideoMain 
                             remote={remote}
                             project={project}
@@ -81,6 +82,11 @@ class TranslationEditor extends Component {
                             w={640} 
                             h={380} />
                         
+                    </div>
+                    <div className="translation-right-pane">
+                        <TranslationRightPane 
+                            project={project}
+                            remote={remote} />
                     </div>
                 </div>
                 <Tour
