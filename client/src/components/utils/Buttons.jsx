@@ -47,12 +47,13 @@ export const TourButton = function ({ tooltip, onClick }) {
 }
 
 
-export const RecordButton = function ({ enabled, onClick }) {
+export const RecordButton = function ({ enabled, onClick, className }) {
     //let className = classNames("et-right", "fa", "fa-2x", "fa-circle", "fa-fw", "text-danger", "video-up1", 
     let tooltip = "(Re)record passage. Click square Stop icon to end."
+    if (!className) className = 'sl-record-button'
 
     return (
-        <img className={enableImg('sl-record-button', enabled)}
+        <img className={enableImg(className, enabled)}
             alt={tooltip}
             src="toolbar/record.svg"
             onClick={() => enabled && onClick && onClick()}
@@ -74,11 +75,12 @@ export const StopButton = function({enabled, onClick}) {
     )
 }
 
-export const PlayButton = function ({ enabled, onClick }) {
+export const PlayButton = function ({ enabled, onClick, className }) {
     let tooltip = "Play."
+    if (!className) className = 'sl-play-button'
 
     return (
-        <img className={enableImg('sl-play-button', enabled)}
+        <img className={enableImg(className, enabled)}
             alt={tooltip}
             src="toolbar/play.svg"
             onClick={() => enabled && onClick && onClick()}
@@ -156,12 +158,38 @@ export const CreateSegmentButton = function ({ enabled, onClick }) {
     )
 }
 
-export const EditSegmentButton = function ({ enabled, onClick, tooltip }) {
+export const EditSegmentButton = function ({ enabled, onClick, tooltip, tourSelector, className }) {
+    let className2 = `sl-fa-button sl-edit-segment-button fa-pencil-square-o ${className}`
+    
+    className2 = enable(className2, enabled)
+    if (tourSelector && tourSelector.startsWith('.sl-edit-segment')) {
+        className2 += ' sl-edit-segment-button-tour'
+    }
 
     return (
         <span>
             <span
-                className={enable('sl-fa-button sl-edit-segment-button fa-pencil-square-o', enabled)}
+                className={className2}
+                onClick={() => enabled && onClick && onClick()}
+                data-toggle="tooltip"
+                title={tooltip} >
+            </span>
+        </span>
+    )
+}
+
+export const DictateSegmentButton = function ({ enabled, onClick, tooltip, tourSelector }) {
+    let className = `sl-fa-button sl-edit-segment-button sl-dictate-segment-caption-button fa-microphone`
+
+    let className2 = enable(className, enabled)
+    if (tourSelector && tourSelector.startsWith('.sl-dictate-segment')) {
+        className2 += ' sl-edit-segment-button-tour'
+    }
+
+    return (
+        <span>
+            <span
+                className={className2}
                 onClick={() => enabled && onClick && onClick()}
                 data-toggle="tooltip"
                 title={tooltip} >

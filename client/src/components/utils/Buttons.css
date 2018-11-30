@@ -73,6 +73,10 @@
     opacity: 0; 
 }
 
+.sl-edit-segment-button-tour {
+  opacity: 1; 
+}
+
 .passage-segments-editor:hover .sl-edit-segment-button {
   opacity: 1; 
   transition-delay: .5s;

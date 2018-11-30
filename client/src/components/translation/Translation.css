@@ -89,4 +89,34 @@
   margin-right: 5px;
 }
 
+.segment-toolbar {
+  border-bottom: 1px solid lightgrey;
+  margin-bottom: 2px;
+}
+
+.sl-play-bible-button {
+  vertical-align: 4px;
+  margin-left: 60px;
+  color: teal;
+}
+
+.sl-select-bible-button {
+  vertical-align: 4px;
+  color: teal;
+}
+
+.sl-play-previous-draft-segment-button {
+  margin-left: 50px;
+  vertical-align: -16px;
+}
+
+.sl-select-previous-draft-segment-button {
+  vertical-align: 4px;
+  color: #337ab7;
+}
+
+.segment-cc-heading {
+  margin-top: 10px;
+}
+
 

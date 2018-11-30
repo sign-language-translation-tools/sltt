@@ -12,6 +12,7 @@ class SegmentLabels extends Component {
         segment: PropTypes.object,
         setEditing: PropTypes.func.isRequired,
         iAmConsultant: PropTypes.bool,
+        tourSelector: PropTypes.string,
     }
 
     constructor(props) {
@@ -23,10 +24,10 @@ class SegmentLabels extends Component {
     }
 
     render() {
-        let { segment, setEditing, iAmConsultant } = this.props
+        let { segment, setEditing, iAmConsultant, tourSelector } = this.props
         if (!segment) return null
 
-        if (this.editing)
+        if (this.editing || tourSelector === '.segment-labels-top-left' || tourSelector === '.sl-ok-edit-segment-lables-button')
             return (<SegmentLabelsEditor 
                         segment={segment}
                         onClose={() => { 
@@ -37,13 +38,30 @@ class SegmentLabels extends Component {
         let labels = (segment && segment.labels) || []
         let texts = labels.filter(label => label.text).map(label => label.text)
 
-        let labelsText = texts.length ? texts.join(' / ') : '-'
+        let labelsText, labelHeading
+        
+        switch(texts.length) {
+            case 0:
+                labelHeading = 'Label'
+                labelsText = '-'
+                break
+            case 1:
+                labelHeading = 'Label'
+                labelsText = texts[0]
+                break
+            default:
+                labelHeading = 'Labels'
+                labelsText = texts.join(' / ')
+                break
+        }
 
         return (
             <div className="segment-labels">
-                <span className="segment-heading">Labels:</span> 
+                <span className="segment-heading">{labelHeading}:</span> 
                 <span className="segment-label-text">{ labelsText }</span>
                 <EditSegmentButton
+                    className="sl-edit-segment-labels-button"
+                    tourSelector={tourSelector}
                     tooltip="Edit labels for this segment."
                     enabled={segment && iAmConsultant}
                     onClick={() => { 

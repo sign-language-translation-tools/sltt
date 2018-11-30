@@ -8,9 +8,9 @@ import { displayError } from '../utils/Errors.jsx'
 import { OkEditSegmentButton, CancelEditSegmentButton } from '../utils/Buttons.jsx'
 import SegmentLabelTextEditor from './SegmentLabelTextEditor.jsx'
 
-function LabelEditor({ label, onEnter, onEscape }) {
+function LabelEditor({ label, onEnter, onEscape, className }) {
     return (
-        <div>
+        <div className={className}>
             <svg width="50" height="30" xmlns="http://www.w3.org/2000/svg" style={{ verticalAlign: 'middle' }}>
                 <g>
                     <rect height="27" width="42" y="0" x="0" strokeWidth="1" stroke="#000" fill="#fff" />
@@ -64,10 +64,12 @@ class SegmentLabelsEditor extends Component {
         return (
             <div className="segment-labels-editor">
                 <div className="segment-dialog-heading">Edit Segment Labels: </div> 
-                <LabelEditor label={this.labels[0]} onEnter={onSave} onEscape={onCancel} />
-                <LabelEditor label={this.labels[1]} onEnter={onSave} onEscape={onCancel} />
-                <LabelEditor label={this.labels[2]} onEnter={onSave} onEscape={onCancel} />
-                <LabelEditor label={this.labels[3]} onEnter={onSave} onEscape={onCancel} />
+                <LabelEditor 
+                    className={'segment-labels-top-left'}
+                    label={this.labels[0]} onEnter={onSave} onEscape={onCancel} />
+                <LabelEditor className={''} label={this.labels[1]} onEnter={onSave} onEscape={onCancel} />
+                <LabelEditor className={''} label={this.labels[2]} onEnter={onSave} onEscape={onCancel} />
+                <LabelEditor className={''} label={this.labels[3]} onEnter={onSave} onEscape={onCancel} />
                 <div>
                     <OkEditSegmentButton
                         enabled={true}

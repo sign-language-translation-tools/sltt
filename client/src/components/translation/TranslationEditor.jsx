@@ -29,7 +29,8 @@ class TranslationEditor extends Component {
         super(props)
 
         extendObservable(this, { 
-            tourOpen: false
+            tourOpen: false,
+            tourSelector: '',
         })
 
         let { project } = this.props
@@ -59,7 +60,7 @@ class TranslationEditor extends Component {
         let { project } = this.props
         // eslint-disable-next-line
         let { note, videoTourSignedUrl } = project
-        let { remote, tourOpen } = this
+        let { remote, tourOpen, tourSelector } = this
 
         return (
             <div ref={c => { this.topDiv = c }}>
@@ -76,6 +77,7 @@ class TranslationEditor extends Component {
                             project={project}
                             openTour={() => {
                                 setTourProject(project)
+                                this.getCurrentStep(0)
                                 this.tourOpen = true
                             }}
                             tourOpen={tourOpen}
@@ -86,11 +88,13 @@ class TranslationEditor extends Component {
                     <div className="translation-right-pane">
                         <TranslationRightPane 
                             project={project}
-                            remote={remote} />
+                            remote={remote} 
+                            tourSelector={tourSelector} />
                     </div>
                 </div>
                 <Tour
                     steps={tourSteps}
+                    getCurrentStep={this.getCurrentStep.bind(this)}
                     maskClassName="tour-mask"
                     isOpen={tourOpen}
                     showNavigation={false}
@@ -102,7 +106,13 @@ class TranslationEditor extends Component {
         )
     }
 
+    getCurrentStep(stepNum) {
+        this.tourSelector = tourSteps[stepNum].selector
+        console.log('getCurrentStep', stepNum)
+    }
+
     onCloseTour() {
+        this.tourSelector = null
         this.tourOpen = false
     }
 

@@ -10,10 +10,11 @@ class TranslationRightPane extends React.Component {
     static propTypes = {
         project: PropTypes.object.isRequired,
         remote: PropTypes.object.isRequired,
+        tourSelector: PropTypes.string,
     }
 
     render() {
-        let { project, remote } = this.props
+        let { project, remote, tourSelector } = this.props
 
         // If I try to move the following to a .css file it stops working.
         // I have no idea why.
@@ -26,6 +27,7 @@ class TranslationRightPane extends React.Component {
                 <TabList>
                     <Tab key='segments'>
                         <PassageSegmentsIcon 
+                            className='sl-show-passage-sement'
                             enabled={true}
                             style={passageSegmentIconStyle}
                             tooltip="Show video segments in this passage." />
@@ -33,7 +35,7 @@ class TranslationRightPane extends React.Component {
                 </TabList>
 
                 <TabPanel key='segments'>
-                    <SegmentsEditor project={project} remote={remote} />
+                    <SegmentsEditor project={project} remote={remote} tourSelector={tourSelector} />
                 </TabPanel>
             </Tabs>
         )

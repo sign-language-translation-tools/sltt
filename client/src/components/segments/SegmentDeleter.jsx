@@ -11,7 +11,7 @@ import { DeleteSegmentButton } from '../utils/Buttons.jsx'
 
 class SegmentDeleter extends React.Component {
     static propTypes = {
-        segment: PropTypes.object.isRequired,
+        segment: PropTypes.object,
         remote: PropTypes.object.isRequired,
         iAmConsultant: PropTypes.bool,
     }

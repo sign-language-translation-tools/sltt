@@ -103,6 +103,7 @@ class VideoToolbar extends Component {
 
                     {createSegment &&
                         <PassageSegmentsIcon
+                            className={'sl-create-passage-segment'}
                             style={passageSegmentIconStyle}
                             tooltip="Create new segment in this video"
                             enabled={createSegmentEnabled}

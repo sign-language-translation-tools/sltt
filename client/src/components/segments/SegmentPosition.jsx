@@ -13,6 +13,7 @@ class SegmentPosition extends Component {
         remote: PropTypes.object,
         iAmConsultant: PropTypes.bool,
         setEditing: PropTypes.func.isRequired,
+        tourSelector: PropTypes.string,
     }
 
     constructor(props) {
@@ -24,7 +25,7 @@ class SegmentPosition extends Component {
     }
 
     render() {
-        let { segment, remote, setEditing, iAmConsultant } = this.props
+        let { segment, remote, setEditing, iAmConsultant, tourSelector } = this.props
         if (!segment) return null
 
         let { position } = segment
@@ -50,6 +51,8 @@ class SegmentPosition extends Component {
                 <span className="segment-heading">Starts At:</span> 
                 <span className="segment-position-text">{ position.toFixed(2) }</span>
                 <EditSegmentButton
+                    className="sl-edit-segment-position-button"
+                    tourSelector={tourSelector}
                     tooltip={tooltip}
                     enabled={enabled && iAmConsultant}
                     onClick={() =>  { 

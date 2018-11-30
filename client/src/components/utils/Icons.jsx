@@ -3,7 +3,7 @@ import React from 'react'
 // Horizontal black line bisected by a vertical light blue line
 // Refers to a segment of a video
 
-export const PassageSegmentsIcon = function ({ tooltip, onClick, enabled, style }) {
+export const PassageSegmentsIcon = function ({ tooltip, onClick, enabled, style, className }) {
     let verticalColor, horizontalColor
     if (enabled) {
         verticalColor = 'lightblue'
@@ -14,11 +14,13 @@ export const PassageSegmentsIcon = function ({ tooltip, onClick, enabled, style 
     }
 
     return (
-        <span 
+
+        <span className={className}
                 onClick={() => onClick && onClick()}
                 data-toggle="tooltip"
                 title={tooltip} >
             <svg style={style}
+                    className="sl-create-passage-segment-svg"
                     width="24" 
                     height="25" 
                     xmlns="http://www.w3.org/2000/svg">

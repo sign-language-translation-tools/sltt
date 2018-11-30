@@ -14,8 +14,127 @@ export const getTourProject = function () {
     return _project
 }
 
-
 export const tourSteps = [
+    {
+        selector: '.sl-create-passage-segment-svg',
+        position: 'bottom',
+        content: (<div>Click to create a new segment at the current position in the video timeline.
+                      A vertical light blue bar is
+                      inserted in the timeline to mark the beginning of this segment.
+                      <TourVideo stepName='create-passage-segment' />
+        </div>)
+    },
+
+    {
+        selector: '.segment-selector',
+        position: 'bottom',
+        content: (<div>
+            Use the arrows to select a segment OR
+            click in the video timeline to select the corresponding
+            segment.
+                    <TourVideo stepName='' /></div>)
+    },
+
+    {
+        selector: '.sl-edit-segment-labels-button',
+        position: 'bottom',
+        content: (<div>Click this to add, remove, or change labels for this segment.
+                       You will see the following dialog ... <TourVideo stepName='' /></div>)
+    },
+
+    {
+        selector: '.segment-labels-top-left',
+        position: 'left',
+        content: (<div>Enter the label for the top left corner of this segment here.<TourVideo stepName='' /></div>)
+    },
+
+    {
+        selector: '.sl-ok-edit-segment-lables-button',
+        position: 'left',
+        content: (<div>Click here to save your label changes.<TourVideo stepName='' /></div>)
+    },
+
+    {
+        selector: '.sl-edit-segment-position-button',
+        position: 'bottom',
+        content: (<div>Click to adjust the <strong>Starts At</strong> time for this segment.<TourVideo stepName='' /></div>)
+    },
+
+    {
+        selector: '.sl-play-segment-button',
+        position: 'bottom',
+        content: (<div>Play the video for just this segment.
+                       Keyboard shortcut: Command-Space.
+                    <TourVideo stepName='' /></div>)
+    },
+
+    {
+        selector: '.sl-record-segment-button',
+        position: 'bottom',
+        content: (<div>Record a new video for this segment. 
+                       If you like the new video, you can patch the new video into the passage. 
+                       You can adjust the start/stop times
+                       to make the patch fit smoothly.<TourVideo stepName='' /></div>)
+    },
+
+    {
+        selector: '.sl-play-bible-button',
+        position: 'bottom',
+        content: (<div>View this segment in another published
+                       sign language Bible, e.g. ASLV.<TourVideo stepName='' /></div>)
+    },
+
+    {
+        selector: '.sl-select-bible-button',
+        position: 'bottom',
+        content: (<div>Choose which published sign language Bible you wish to view.
+                       Only the Bibles which have video for this segment are shown.<TourVideo stepName='' /></div>)
+    },
+
+    {
+        selector: '.sl-play-previous-draft-segment-svg',
+        position: 'bottom',
+        content: (<div>
+                      Play the video for this segment from the PREVIOUS DRAFT.
+                      This allows you to compare the previous draft of this segment to the current draft.
+                      Keyboard shortcut: Option-Space.
+                      <TourVideo stepName='' /></div>)
+    },
+
+    {
+        selector: '.sl-select-previous-draft-segment-button',
+        position: 'bottom',
+        content: (<div>
+                     By default we play the same segment from the previous draft.
+                     Click here to choose an earlier draft or a different segment.
+                     <TourVideo stepName='' /></div>)
+    },
+
+    {
+        selector: '.segment-caption-heading',
+        position: 'left',
+        content: (<div>
+            A project may optionally enter a caption for this segment.
+            Some projects use this to enter a back translation of the segment.
+                     <TourVideo stepName='' /></div>)
+    },
+
+    {
+        selector: '.sl-edit-segment-caption-button',
+        position: 'left',
+        content: (<div>
+            Click this to add or edit a caption for this segment.
+                     <TourVideo stepName='' /></div>)
+    },
+
+    {
+        selector: '.sl-dictate-segment-caption-button',
+        position: 'left',
+        content: (<div>
+            Click this to play the segment and transcribe what the interpreter dictates.
+                     <TourVideo stepName='' /></div>)
+    },
+
     {
         selector: '.edit-members-button',
         position: 'bottom',

@@ -193,7 +193,7 @@ class VideoMain extends Component {
 
     keydown(e) {
         let { remote } = this.props
-        log(`keydown code=${e.code}, control=${e.ctrlKey}, remote status=${remote.status}`,e)
+        //log(`keydown code=${e.code}, control=${e.ctrlKey}, remote status=${remote.status}`,e)
 
         let adjustCurrentTime = function(delta) {
             e.preventDefault()

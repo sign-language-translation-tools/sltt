@@ -1,6 +1,8 @@
 import { extendObservable } from 'mobx'
 import debug from 'debug'
 
+import { displayError } from '../utils/Errors.jsx'
+
 const log = debug('sltt:User') 
 
 // Provide the current name and OpenID id_token for the user.
@@ -47,11 +49,18 @@ class User {
         let options = { prompt: 'select_account' }
         const auth2 = gapi.auth2.getAuthInstance()
 
-        auth2.signIn(options).then(googleUser => {
-            log('googleLogin done')
-            let id_token = googleUser.getAuthResponse().id_token
-            this.setIdToken(id_token)
-        })
+        auth2.signIn(options)
+            .then(googleUser => {
+                log('googleLogin done')
+                let id_token = googleUser.getAuthResponse().id_token
+                this.setIdToken(id_token)
+            })
+            .catch(err => {
+                this.setIdToken('')
+
+                log('googleLogin ERROR', err)
+                displayError(err)
+            })
     }
 
     setIdToken(id_token) {
