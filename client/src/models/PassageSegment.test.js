@@ -61,18 +61,20 @@ const setup = async function() {
 // Test PassageSegment related functions
 const test = async function() {
     await video.addSegment(1)
-    expect(video.segments.length).toBe(1)
+    // We expect two segments because we automatically create a segment at time 0
+    expect(video.sortedSegments.map(s => s.position)).toEqual([0, 1])
+    segmentCreated = video.sortedSegments[1].segmentCreated
     
     await video.addSegment(3)
-    expect(video.segments.length).toBe(2)
+    expect(video.sortedSegments.map(s => s.position)).toEqual([0, 1, 3])
     
-    let segment = video.segments[0]
+    let segment = video.segments[1]
     await segment.upsertPosition(2.5)
-    expect(video.segments[0].position).toBe(2.5)
+    expect(video.sortedSegments.map(s => s.position)).toEqual([0, 2.5, 3])
 
-    let segmentCreated2 = video.segments[1].segmentCreated
+    let segmentCreated2 = video.sortedSegments[2].segmentCreated
     await video.removeSegment(segmentCreated2)
-    expect(video.segments.length).toBe(1)
+    expect(video.sortedSegments.map(s => s.position)).toEqual([0, 2.5])
 }
 
 // Test ability to reload PassageSegments
@@ -97,10 +99,9 @@ const testReload = async function () {
     
     let passage = portions2.portions[0].passages[0]
     expect(passage.videos.length).toBe(1)
-    expect(passage.videos[0].segments.length).toBe(1)
-    let seg = getSnapshot(passage.videos[0].segments[0])
-    //console.log(JSON.stringify(seg, null, 3))
-
+    expect(video.sortedSegments.map(s => s.position)).toEqual([0, 2.5])
+    
+    let seg = getSnapshot(passage.videos[0].sortedSegments[1])
     expect(seg).toEqual(_seg)
 }
 

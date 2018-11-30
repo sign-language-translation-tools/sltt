@@ -16,20 +16,21 @@ stage 1 - edit/display single label
       4 - play/pause previous revision
       5 - CC field (include dictate)
 
-when you create a video make sure it is named in '1 of 2'
-when you delete 2 of 2 show 1 of 1
-should not allow this while editing labels either
-wbn if 'enter' closed label editor
-make label edit field narrower so it does not wrap
-
 verify passagesegment tests still work
 test (mark the first few verses in the video)
-record demo???
 
-push to git, server
+push to git, then to server
 ===================
 
-play segment UI
+Add UI and dummy dialogs
+    play segment
+    play segment from previous revision
+    record/patch segment
+    play reference project
+    CC
+    
+record sgment demo???
+
 play segment
 play segment from previous revision
 
