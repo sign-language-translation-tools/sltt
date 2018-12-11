@@ -12,6 +12,13 @@
 // centralized logging
 // make pouchdb-fauxton available
 
+// This allows us to get a heap dump with the following (replace with correct process number)
+//     kill -USR2 29431
+// Unfortunately this requires twice the currently allocated memory so it must be done
+// before the process gets into memory trouble
+
+const heapdump = require('heapdump')
+
 
 const { _PouchDB } = require('./src/_PouchDB.js')
 let express = require('express')
