@@ -50,6 +50,8 @@ function intercept(req, resp, next) {
     expressPouchdb(req, resp, next)
 }
 
+app.use(logRequest) // Moved here to log all CORS requests
+
 app.use(cors({ 
     credentials: true, 
     origin: ['http://localhost:3000', 'https://sl.paratext.org'], 
@@ -59,7 +61,7 @@ app.use(cors({
 // CORS interactions. Note that this means if the CORS processing fails it will make
 // it look like the server is getting no request at all. If you suspect CORS
 // problems move this before the CORS line.
-app.use(logRequest)
+// app.use(logRequest)
 
 let pingCount = 0
 
