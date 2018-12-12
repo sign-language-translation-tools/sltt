@@ -46,6 +46,13 @@ export const createDb = function(name) {
     return db
 }
 
+// The following allows doing things like this in the console window ...
+//
+//    db = window._createDb('LSPeru')
+//    db.get('members').then(doc => console.log(doc))
+
+window._createDb = createDb
+
 export const destroyTestDbs = function (done) {
     let options = {
         method: 'GET',
