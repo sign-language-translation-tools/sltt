@@ -134,13 +134,7 @@ export const Portion = types.model("Portion", {
                     resolve()
                 })
                 .catch(err => {
-                    let projectName = '*unknown*'
-                    try {
-                        projectName = self.getProject().name
-                    }
-                    catch (err) {}
-
-                    let message = `[${projectName}/${self.name}] Portion.load ${err.stack}`
+                    let message = `${self.getName()} Portion.load ${err.stack}`
                     console.log(message)
                     debug('*** ' + message)
                     reject(message)
@@ -167,7 +161,7 @@ export const Portion = types.model("Portion", {
         let name = parts[1]
         let passage = _.findWhere(self.passages, { name })
         if (!passage) {
-            debug(`*** no matching passage for ${doc._id}`)
+            debug(`${ self.getName() } *** no matching passage for ${doc._id}`)
             return
         }
 
@@ -217,7 +211,7 @@ export const Portion = types.model("Portion", {
 
         let videosId = itemsId.slice('#item/'.length)
 
-        debug(`removePassages ${itemsId}, ${videosId}`)
+        debug(`${self.getName()} removePassages ${itemsId}, ${videosId}`)
 
         let _db = self.getDb()
 
@@ -272,7 +266,7 @@ export const Portion = types.model("Portion", {
         // eslint-disable-next-line
         let err = self.checkName(name)
         if (err) {
-            debug(`*** rename ${err}`)
+            debug(`${self.getName()} *** rename ${err}`)
             cb && cb(err)
             return
         }
@@ -290,6 +284,17 @@ export const Portion = types.model("Portion", {
     getProject: () => {
         let project = getParent(self, 3)
         return project
+    },
+
+    // Get name of portion for debugging purposes.
+    // Don't crash no matter what.
+    getName: () => {
+        try {
+            let project = self.getProject()
+            return `[${project.name}/${self.name}]` 
+        } catch (err) {
+            return '*unknown*'
+        }
     },
 
 }))
@@ -311,7 +316,7 @@ export const Portions = types.model("Portions", {
 
     return {
         load: () => {
-            debug(`Portions#load`)
+            debug(`[${self.getProjectName()}] Portions#load`)
 
             let options = {
                 startkey: '#item/',
@@ -325,7 +330,7 @@ export const Portions = types.model("Portions", {
             return new Promise((resolve, reject) => {
                 _db.allDocs(options)
                     .then(response => {
-                        debug(`   Portions#load [rows=${response.rows.length}]`)
+                        debug(`   [${self.getProjectName()}] Portions#load [rows=${response.rows.length}]`)
                         // response = {rows: [{doc: {...} }]}
 
                         // Process portions first so we have an owner for each passage
@@ -372,7 +377,7 @@ export const Portions = types.model("Portions", {
             let name = parts[0]
             let portion = _.findWhere(self.portions, { name })
             if (!portion) {
-                console.warn(`[${self.project.name}] Portions#apply non item Portion not found [${doc._id}]`)
+                console.warn(`[${self.getProjectName()}] Portions#apply non item Portion not found [${doc._id}]`)
                 return
             }
 
@@ -386,6 +391,14 @@ export const Portions = types.model("Portions", {
         getProject: () => {
             let project = getParent(self, 1)
             return project
+        },
+
+        getProjectName: () => {
+            try {
+                return self.getProject().name
+            } catch (err) {
+                return '*unknown*'
+            }
         },
 
         movePortion: (_id, newIndex, cb) => {
@@ -436,7 +449,7 @@ export const Portions = types.model("Portions", {
 
             let videosId = itemsId.slice('#item/'.length)
 
-            debug('Portions#removePortions', itemsId, videosId)
+            debug(`[${self.getProjectName()}] Portions#removePortions`, itemsId, videosId)
 
             removeFromDB(_db, videosId)
                 .then(removeFromDB(_db, itemsId))

@@ -61,6 +61,14 @@ app.use(cors({
 // problems move this before the CORS line.
 app.use(logRequest)
 
+let pingCount = 0
+
+// Respond to ping request with 200 status
+app.use('/ping', (req, res) => {
+    pingCount += 1
+    res.send(`pong ${pingCount}`).status(200).end()
+})
+
 //app.use((req, resp, next) => {
 //    resp.status(500).send('FAIL')
 //})

@@ -40,24 +40,38 @@ export const Members = types.model("Members", {
             applySnapshot(self, doc)
         },
 
+        getProject() {
+            return getParent(self, 1)
+        },
+
+        getProjectName: () => {
+            try {
+                return self.getProject().name
+            } catch (err) {
+                return '*unknown*'
+            }
+        },
+
         initDb: () => {
-            if (!_db) _db = getParent(self, 1).getDb()
+            if (!_db) _db = self.getProject().getDb()
         },
 
         load: () => {
-            debug('load')
+            debug(`[${self.getProjectName()}] load`)
             self.initDb()
 
             return new Promise ((resolve, reject) => {
+                debug(`[${self.getProjectName()}] get`)
+
                 _db.get(self._id)
                    .then(doc => {
-                        debug('applySnapshot')
+                       debug(`[${self.getProjectName()}] applySnapshot`)
                         // _rev = doc._rev
                         applySnapshot(self, doc)
                         resolve(doc)
                    })
                    .catch(err => {
-                       debug(`*** load error ${err}`)
+                       debug(`[${self.getProjectName()}] *** load error ${err}`)
                        reject(err)
                    })
             }) 
@@ -67,14 +81,14 @@ export const Members = types.model("Members", {
 
         // Add a new member.
         add: (email, cb) => {
-            debug(`add ${email}`)
+            debug(`[${self.getProjectName()}] add ${email}`)
             self.initDb()
 
             email = email.trim()
             let err = self.canAdd(email)
             if (err) {
                 if (cb) {
-                    debug(`*** add error = ${err}`)
+                    debug(`[${self.getProjectName()}] *** add error = ${err}`)
                     cb(err)
                     return
                 }
@@ -94,7 +108,7 @@ export const Members = types.model("Members", {
             _db.upsert('members', add)
                .then(() => { cb && cb() })
                .catch(err => {
-                   debug(`*** add upsert error = ${err}`)
+                   debug(`[${self.getProjectName()}] *** add upsert error = ${err}`)
                    cb && cb(err)
                 })
         },
@@ -116,7 +130,7 @@ export const Members = types.model("Members", {
         },
 
         delete: (email, cb) => {
-            debug(`delete ${email}`)
+            debug(`[${self.getProjectName()}] delete ${email}`)
             self.initDb()
             email = email.trim()
             
@@ -132,7 +146,7 @@ export const Members = types.model("Members", {
             _db.upsert('members', deleteMember)
             .then(() => { cb && cb() })
             .catch(err => {
-                debug(`*** delete upsert error = ${err}`)
+                debug(`[${self.getProjectName()}] *** delete upsert error = ${err}`)
                 cb && cb(err)
             })
         },
@@ -153,7 +167,7 @@ export const Members = types.model("Members", {
             _db.upsert('members', _setRole)
             .then(() => { cb && cb() })
             .catch(err => {
-                debug(`*** setRole upsert error = ${err}`)
+                debug(`[${self.getProjectName()}] *** setRole upsert error = ${err}`)
                 cb && cb(err)
             })
         }
