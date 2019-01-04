@@ -48,8 +48,7 @@ export const createDb = function(name) {
 
 // The following allows doing things like this in the console window ...
 //
-//    db = window._createDb('LSPeru')
-//    db.get('members').then(doc => console.log(doc))
+//    window._createDb('LSPeru').get('members').then(doc => console.log(doc))
 
 window._createDb = createDb
 
