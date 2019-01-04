@@ -1,0 +1,27 @@
+---
+- hosts: _sltt
+  become: true
+  become_method: sudo
+
+  tasks:
+    - name: Install yum packages
+      yum:
+        state: latest
+        name: "{{ packages }}"
+      vars:
+        packages:
+        - git
+        - nodejs
+        - npm
+
+    - name: install n (node version installer/switcher)
+      npm: name=n state=present global=yes
+
+    - name: install the latest stable version of node
+      shell: n lts
+
+    - name: Create web user
+      user: name=web
+
+    - name: Create project folder
+      file: path=/var/www/sltt group=web owner=web mode=755 state=directory
