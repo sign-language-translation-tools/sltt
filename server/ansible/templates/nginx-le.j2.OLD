@@ -27,7 +27,7 @@ server {
     ssl_dhparam /etc/nginx/dhparams.pem;
     ssl_prefer_server_ciphers on;
 
-    root /var/www/{{ domain_name }};
+    root /var/www/sltt/client/build;
     index index.html index.htm;
 
     location / {

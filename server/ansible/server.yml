@@ -7,12 +7,6 @@
     sltt: /var/www/sltt
 
   tasks:
-    - name: Install pm2
-      npm: name=pm2 state=present global=yes
-
-    - name: Install yarn
-      npm: name=yarn state=present global=yes
-
     - name: Stop the service
       command: pm2 stop sltt
       ignore_errors: yes
@@ -43,16 +37,6 @@
       template:
         src: templates/sltt.json.j2
         dest: "{{sltt}}/sltt.json"
-
-    - name: Create projects db directory
-      file:
-        path: "{{sltt}}/projects"
-        state: directory
-
-    - name: Create videos directory
-      file:
-        path: "{{sltt}}/videos"
-        state: directory
 
     - name: Start sltt server
       command: pm2 start sltt.json

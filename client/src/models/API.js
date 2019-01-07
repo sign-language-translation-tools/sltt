@@ -13,15 +13,19 @@ const log = require('debug')('sltt:API')
 
 export function getHostUrl() {
     let hostUrl = 'https://sl.paratext.org:4000'
+    let hostName = process.env.REACT_APP_NODE_HOSTNAME
 
     // process.env comes from the .env.development and .env.production files.
     // Only variable names starting with REACT_APP are imported!
     // To see these values when debugging use a console.log.
     // You CANNOT see the process.env values in the debug console or watch window!
     
-    if (process.env.REACT_APP_NODE_HOSTNAME === 'localhost') {
+    if (hostName === 'localhost') {
         hostUrl = 'http://localhost:3001'
         log(`hostUrl=LOCALHOST:3001`)
+    } else if (hostName) {
+        hostUrl = `https://${hostName}:4000`
+        log(`hostUrl=${hostUrl}`)
     }
 
     return hostUrl

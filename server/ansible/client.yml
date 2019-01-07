@@ -1,0 +1,25 @@
+---
+- hosts: _sltt
+  become: true
+  become_method: sudo
+  vars:
+    repository: https://github.com/sign-language-translation-tools/sltt.git
+    sltt: /var/www/sltt
+
+  tasks:
+    - name: Clone/Pull repo
+      git:
+        repo: "{{repository}}"
+        dest: /var/www/sltt
+
+    - name: Install client dependencies using yarn
+      yarn: 
+        path: "{{sltt}}/client"
+
+    - name: Build client
+      command: yarn build
+      args:
+        chdir: "{{sltt}}/client"
+
+    - name: Reload nginx to serve latest client build
+      service: name=nginx state=restarted

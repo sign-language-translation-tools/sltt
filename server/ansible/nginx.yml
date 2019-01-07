@@ -48,8 +48,8 @@
 
     - name: Install nginx site for specified site
       template:
-        src: templates/nginx-le.j2
-        dest: /etc/nginx/sites-enabled/le
+        src: templates/nginx-sltt.j2
+        dest: /etc/nginx/sites-enabled/sltt`
 
     - name: Reload nginx to activate specified site
       service: name=nginx state=restarted

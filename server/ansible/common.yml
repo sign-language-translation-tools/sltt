@@ -23,5 +23,22 @@
     - name: Create web user
       user: name=web
 
-    - name: Create project folder
-      file: path=/var/www/sltt group=web owner=web mode=755 state=directory
+    - name: Create sltt directories
+      file: 
+        group: web 
+        owner: web 
+        mode: 755 
+        state: directory
+        path: "{{ item }}"
+      loop:
+        - "/var/www/sltt"
+        - "/var/www/sltt/projects"
+        - "/var/www/sltt/videos"
+        - "/var/www/sltt/log"
+
+    - name: Install pm2
+      npm: name=pm2 state=present global=yes
+
+    - name: Install yarn
+      npm: name=yarn state=present global=yes
+
