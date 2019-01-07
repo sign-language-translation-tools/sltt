@@ -1,0 +1,68 @@
+---
+- hosts: _sltt
+  become: true
+  become_method: sudo
+  vars:
+    repository: https://github.com/sign-language-translation-tools/sltt.git
+
+  tasks:
+    - name: Install pm2
+      npm: name=pm2 state=present global=yes
+
+    - name: Install yarn
+      npm: name=yarn state=present global=yes
+
+    # - name: Stop the service
+    #   command: pm2 stop sltt
+    #   become: true
+    #   ignore_errors: yes
+
+    # - name: Delete the service
+    #   command: pm2 delete sltt
+    #   become: true
+    #   ignore_errors: yes
+
+    - name: Clone/Pull repo
+      git:
+        repo: "{{repository}}"
+        dest: /var/www/sltt
+
+    - name: Yarn install
+      yarn: 
+        path: /var/www/sltt/server
+
+# Patch
+# Setup secrets
+
+# - name: Cleanup
+#   file:
+#     path: "{{deployment_basedir}}"
+#     state: absent
+#   become: true
+
+# - name: Create directory for service
+#   file:
+#     path: "{{deployment_basedir}}"
+#     state: directory
+
+# - name: Move service package to build based folder
+#   command: mv {{deployment_basedir}}/package {{deployment_appdir}}
+
+# - name: link service
+#   file:
+#     src: "{{deployment_appdir}}"
+#     dest: "{{application_dir}}"
+#     state: link
+
+
+# - name: Start service
+#   command: env NODE_ENV={{NODE_ENV}} pm2 start npm --name {{service_name}} --instances 1 --max-restarts 5 -- run start:prod
+#   become: true
+#   args:
+#     chdir: "{{application_dir}}"
+
+# - name: Save service settings
+#   command: pm2 save
+#   become: true
+#   args:
+#     chdir: "{{application_dir}}"
