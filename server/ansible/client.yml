@@ -21,7 +21,7 @@
       args:
         chdir: "{{sltt}}/client"
       environment:
-        REACT_APP_NODE_HOSTNAME: http://proxy.example.com:8080
+        REACT_APP_NODE_HOSTNAME: "{{ domain_name }}"
 
     - name: Reload nginx to serve latest client build
       service: name=nginx state=restarted

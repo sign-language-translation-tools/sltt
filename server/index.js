@@ -54,7 +54,9 @@ app.use(logRequest) // Moved here to log all CORS requests
 
 app.use(cors({ 
     credentials: true, 
-    origin: ['http://localhost:3000', 'https://sl.paratext.org'], 
+    origin: [
+        'http://localhost:3000', 'https://sl.paratext.org', 'https://sltt.octopus.run'
+    ], 
 }))
 
 // We put the logRequest after CORS so that we do not see the (normally trivial)
