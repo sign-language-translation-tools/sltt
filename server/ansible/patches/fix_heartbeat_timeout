@@ -1,0 +1,8 @@
+@@ -34,6 +34,7 @@
+       heartbeatInterval = setInterval(function () {
+         written = true;
+         res.write('\n');
++        if (res.flush) { res.flush(); }   // ADDED NLM TO FIX TIMEOUT
+       }, heartbeat);
+ 
+       var cleanup = function () {

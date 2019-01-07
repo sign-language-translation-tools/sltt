@@ -27,9 +27,15 @@
         repo: "{{repository}}"
         dest: /var/www/sltt
 
-    - name: Yarn install
+    - name: Install server npm depenencies using yarn
       yarn: 
         path: /var/www/sltt/server
+
+    - name: Apply heartbeat timeout fix patch
+      patch:
+        src: /var/www/sltt/server/ansible/patches/fix_heartbeat_timeout
+        dest: /var/www/sltt/server/node_modules/express-pouchdb/lib/routes/changes.js
+        remote_src: yes
 
 # Patch
 # Setup secrets
