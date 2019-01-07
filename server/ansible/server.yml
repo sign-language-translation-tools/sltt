@@ -4,6 +4,7 @@
   become_method: sudo
   vars:
     repository: https://github.com/sign-language-translation-tools/sltt.git
+    sltt: /var/www/sltt
 
   tasks:
     - name: Install pm2
@@ -12,15 +13,13 @@
     - name: Install yarn
       npm: name=yarn state=present global=yes
 
-    # - name: Stop the service
-    #   command: pm2 stop sltt
-    #   become: true
-    #   ignore_errors: yes
+    - name: Stop the service
+      command: pm2 stop sltt
+      ignore_errors: yes
 
-    # - name: Delete the service
-    #   command: pm2 delete sltt
-    #   become: true
-    #   ignore_errors: yes
+    - name: Delete the service
+      command: pm2 delete sltt
+      ignore_errors: yes
 
     - name: Clone/Pull repo
       git:
@@ -29,46 +28,38 @@
 
     - name: Install server npm depenencies using yarn
       yarn: 
-        path: /var/www/sltt/server
+        path: "{{sltt}}/server"
 
     - name: Apply heartbeat timeout fix patch
       patch:
-        src: /var/www/sltt/server/ansible/patches/fix_heartbeat_timeout
-        dest: /var/www/sltt/server/node_modules/express-pouchdb/lib/routes/changes.js
+        src: "{{sltt}}/server/ansible/patches/fix_heartbeat_timeout"
+        dest: "{{sltt}}/server/node_modules/express-pouchdb/lib/routes/changes.js"
         remote_src: yes
 
-# Patch
-# Setup secrets
+    - name: Include secret valued variables for sltt.json
+      include_vars: secrets.yml
 
-# - name: Cleanup
-#   file:
-#     path: "{{deployment_basedir}}"
-#     state: absent
-#   become: true
+    - name: Create pm2 config for app
+      template:
+        src: templates/sltt.json.j2
+        dest: "{{sltt}}/sltt.json"
 
-# - name: Create directory for service
-#   file:
-#     path: "{{deployment_basedir}}"
-#     state: directory
+    - name: Create projects db directory
+      file:
+        path: "{{sltt}}/projects"
+        state: directory
 
-# - name: Move service package to build based folder
-#   command: mv {{deployment_basedir}}/package {{deployment_appdir}}
+    - name: Create videos directory
+      file:
+        path: "{{sltt}}/videos"
+        state: directory
 
-# - name: link service
-#   file:
-#     src: "{{deployment_appdir}}"
-#     dest: "{{application_dir}}"
-#     state: link
+    - name: Start sltt server
+      command: pm2 start sltt.json
+      args:
+        chdir: "{{sltt}}"
 
-
-# - name: Start service
-#   command: env NODE_ENV={{NODE_ENV}} pm2 start npm --name {{service_name}} --instances 1 --max-restarts 5 -- run start:prod
-#   become: true
-#   args:
-#     chdir: "{{application_dir}}"
-
-# - name: Save service settings
-#   command: pm2 save
-#   become: true
-#   args:
-#     chdir: "{{application_dir}}"
+    - name: Save service settings
+      command: pm2 save
+      args:
+        chdir: "{{sltt}}"

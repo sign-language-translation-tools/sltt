@@ -1,0 +1,19 @@
+{
+  "apps" : [{
+    "name"        : "sltt",
+    "script"      : "/var/www/sltt/server/index.js",
+    "args"        : "--max_old_space_size=400",
+    "log_date_format" : "[(]HHmmss[)]",
+    "env": {
+      "SLTT_ROOT_USERS": "{{ SLTT_ROOT_USERS }}",
+      "SLTTDEBUG": "1",
+      "SLTT_UPLOADER_ACCESS_KEY": "{{ SLTT_UPLOADER_ACCESS_KEY }}",
+      "SLTT_UPLOADER_SECRET_ACCESS_KEY": "{{ SLTT_UPLOADER_SECRET_ACCESS_KEY }}",
+      "SLTT_VIDEOS_DIR": "/var/www/sltt/videos",
+      "SLTT_PROJECTS_DIR": "/var/www/sltt/projects",
+      "SLTT_USER_JWT": "{{ SLTT_USER_JWT }}",
+      "SLTT_USER": "{{ SLTT_USER }}",
+      "SLTT_BUCKET": "{{ SLTT_BUCKET }}"
+    }
+  }]
+}
